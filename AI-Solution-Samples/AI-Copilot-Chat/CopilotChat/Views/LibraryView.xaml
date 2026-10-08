@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentView
+    x:Class="CopilotChat.Views.LibraryView"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:services="clr-namespace:CopilotChat.Services"
+    BackgroundColor="{StaticResource PageBackground}">
+
+    <Grid RowDefinitions="Auto,*" Padding="24,20">
+        <VerticalStackLayout Grid.Row="0" Spacing="4">
+            <Label Text="Library" FontSize="24" FontFamily="OpenSansSemibold" />
+            <Label Text="Saved conversations and generated content" FontSize="13" TextColor="{StaticResource TextTertiary}" />
+        </VerticalStackLayout>
+
+        <CollectionView Grid.Row="1" ItemsSource="{Binding DataStore.LibraryItems}" SelectionMode="None" Margin="0,16,0,0">
+            <CollectionView.ItemTemplate>
+                <DataTemplate x:DataType="services:LibraryItem">
+                    <Border
+                        Margin="0,0,0,10"
+                        BackgroundColor="{StaticResource CardBackground}"
+                        Stroke="{StaticResource DividerColor}"
+                        StrokeThickness="1"
+                        StrokeShape="RoundRectangle 12"
+                        Padding="14">
+                        <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="12">
+                            <Border
+                                WidthRequest="40" HeightRequest="40"
+                                StrokeThickness="0"
+                                StrokeShape="RoundRectangle 10"
+                                BackgroundColor="{StaticResource PrimaryLight}">
+                                <Label Text="📄" FontSize="18" HorizontalOptions="Center" VerticalOptions="Center" />
+                            </Border>
+                            <VerticalStackLayout Grid.Column="1" Spacing="2" VerticalOptions="Center">
+                                <Label Text="{Binding Title}" FontFamily="OpenSansSemibold" FontSize="14" LineBreakMode="TailTruncation" />
+                                <Label Text="{Binding Type}" FontSize="12" TextColor="{StaticResource TextTertiary}" />
+                            </VerticalStackLayout>
+                            <Label Grid.Column="2" Text="{Binding Date, StringFormat='{0:MMM dd}'}" FontSize="12" TextColor="{StaticResource TextTertiary}" VerticalOptions="Center" />
+                        </Grid>
+                    </Border>
+                </DataTemplate>
+            </CollectionView.ItemTemplate>
+        </CollectionView>
+    </Grid>
+</ContentView>

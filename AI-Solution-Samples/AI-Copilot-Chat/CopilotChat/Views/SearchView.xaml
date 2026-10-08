@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentView
+    x:Class="CopilotChat.Views.SearchView"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:models="clr-namespace:CopilotChat.Models"
+    BackgroundColor="{StaticResource PageBackground}">
+
+    <Grid RowDefinitions="Auto,*" Padding="24,20">
+        <VerticalStackLayout Grid.Row="0" Spacing="16">
+            <Label Text="Search" FontSize="24" FontFamily="OpenSansSemibold" />
+            <Border
+                Stroke="{StaticResource DividerColor}"
+                StrokeThickness="1"
+                StrokeShape="RoundRectangle 28"
+                BackgroundColor="{StaticResource CardBackground}"
+                Padding="16,0">
+                <Entry
+                    Text="{Binding SearchQuery}"
+                    Placeholder="Search chats…"
+                    ReturnType="Search"
+                    HeightRequest="48" />
+            </Border>
+        </VerticalStackLayout>
+
+        <CollectionView Grid.Row="1" ItemsSource="{Binding SearchResults}" SelectionMode="None" Margin="0,16,0,0">
+            <CollectionView.EmptyView>
+                <StackLayout Padding="0,60" HorizontalOptions="Center">
+                    <Label Text="🔍" FontSize="40" HorizontalOptions="Center" />
+                    <Label Text="No results found" FontSize="15" TextColor="{StaticResource TextTertiary}" HorizontalOptions="Center" />
+                </StackLayout>
+            </CollectionView.EmptyView>
+            <CollectionView.ItemTemplate>
+                <DataTemplate x:DataType="models:ChatSession">
+                    <Border
+                        Margin="0,0,0,10"
+                        BackgroundColor="{StaticResource CardBackground}"
+                        Stroke="{StaticResource DividerColor}"
+                        StrokeThickness="1"
+                        StrokeShape="RoundRectangle 12"
+                        Padding="14">
+                        <Grid ColumnDefinitions="*,Auto">
+                            <VerticalStackLayout Spacing="2">
+                                <Label Text="{Binding Title}" FontFamily="OpenSansSemibold" FontSize="14" LineBreakMode="TailTruncation" />
+                                <Label FontSize="12" TextColor="{StaticResource TextTertiary}">
+                                    <Label.FormattedText>
+                                        <FormattedString>
+                                            <Span Text="{Binding LastActiveDate, StringFormat='{0:MMM dd, yyyy}'}" />
+                                        </FormattedString>
+                                    </Label.FormattedText>
+                                </Label>
+                            </VerticalStackLayout>
+                            <Label Grid.Column="1" Text="›" FontSize="18" TextColor="{StaticResource TextTertiary}" VerticalOptions="Center" />
+                        </Grid>
+                    </Border>
+                </DataTemplate>
+            </CollectionView.ItemTemplate>
+        </CollectionView>
+    </Grid>
+</ContentView>

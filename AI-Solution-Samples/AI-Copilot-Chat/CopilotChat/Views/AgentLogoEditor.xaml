@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentView
+    x:Class="CopilotChat.Views.AgentLogoEditor"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:vm="clr-namespace:CopilotChat.ViewModels">
+
+    <Border
+        BackgroundColor="{StaticResource CardBackground}"
+        Stroke="{StaticResource DividerColor}"
+        StrokeThickness="1"
+        StrokeShape="RoundRectangle 16"
+        Padding="18">
+        <VerticalStackLayout Spacing="14">
+
+            <Label Text="Agent logo" FontFamily="OpenSansSemibold" FontSize="13" />
+
+            <!-- Avatar preview -->
+            <Border
+                WidthRequest="84" HeightRequest="84"
+                StrokeThickness="0"
+                StrokeShape="RoundRectangle 42"
+                BackgroundColor="{Binding SelectedColor}"
+                HorizontalOptions="Start">
+                <Label
+                    Text="{Binding Initial}"
+                    TextColor="White"
+                    FontSize="34"
+                    FontFamily="OpenSansSemibold"
+                    HorizontalOptions="Center"
+                    VerticalOptions="Center" />
+            </Border>
+
+            <!-- Upload image -->
+            <Button
+                Text="📷  Upload image"
+                BackgroundColor="{StaticResource PrimaryLight}"
+                TextColor="{StaticResource OnPrimaryLight}"
+                HeightRequest="40"
+                CornerRadius="20"
+                HorizontalOptions="Start"
+                Command="{Binding UploadImageCommand}" />
+
+            <!-- Background color -->
+            <Label Text="Background color" FontFamily="OpenSansSemibold" FontSize="13" Margin="0,4,0,0" />
+            <FlexLayout
+                Direction="Row"
+                Wrap="Wrap"
+                JustifyContent="Start"
+                BindableLayout.ItemsSource="{Binding Colors}">
+                <BindableLayout.ItemTemplate>
+                    <DataTemplate x:DataType="x:String">
+                        <Border
+                            WidthRequest="36" HeightRequest="36"
+                            Margin="0,0,10,10"
+                            StrokeThickness="3"
+                            Stroke="{Binding ., Converter={StaticResource ColorToHighlightConverter}}"
+                            StrokeShape="RoundRectangle 18"
+                            BackgroundColor="{Binding .}">
+                            <Border.GestureRecognizers>
+                                <TapGestureRecognizer
+                                    Command="{Binding Source={RelativeSource AncestorType={x:Type vm:CreateAgentViewModel}}, Path=SelectColorCommand}"
+                                    CommandParameter="{Binding .}" />
+                            </Border.GestureRecognizers>
+                        </Border>
+                    </DataTemplate>
+                </BindableLayout.ItemTemplate>
+            </FlexLayout>
+
+        </VerticalStackLayout>
+    </Border>
+</ContentView>
