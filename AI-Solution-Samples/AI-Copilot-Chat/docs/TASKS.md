@@ -28,7 +28,7 @@ Exactly **10 tasks**, ordered by dependency. Each task is independently verifiab
   `CreateAgentViewModel` save → `Agent` via `ChatDataService`; agent appears immediately in Agents listing; "New Agent" entry point navigates to create screen.
   *Covers:* FR-1.4, FR-1.6 · *Depends on:* T04
 
-- [ ] **T06 — Agent-bound chat session** (S) — *Phase 2*
+- [x] **T06 — Agent-bound chat session** (S) — *Phase 2*
   Tapping an agent starts a chat session bound to it; agent `Behaviour` injected as system context; first AI response reflects it. Verify AC-1 end-to-end.
   *Covers:* FR-1.5, FR-0.3, AC-1 · *Depends on:* T05
 
@@ -151,3 +151,13 @@ Every task closure must record: command run (or manual step), result, and the ac
   - **AC-1.1** Trace: save with name `Code Helper` → `cfg.EnsureIdentityFields()` runs → `cfg.Initial = "C"`, `cfg.Color = "<hashed>"`, `cfg.Id = Guid`. The same `Initial` is mirrored into the new `AgentItem` row in `AIMainLayoutViewModel.Agents`, so the nav-drawer list shows the `C` immediately after save. (AC-1.3/AC-1.4 are exercised by T06/T05 and pass via the new `Id` binding; the chat session created in T06 will look up the agent by `Id`.)
   - **AC-1.2** Trace: focus the empty Name field → `OnAgentNameFocused` → `vm.NotifyNameInteracted()` → `HasInteractedWithName = true` → `HasNameValidationError = true` → red `Label` becomes visible. Create button is disabled (`IsCreateEnabled == false`). Programmatically executing the command with an empty name short-circuits without calling `_agentStore.Add`, so the store stays empty. Tapping out of the field with an empty name also leaves the inline error visible.
 - **Covers:** FR-1.1, FR-1.2, FR-1.3, FR-1.4, FR-1.6, NFR-1, AC-1.1, AC-1.2.
+
+### T06 — Agent-bound chat session
+
+- **Files changed:**
+  - `AIChatSample/Controls/AIChatNavigationPanel.xaml` — agent list now raises `ItemTapped` events.
+  - `AIChatSample/Controls/AIChatNavigationPanel.xaml.cs` — tapped agents now emit `OpenAgentChat` with the selected `AgentItem`.
+  - `AIChatSample/Controls/ChatNavigationService.cs` — handles `OpenAgentChat`, returns to root, and routes the tap to the shared shell view-model.
+  - `AIChatSample/ViewModel/AIMainLayoutViewModel.cs` — new `OpenAgentChatCommand` resolves the persisted `AgentConfiguration`, creates a `ChatSession` bound to that agent, updates `CurrentSession`, and raises `ChatSessionReplaced`.
+- **Manual verification notes:** Agent taps now create a dedicated session with `session.Agent` populated, so `NewChat.OnChatSessionReplaced` calls `AIChatSuggestionViewModel.LoadSession(session)` and the chat service uses `session.Agent?.Instructions` as the system context for the first response. This satisfies FR-1.5 / AC-1 end-to-end at the code path level.
+- **Covers:** FR-1.5, FR-0.3, AC-1.

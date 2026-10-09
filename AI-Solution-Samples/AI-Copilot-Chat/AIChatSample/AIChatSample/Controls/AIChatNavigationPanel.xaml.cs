@@ -305,6 +305,14 @@ public partial class AIChatNavigationPanel : ContentView, INotifyPropertyChanged
         }
     }
 
+    private void AgentItemTapped(object sender, Syncfusion.Maui.ListView.ItemTappedEventArgs e)
+    {
+        if (e.DataItem is AgentItem item)
+        {
+            RaiseNavigation("OpenAgentChat", item);
+        }
+    }
+
     private static BindableProperty CreateVisibilityProperty(string propertyName) =>
         BindableProperty.Create(propertyName, typeof(bool), typeof(AIChatNavigationPanel), true);
 }

@@ -1,4 +1,5 @@
 using AIChatSample.Models;
+using AIChatSample.Models;
 using AIChatSample.Services;
 using AIChatSample.ViewModel;
 using AIChatSample.Views.AIChat;
@@ -65,6 +66,21 @@ internal static class ChatNavigationService
                     ServiceHelper.GetService<AIMainLayoutViewModel>() is { } layoutVm)
                 {
                     layoutVm.OpenChatCommand.Execute(recentItem);
+                }
+                break;
+
+            case "OpenAgentChat":
+                // FR-1.5: open a new chat session bound to the tapped agent
+                // and carry the agent's Behaviour into the first response.
+                if (currentPage.Navigation.NavigationStack.Count > 1)
+                {
+                    await currentPage.Navigation.PopToRootAsync(animated: true);
+                }
+
+                if (parameter is AgentItem agentItem &&
+                    ServiceHelper.GetService<AIMainLayoutViewModel>() is { } agentLayoutVm)
+                {
+                    agentLayoutVm.OpenAgentChatCommand.Execute(agentItem);
                 }
                 break;
 

@@ -140,7 +140,8 @@
                         <expander:SfExpander.Content>
                             <VerticalStackLayout Spacing="0" BackgroundColor="Transparent">
                                 <listView:SfListView ItemsSource="{Binding Agents}" SelectionMode="Single"
-                                    BackgroundColor="Transparent" SelectionBackground="Transparent">
+                                    BackgroundColor="Transparent" SelectionBackground="Transparent"
+                                    ItemTapped="AgentItemTapped">
                                     <listView:SfListView.ItemTemplate>
                                         <DataTemplate x:DataType="model:AgentItem">
                                             <Grid HeightRequest="42" Padding="36,0,0,0">

@@ -1,4 +1,5 @@
 using AIChatSample.Models;
+using AIChatSample.Models;
 using AIChatSample.Services;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
@@ -411,6 +412,24 @@ namespace AIChatSample.ViewModel
             _chatDataService.TouchSession(session);
             CurrentSession = session;
             ChatSessionReplaced?.Invoke(this, session);
+        }
+
+        private void OnOpenAgentChatClicked(AgentItem? item)
+        {
+            if (item is null || _chatDataService is null || _agentStore is null) return;
+
+            var agent = _agentStore.Agents.FirstOrDefault(a =>
+                string.Equals(a.Id, item.Id, StringComparison.OrdinalIgnoreCase) ||
+                string.Equals(a.AgentName, item.Name, StringComparison.OrdinalIgnoreCase));
+
+            if (agent is null)
+            {
+                return;
+            }
+
+            SelectedAgent = item;
+            CurrentSession = _chatDataService.CreateChatSession(agent.AgentName, agent);
+            ChatSessionReplaced?.Invoke(this, CurrentSession);
         }
 
         private void OnSearchClicked() { }
