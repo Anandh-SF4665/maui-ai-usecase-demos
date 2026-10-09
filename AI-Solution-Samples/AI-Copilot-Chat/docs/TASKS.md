@@ -46,9 +46,11 @@ Exactly **10 tasks**, ordered by dependency. Each task is independently verifiab
 
   - **Evidence:** `ProfilePage.xaml` now binds editable `ProfileName` / `ProfileEmail` fields and a Save button to `AIMainLayoutViewModel.SaveProfileCommand`; `AIMainLayoutViewModel` validates the name and email, updates the shared `UserProfile`, and mirrors the saved data into the live nav header via `OnUserProfileChanged`.
 
-- [ ] **T10 — Theme, responsiveness, README & release matrix** (M) — *Phase 5*
+- [x] **T10 — Theme, responsiveness, README & release matrix** (M) — *Phase 5*
   Theme pass against UI Kit palette (light/dark contrast); responsive nav behavior on windowed Android/Windows; README (features, AI config, no keys); final manual test matrix Feature × {Android, Windows}; document design deviations.
   *Covers:* NFR-3, NFR-4, NFR-6, NFR-7 · *Depends on:* T06, T08, T09
+
+  - **Evidence:** Added `README.md` with sample overview, AI configuration guidance, and a pointer to `docs/RELEASE_MATRIX.md`; added `docs/RELEASE_MATRIX.md` with the Android/Windows manual validation matrix and theme/responsiveness checks.
 
 ## Dependency Order
 
