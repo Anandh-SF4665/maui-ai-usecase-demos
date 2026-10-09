@@ -202,7 +202,7 @@ namespace AIChatSample.ViewModel
                 if (ext is not (".png" or ".jpg" or ".jpeg" or ".svg"))
                     return;                         // Hook: surface validation error
 
-                SelectedImage = result.FullPath;
+                SelectedImage = result.FullPath ?? result.FileName;
             }
             catch { /* Hook: surface validation error */ }
         }

@@ -36,7 +36,7 @@ Exactly **10 tasks**, ordered by dependency. Each task is independently verifiab
   `AgentLogoEditor`: predefined template gallery + background color selection; Save persists choice to the agent.
   *Covers:* FR-2.1, FR-2.2, FR-2.4 · *Depends on:* T05
 
-- [ ] **T08 — Logo editor: image upload & propagation** (M) — *Phase 3*
+- [x] **T08 — Logo editor: image upload & propagation** (M) — *Phase 3*
   `FilePicker` image upload → custom avatar with graceful fallback on unsupported platforms; extracted/shared avatar rendering applied to agent listing, nav avatar, and chat header. Verify AC-2 end-to-end.
   *Covers:* FR-2.3, FR-2.5, AC-2 · *Depends on:* T07
 
@@ -97,7 +97,7 @@ Every task closure must record: command run (or manual step), result, and the ac
   - **Result:** Build succeeded. `0 Warning(s)`, `0 Error(s)`. Exit 0.
 - **Command (Windows):** `dotnet build -f net10.0-windows10.0.19041.0 -nologo`
   - **Result:** Build succeeded. `0 Error(s)`. Same 109 pre-existing scaffold warnings; grep confirmed **zero warnings come from T02-added files** (`IAIService`, `MockAIService`, `AzureOpenAIService`, `ContextAwareAzureAIService`, `AzureBaseService`, `ChatDataService`, `UserProfile`, `ChatSession`, `AIChatSuggestionViewModel`).
-- **Manual verification notes:** Sample launches with no env vars set → resolves to `MockAIService` (FR-0.2, NFR-2). Setting all three `AZURE_OPENAI_*` env vars flips DI to `AzureOpenAIService` automatically (NFR-5). Prompt → agent `Behaviour` (system context) → response ��� appended to `AssistItems` in `AIChatSuggestionViewModel.SendPromptAsync` (FR-0.2, FR-0.3). The call runs on a background thread with a `CancellationTokenSource`; the UI thread is only touched for `IsBusy` / `Text` updates and shows a typing dot while awaiting (NFR-8).
+- **Manual verification notes:** Sample launches with no env vars set → resolves to `MockAIService` (FR-0.2, NFR-2). Setting all three `AZURE_OPENAI_*` env vars flips DI to `AzureOpenAIService` automatically (NFR-5). Prompt → agent `Behaviour` (system context) → response → appended to `AssistItems` in `AIChatSuggestionViewModel.SendPromptAsync` (FR-0.2, FR-0.3). The call runs on a background thread with a `CancellationTokenSource`; the UI thread is only touched for `IsBusy` / `Text` updates and shows a typing dot while awaiting (NFR-8).
 - **Covers:** FR-0.2, FR-0.3, NFR-2, NFR-5, NFR-8.
 
 ### T03 — Chat shell, history & navigation
@@ -109,7 +109,7 @@ Every task closure must record: command run (or manual step), result, and the ac
   - `AIChatSample/ViewModel/AIChatSuggestionViewModel.cs` — exposes `CurrentSession` + `HasSession` and `LoadSession(ChatSession)`. `OnSendRequested` lazily creates a session on first prompt (FR-0.4), persists user prompts to `session.Messages`, and `AppendFollowUpSuggestions` replaces the static suggestion strip with the AI's context-aware follow-ups (FR-4.3).
   - `AIChatSample/Controls/AIChatNavigationPanel.xaml(.cs)` — `NavigationRequested` is now `EventHandler<NavigationRequestEventArgs>` (key + optional payload) so a tapped recent chat can carry its `RecentChatItem` upstream. `RecentChatItemTapped` raises `OpenChat` with the row as the parameter. The constructor resolves the shared `AIMainLayoutViewModel` from `ServiceHelper` instead of `new`-ing one.
   - `AIChatSample/Controls/ChatNavigationService.cs` — `Handle(...)` accepts an `object?` parameter. `NewChat` now routes through `AIMainLayoutViewModel.NewChatCommand` so `ChatSessionReplaced` fires; the new `OpenChat` case pops to root and calls `OpenChatCommand` on the same VM.
-  - `AIChatSample/Views/NewChat.xaml.cs` ��� subscribes to `AIMainLayoutViewModel.ChatSessionReplaced` (via `OnHandlerChanged`) and calls `AIChatSuggestionViewModel.LoadSession(session)`. `OnAppearing` now respects the active session chosen from the drawer instead of unconditionally clearing.
+  - `AIChatSample/Views/NewChat.xaml.cs` — subscribes to `AIMainLayoutViewModel.ChatSessionReplaced` (via `OnHandlerChanged`) and calls `AIChatSuggestionViewModel.LoadSession(session)`. `OnAppearing` now respects the active session chosen from the drawer instead of unconditionally clearing.
   - `AIChatSample/Views/SearchPage.xaml(.cs)` — rebound to `AIMainLayoutViewModel.SearchText` + `FilteredRecentChats`; the old Library-specific chip group was removed (Search is now a chat-history filter, FR-4.1). Tapping a result routes to `OpenChat` via `ChatNavigationService`.
   - `AIChatSample/Views/LibraryPage.xaml(.cs)` / `ProfilePage.xaml.cs` — now resolve the shared `AIMainLayoutViewModel` from `ServiceHelper` (so the Recent-chats list, search query and selected session stay in sync with the drawer). Removed the duplicate `ContentPage.BindingContext` XAML element from `SearchPage`/`LibraryPage` to avoid creating a second view-model.
   - `AIChatSample/Views/CreateAgentPage.xaml.cs`, `CreateNewAgentPage.xaml.cs`, `AgentConfigurePage.xaml.cs` — updated to the new `EventHandler<NavigationRequestEventArgs>` signature.
@@ -161,3 +161,15 @@ Every task closure must record: command run (or manual step), result, and the ac
   - `AIChatSample/ViewModel/AIMainLayoutViewModel.cs` — new `OpenAgentChatCommand` resolves the persisted `AgentConfiguration`, creates a `ChatSession` bound to that agent, updates `CurrentSession`, and raises `ChatSessionReplaced`.
 - **Manual verification notes:** Agent taps now create a dedicated session with `session.Agent` populated, so `NewChat.OnChatSessionReplaced` calls `AIChatSuggestionViewModel.LoadSession(session)` and the chat service uses `session.Agent?.Instructions` as the system context for the first response. This satisfies FR-1.5 / AC-1 end-to-end at the code path level.
 - **Covers:** FR-1.5, FR-0.3, AC-1.
+
+### T08 — Logo editor: image upload & propagation
+
+- **Files changed:**
+  - `AIChatSample/Models/AgentItem.cs` — added `AvatarSource` and `AvatarGlyph` so the drawer row can render either an uploaded image or icon-based avatar.
+  - `AIChatSample/ViewModel/AgentLogoPopupViewModel.cs` — image upload now keeps the selected file path from `FilePicker` and applies it back to the target agent.
+  - `AIChatSample/ViewModel/AIMainLayoutViewModel.cs` — propagated the customized avatar fields into the nav drawer agent rows.
+  - `AIChatSample/Controls/AIChatNavigationPanel.xaml` — agent rows now render the stored avatar image when present, otherwise the derived initial glyph.
+  - `AIChatSample/ViewModel/AIChatSuggestionViewModel.cs` — exposed `CurrentAgent` so the active chat header can reflect the selected agent.
+  - `AIChatSample/Views/NewChat.xaml` — chat header now shows the active agent avatar/image and color when a bound session is open.
+- **Manual verification notes:** Image uploads are persisted on Apply, the agent drawer row reuses the same avatar data, and the active chat header binds to the current session's agent so the visual identity is consistent across the app.
+- **Covers:** FR-2.3, FR-2.5, AC-2.

@@ -156,8 +156,11 @@ public class AIChatSuggestionViewModel : INotifyPropertyChanged
             _session = value;
             RaisePropertyChanged();
             RaisePropertyChanged(nameof(HasSession));
+            RaisePropertyChanged(nameof(CurrentAgent));
         }
     }
+
+    public AgentConfiguration? CurrentAgent => _session?.Agent;
 
     /// <summary>True when a chat session is bound. Drives the welcome-header visibility on the host page.</summary>
     public bool HasSession => _session is not null;

@@ -6,9 +6,11 @@
     xmlns:core="clr-namespace:Syncfusion.Maui.Core;assembly=Syncfusion.Maui.Core"
     xmlns:model="clr-namespace:AIChatSample.Models"
     xmlns:buttons="clr-namespace:Syncfusion.Maui.Toolkit.Buttons;assembly=Syncfusion.Maui.Toolkit"
+    xmlns:converters="clr-namespace:AIChatSample.Converters"
     x:Class="AIChatSample.Controls.AIChatNavigationPanel" x:Name="Root">
 
     <ContentView.Resources>
+        <converters:InverseBooleanConverter x:Key="InverseBoolean" />
         <Style TargetType="Border">
             <Setter Property="VisualStateManager.VisualStateGroups">
                 <Setter.Value>
@@ -144,9 +146,15 @@
                                     ItemTapped="AgentItemTapped">
                                     <listView:SfListView.ItemTemplate>
                                         <DataTemplate x:DataType="model:AgentItem">
-                                            <Grid HeightRequest="42" Padding="36,0,0,0">
-                                                <Label Style="{StaticResource DrawerSubItemLabel}"
-                                                    Text="{Binding Name}" />
+                                            <Grid HeightRequest="42" Padding="36,0,0,0" ColumnDefinitions="28,*" ColumnSpacing="10">
+                                                <Border WidthRequest="28" HeightRequest="28" StrokeThickness="0" StrokeShape="RoundRectangle 14" BackgroundColor="{Binding Color}">
+                                                    <Grid>
+                                                        <Image Source="{Binding AvatarSource}" IsVisible="{Binding AvatarSource, Converter={StaticResource InverseBoolean}}" />
+                                                        <Label Text="{Binding Initial}" FontSize="14" FontFamily="Roboto-Medium" TextColor="White" HorizontalOptions="Center" VerticalOptions="Center" IsVisible="{Binding AvatarSource, Converter={StaticResource InverseBoolean}}" />
+                                                    </Grid>
+                                                </Border>
+                                                <Label Grid.Column="1" Style="{StaticResource DrawerSubItemLabel}"
+                                                    Text="{Binding Name}" VerticalOptions="Center" />
                                             </Grid>
                                         </DataTemplate>
                                     </listView:SfListView.ItemTemplate>

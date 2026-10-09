@@ -51,6 +51,28 @@ namespace AIChatSample.Models
             }
         }
 
+        public string? AvatarSource
+        {
+            get => this.avatarSource;
+            set
+            {
+                if (this.avatarSource == value) return;
+                this.avatarSource = value;
+                this.OnPropertyChanged(nameof(this.AvatarSource));
+            }
+        }
+
+        public string? AvatarGlyph
+        {
+            get => this.avatarGlyph;
+            set
+            {
+                if (this.avatarGlyph == value) return;
+                this.avatarGlyph = value;
+                this.OnPropertyChanged(nameof(this.AvatarGlyph));
+            }
+        }
+
         public bool IsSelected
         {
             get => this.isSelected;

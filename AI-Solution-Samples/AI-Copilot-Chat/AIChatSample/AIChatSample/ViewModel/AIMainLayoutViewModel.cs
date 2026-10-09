@@ -505,6 +505,8 @@ namespace AIChatSample.ViewModel
                 Name = agent.AgentName,
                 Initial = agent.Initial ?? Models.AgentConfiguration.DeriveInitial(agent.AgentName),
                 Color = agent.Color ?? Models.AgentConfiguration.DeriveColor(agent.AgentName),
+                AvatarSource = agent.AvatarSource,
+                AvatarGlyph = agent.AvatarGlyph,
                 Glyph = "\ue71C",
             });
         }

@@ -22,14 +22,22 @@
                     Padding="{OnPlatform Android='0', Default='0,0,0,32'}"
                     RowSpacing="{OnPlatform Android=16, Default=8}">
 
-                    <Border Background="#6C4EC2" Stroke="#CAC4D0" HorizontalOptions="Center">
+                    <Border BackgroundColor="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.CurrentAgent.Color, FallbackValue=#6C4EC2}"
+                            Stroke="#CAC4D0" HorizontalOptions="Center">
                         <Border.StrokeShape>
                             <RoundRectangle CornerRadius="12" />
                         </Border.StrokeShape>
 
-                        <Label Text="&#xe7d7;" FontFamily="MaterialAssets" FontSize="36"
-                            HorizontalTextAlignment="Center" VerticalTextAlignment="Center" TextColor="White"
-                            HeightRequest="45" WidthRequest="45" HorizontalOptions="Center" />
+                        <Grid HeightRequest="45" WidthRequest="45">
+                            <Image Source="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.CurrentAgent.AvatarSource}"
+                                   IsVisible="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.CurrentAgent.AvatarSource, Converter={StaticResource InvertedBoolConverter}}"
+                                   Aspect="AspectFill" />
+                            <Label Text="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.CurrentAgent.Initial, FallbackValue=AI}"
+                                FontFamily="Roboto-Medium" FontSize="20"
+                                HorizontalTextAlignment="Center" VerticalTextAlignment="Center" TextColor="White"
+                                HeightRequest="45" WidthRequest="45" HorizontalOptions="Center"
+                                IsVisible="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.CurrentAgent.AvatarSource, Converter={StaticResource InvertedBoolConverter}}" />
+                        </Grid>
                     </Border>
 
                     <Label Grid.Row="1" Text="How can I help you today?"
