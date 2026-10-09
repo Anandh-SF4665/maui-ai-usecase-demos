@@ -24,7 +24,7 @@ Exactly **10 tasks**, ordered by dependency. Each task is independently verifiab
   `CreateAgentPage`: Name / Description / Behaviour editors per Figma form layout; Name required (empty/whitespace blocked with inline feedback); unique Id, default avatar color, initial derived from name.
   *Covers:* FR-1.1, FR-1.2, FR-1.3, NFR-1 · *Depends on:* T03
 
-- [ ] **T05 — Agent persistence & listing integration** (S) — *Phase 2*
+- [x] **T05 — Agent persistence & listing integration** (S) — *Phase 2*
   `CreateAgentViewModel` save → `Agent` via `ChatDataService`; agent appears immediately in Agents listing; "New Agent" entry point navigates to create screen.
   *Covers:* FR-1.4, FR-1.6 · *Depends on:* T04
 
