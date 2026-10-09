@@ -11,6 +11,8 @@
 
     <ContentView.Resources>
         <converters:InverseBooleanConverter x:Key="InverseBoolean" />
+        <converters:StringNotEmptyConverter x:Key="StringNotEmpty" />
+        <converters:StringNotEmptyConverter x:Key="StringIsEmpty" />
         <Style TargetType="Border">
             <Setter Property="VisualStateManager.VisualStateGroups">
                 <Setter.Value>
@@ -149,8 +151,8 @@
                                             <Grid HeightRequest="42" Padding="36,0,0,0" ColumnDefinitions="28,*" ColumnSpacing="10">
                                                 <Border WidthRequest="28" HeightRequest="28" StrokeThickness="0" StrokeShape="RoundRectangle 14" BackgroundColor="{Binding Color}">
                                                     <Grid>
-                                                        <Image Source="{Binding AvatarSource}" IsVisible="{Binding AvatarSource, Converter={StaticResource InverseBoolean}}" />
-                                                        <Label Text="{Binding Initial}" FontSize="14" FontFamily="Roboto-Medium" TextColor="White" HorizontalOptions="Center" VerticalOptions="Center" IsVisible="{Binding AvatarSource, Converter={StaticResource InverseBoolean}}" />
+                                                        <Image Source="{Binding AvatarSource}" Aspect="AspectFill" IsVisible="{Binding AvatarSource, Converter={StaticResource StringNotEmpty}}" />
+                                                        <Label Text="{Binding Initial}" FontSize="14" FontFamily="Roboto-Medium" TextColor="White" HorizontalOptions="Center" VerticalOptions="Center" IsVisible="{Binding AvatarSource, Converter={StaticResource StringIsEmpty}}" />
                                                     </Grid>
                                                 </Border>
                                                 <Label Grid.Column="1" Style="{StaticResource DrawerSubItemLabel}"

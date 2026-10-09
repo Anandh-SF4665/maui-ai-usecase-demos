@@ -44,6 +44,7 @@ namespace AIChatSample.ViewModel
         private ICommand? agentSelectedCommand;
         private ICommand? newChatCommand;
         private ICommand? openChatCommand;
+        private ICommand? openAgentChatCommand;
         private ICommand? searchCommand;
         private ICommand? libraryCommand;
         private ICommand? newAgentCommand;
@@ -59,7 +60,7 @@ namespace AIChatSample.ViewModel
         /// <summary>Shared in-memory agent store. Surfaces new agents so the nav-drawer list and "My Agents" row stay in sync (FR-1.4).</summary>
         private readonly IAgentStore? _agentStore;
 
-       #endregion
+        #endregion
 
         /// <summary>
         /// Initializes a new instance of the <see cref="AIMainLayoutViewModel"/> class
@@ -327,6 +328,10 @@ namespace AIChatSample.ViewModel
         public ICommand OpenChatCommand =>
             this.openChatCommand ??= new Command<RecentChatItem?>(this.OnOpenChatClicked);
 
+        /// <summary>Opens an existing chat session (parameter: the <see cref="RecentChatItem"/> tapped by the user). Raises <see cref="ChatSessionReplaced"/>.</summary>
+        public ICommand OpenAgentChatCommand =>
+            this.openAgentChatCommand ??= new Command<RecentChatItem?>(this.OnOpenChatClicked);
+
         /// <summary>Opened or created chat session. The host page (NewChat) listens to this and binds the new conversation into the AI AssistView (FR-0.4).</summary>
         public event EventHandler<ChatSession>? ChatSessionReplaced;
 
@@ -505,8 +510,6 @@ namespace AIChatSample.ViewModel
                 Name = agent.AgentName,
                 Initial = agent.Initial ?? Models.AgentConfiguration.DeriveInitial(agent.AgentName),
                 Color = agent.Color ?? Models.AgentConfiguration.DeriveColor(agent.AgentName),
-                AvatarSource = agent.AvatarSource,
-                AvatarGlyph = agent.AvatarGlyph,
                 Glyph = "\ue71C",
             });
         }
@@ -565,8 +568,8 @@ namespace AIChatSample.ViewModel
             var delta = DateTime.UtcNow - utc.ToUniversalTime();
             if (delta.TotalSeconds < 60) return "now";
             if (delta.TotalMinutes < 60) return $"{(int)delta.TotalMinutes}m";
-            if (delta.TotalHours < 24)   return $"{(int)delta.TotalHours}h";
-            if (delta.TotalDays < 7)     return $"{(int)delta.TotalDays}d";
+            if (delta.TotalHours < 24) return $"{(int)delta.TotalHours}h";
+            if (delta.TotalDays < 7) return $"{(int)delta.TotalDays}d";
             return utc.ToLocalTime().ToString("MMM d");
         }
 

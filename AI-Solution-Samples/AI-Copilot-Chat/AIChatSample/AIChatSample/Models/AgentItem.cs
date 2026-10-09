@@ -11,6 +11,8 @@ namespace AIChatSample.Models
         private string? initial;
         private string? color;
         private string? id;
+        private string? avatarSource;
+        private string? avatarGlyph;
 
         public string? Name { get; set; }
         public string? Glyph { get; set; }
