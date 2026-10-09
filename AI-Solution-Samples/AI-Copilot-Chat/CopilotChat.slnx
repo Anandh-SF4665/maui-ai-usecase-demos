@@ -1,8 +1,0 @@
-<Project Sdk="Microsoft.NET.Sdk">
-	<PropertyGroup>
-		<SolutionDir>$(MSBuildThisFileDirectory)..\</SolutionDir>
-	</PropertyGroup>
-	<ItemGroup>
-		<ProjectReference Include="..\CopilotChat\CopilotChat.csproj" />
-	</ItemGroup>
-</Project>

@@ -1,0 +1,312 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+            xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml" 
+            x:Class="AIChatSample.Views.AIChat.AgentConfigurePage"
+            xmlns:buttons="clr-namespace:Syncfusion.Maui.Toolkit.Buttons;assembly=Syncfusion.Maui.Toolkit"
+            xmlns:aiassist="clr-namespace:Syncfusion.Maui.AIAssistView;assembly=Syncfusion.Maui.AIAssistView"
+            xmlns:syncTheme="clr-namespace:Syncfusion.Maui.Themes;assembly=Syncfusion.Maui.Core"
+            xmlns:chatViews="clr-namespace:AIChatSample.Views.AIChat"
+            xmlns:input="clr-namespace:Syncfusion.Maui.Core;assembly=Syncfusion.Maui.Core"
+            xmlns:listView="clr-namespace:Syncfusion.Maui.ListView;assembly=Syncfusion.Maui.ListView"
+            xmlns:controls="clr-namespace:AIChatSample.Controls"
+            xmlns:local="clr-namespace:AIChatSample"
+            xmlns:core="clr-namespace:Syncfusion.Maui.Core;assembly=Syncfusion.Maui.Core"
+            xmlns:model="clr-namespace:AIChatSample.Models" 
+            xmlns:convertor="clr-namespace:AIChatSample.Converters"
+            xmlns:viewModel="clr-namespace:AIChatSample.ViewModel">
+
+    <ContentPage.Resources>
+        <ResourceDictionary>
+            <DataTemplate x:Key="HeaderView">
+                <VerticalStackLayout>
+                    <Grid RowDefinitions="*,Auto" RowSpacing="14" Padding="0,0,0,24" VerticalOptions="Center">
+                        <Border HorizontalOptions="Center" Stroke="Transparent">
+                            <Border.StrokeShape>
+                                <RoundRectangle CornerRadius="11" />
+                            </Border.StrokeShape>
+                            <VerticalStackLayout Spacing="24" VerticalOptions="Center" HorizontalOptions="Center">
+
+                                <core:SfAvatarView ContentType="Custom" AvatarShape="Square" StrokeThickness="0"
+                                    ImageSource="background.png" WidthRequest="50" Background="Transparent" Margin="0"
+                                    HeightRequest="50" HorizontalOptions="Center" VerticalOptions="Center"
+                                    SemanticProperties.Description="Specialist agent avatar">
+
+                                </core:SfAvatarView>
+
+                                <Label Style="{StaticResource CA_HeadingLabel}"
+                                    Text="Create your own specialist agent" />
+                            </VerticalStackLayout>
+                        </Border>
+                    </Grid>
+                </VerticalStackLayout>
+            </DataTemplate>
+
+            <Style x:Key="CA_HeadingLabel" TargetType="Label">
+                <Setter Property="FontFamily" Value="Roboto-Medium" />
+                <Setter Property="FontSize" Value="28" />
+                <Setter Property="TextColor" Value="{AppThemeBinding Light=#313032, Dark=#FFFFFF}" />
+                <Setter Property="HorizontalTextAlignment" Value="Center" />
+                <Setter Property="LineBreakMode" Value="WordWrap" />
+
+            </Style>
+
+            <Style x:Key="CA_CreateAgentButton" TargetType="buttons:SfButton">
+                <Setter Property="Background" Value="{AppThemeBinding Light=#7633DA, Dark=#8D4CF5}" />
+                <Setter Property="TextColor" Value="White" />
+                <Setter Property="FontFamily" Value="Roboto-Medium" />
+                <Setter Property="FontSize" Value="14" />
+                <Setter Property="CornerRadius" Value="16" />
+                <Setter Property="HeightRequest" Value="34" />
+                <Setter Property="Padding" Value="14,0" />
+                <Setter Property="ShowIcon" Value="True" />
+                <Setter Property="ImageAlignment" Value="Left" />
+                <Setter Property="ImageSize" Value="14" />
+                <Setter Property="StrokeThickness" Value="0" />
+                <Setter Property="EnableRippleEffect" Value="True" />
+            </Style>
+            <FontImageSource x:Key="CA_PlusGlyph" Glyph="&#xe70d;" FontFamily="MaterialAssets" Color="White"
+                Size="14" />
+            <model:LoadedScaleConverter x:Key="CALoadedScale" />
+            <convertor:InverseBooleanConverter x:Key="InverseBoolean" />
+        </ResourceDictionary>
+    </ContentPage.Resources>
+
+    <Grid x:Name="RootGrid">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="{Binding NavigationColumnWidth, Source={x:Reference AIChatNavigationPanel}}" />
+            <ColumnDefinition Width="*" />
+        </Grid.ColumnDefinitions>
+
+        <!-- CONTENT -->
+
+        <Grid Grid.Column="{Binding ContentColumn, Source={x:Reference AIChatNavigationPanel}}"
+            Grid.ColumnSpan="{Binding ContentColumnSpan, Source={x:Reference AIChatNavigationPanel}}"
+            x:Name="ContentGrid" RowDefinitions="56, *">
+
+            <controls:AIChatToolbar x:Name="AIChatToolbar" Grid.Row="0"
+                                    IsNavigationMenuVisible="{Binding IsNavigationMenuVisible, Source={x:Reference AIChatNavigationPanel}}"
+                                    IsModelSelectorVisible="True"
+                                    NavigationMenuTapped="AndroidMenuTapped" />
+
+            <!-- AssistView -->
+            <ScrollView Grid.Row="1" VerticalScrollBarVisibility="Never">
+                <Grid Background="{AppThemeBinding Light=white,Dark=#1C1B1D}"
+                    ColumnDefinitions="{OnIdiom Default='1*,2,1*', Phone='0,0,*'}" ColumnSpacing="0" RowSpacing="0">
+                    <!-- AI ASSIST VIEW -->
+                    <aiassist:SfAIAssistView x:Name="sfAIAssistView"
+                        Background="{AppThemeBinding Light=white,Dark=#1C1B1D}" MinimumHeightRequest="320"
+                        EnableConversationHistory="False" ShowToolbar="False"
+                        HeaderTemplate="{StaticResource HeaderView}" ShowScrollToBottomButton="True"
+                        CanAutoScrollToBottom="False">
+                        <aiassist:SfAIAssistView.EditorViewTemplate>
+                            <DataTemplate>
+                                <controls:AIChatInputEditor HorizontalOptions="Fill" Margin="10,0"
+                                    Placeholder="Type Message..." x:Name="InputEditor" />
+                            </DataTemplate>
+                        </aiassist:SfAIAssistView.EditorViewTemplate>
+                    </aiassist:SfAIAssistView>
+                    <Grid Grid.Column="1" IsVisible="{OnIdiom Default=true, Phone=false}">
+                        <BoxView Grid.Column="1" WidthRequest="1" VerticalOptions="Fill" HorizontalOptions="Center"
+                            BackgroundColor="{AppThemeBinding Light=#E5E1E3, Dark=#474648}" IsVisible="True" />
+                    </Grid>
+                    <Grid Grid.Column="2" BackgroundColor="{AppThemeBinding Light=white,Dark=#1C1B1D}"
+                        RowDefinitions="Auto,Auto,*">
+
+                        <!-- TOP ACTION BAR : Configure / Preview  |  Create Agent -->
+                        <Grid Grid.Row="0" Padding="24,14" ColumnDefinitions="Auto,*,Auto" ColumnSpacing="12">
+                            <HorizontalStackLayout Grid.Column="0" Spacing="10">
+                                <!-- Configure tab -->
+                                <Border Background="{AppThemeBinding Light=#EBDCFF, Dark=#3C3B3D}"
+                                    StrokeThickness="1"
+                                    Stroke="{AppThemeBinding Light=#7633DA, Dark=#8D4CF5}"
+                                    StrokeShape="RoundRectangle 16" Padding="14,0,12,0" HeightRequest="34"
+                                    VerticalOptions="Center" HorizontalOptions="Start">
+                                    <Border.GestureRecognizers>
+                                        <TapGestureRecognizer Tapped="OnConfigureTabTapped" />
+                                    </Border.GestureRecognizers>
+                                    <Label Text="Configure"
+                                        TextColor="{AppThemeBinding Light=#313032, Dark=#FFFFFF}"
+                                        FontFamily="Roboto-Medium" FontSize="14" VerticalOptions="Center" />
+                                </Border>
+                                <!-- Preview tab -->
+                                <Border Background="{AppThemeBinding Light=#F3F0F2, Dark=#3C3B3D}"
+                                    StrokeThickness="0" StrokeShape="RoundRectangle 16" Padding="14,0,12,0"
+                                    HeightRequest="34" VerticalOptions="Center" HorizontalOptions="Start">
+                                    <Border.GestureRecognizers>
+                                        <TapGestureRecognizer Tapped="OnPreviewTabTapped" />
+                                    </Border.GestureRecognizers>
+                                    <Label Text="Preview"
+                                        TextColor="{AppThemeBinding Light=#313032, Dark=#FFFFFF}"
+                                        FontFamily="Roboto-Medium" FontSize="14" VerticalOptions="Center" />
+                                </Border>
+                            </HorizontalStackLayout>
+
+                            <buttons:SfButton Grid.Column="2" Style="{StaticResource CA_CreateAgentButton}"
+                                SemanticProperties.Description="Create Agent"
+                                SemanticProperties.Hint="Saves the specialist agent and opens it"
+                                ImageSource="{StaticResource CA_PlusGlyph}"
+                                Text="Create Agent"
+                                IsEnabled="{Binding IsCreateEnabled}"
+                                Clicked="OnCreateAgentClicked">
+                                <buttons:SfButton.Triggers>
+                                    <DataTrigger TargetType="buttons:SfButton"
+                                        Binding="{Binding IsBusy}" Value="True">
+                                        <Setter Property="Text" Value="Creating..." />
+                                        <Setter Property="ImageSource" Value="{x:Null}" />
+                                    </DataTrigger>
+                                </buttons:SfButton.Triggers>
+                            </buttons:SfButton>
+                        </Grid>
+
+                        <!-- Inline validation / network error banner -->
+                        <Grid Grid.Row="1" Padding="24,8" IsVisible="{Binding HasError}"
+                            AutomationProperties.IsInAccessibleTree="{Binding HasError}">
+                            <Border Background="{AppThemeBinding Light=#FDECEC, Dark=#3B2325}"
+                                Stroke="#D93025" StrokeThickness="1" StrokeShape="RoundRectangle 8"
+                                Padding="12,8">
+                                <Label Text="{Binding ErrorMessage}" FontFamily="Roboto-Regular"
+                                    FontSize="13" TextColor="#D93025" LineBreakMode="WordWrap" />
+                            </Border>
+                        </Grid>
+
+                        <!-- Scrollable body -->
+                        <ScrollView Grid.Row="2" Padding="24,0" VerticalScrollBarVisibility="Never">
+                            <VerticalStackLayout Spacing="0" IsVisible="{Binding IsConfigureMode}">
+                                <Grid ColumnDefinitions="Auto,*" ColumnSpacing="16" Margin="0,8,0,24">
+                                    <Border Grid.Column="0" WidthRequest="70" HeightRequest="70"
+                                        BackgroundColor="#F4F4F4" StrokeThickness="1" StrokeDashArray="4,3"
+                                        StrokeDashOffset="0" Stroke="#E2E2E5">
+                                        <Border.StrokeShape>
+                                            <RoundRectangle CornerRadius="35" />
+                                        </Border.StrokeShape>
+                                        <Grid>
+                                            <Image Source="container.png" WidthRequest="28" HeightRequest="28"
+                                                HorizontalOptions="Center" VerticalOptions="Center"
+                                                IsVisible="{Binding AgentPopUpVM.HasAvatar, Converter={StaticResource InverseBoolean}}" />
+                                        </Grid>
+                                    </Border>
+
+                                    <VerticalStackLayout Grid.Column="1" Spacing="6" VerticalOptions="Center">
+                                        <Label Text="Configure Agent" FontFamily="Roboto-Medium" FontSize="22"
+                                            TextColor="{AppThemeBinding Light=#313032, Dark=#FFFFFF}" />
+                                        <Label
+                                            Text="Define the identity, behavior, and capabilities of your new AI agent."
+                                            FontFamily="Roboto-Regular" FontSize="16" CharacterSpacing="0.5"
+                                            TextColor="{AppThemeBinding Light=#5F5E60, Dark=#929092}"
+                                            LineBreakMode="WordWrap" />
+                                    </VerticalStackLayout>
+                                </Grid>
+
+                                <VerticalStackLayout Spacing="12">
+                                    <!-- Agent Name -->
+                                    <VerticalStackLayout>
+                                        <Label Text="Agent Name" FontFamily="Roboto-Regular" FontSize="14"
+                                            TextColor="{AppThemeBinding Light=#313032, Dark=#FFFFFF}" />
+                                        <input:SfTextInputLayout Hint="e.g., Data Analyst Assistant"
+                                            ContainerType="Outlined" OutlineCornerRadius="4" FocusedStrokeThickness="1"
+                                            UnfocusedStrokeThickness="1" ReserveSpaceForAssistiveLabels="False"
+                                            InputViewPadding="16, 0, 16, 0" EnableFloating="False" Margin="0"
+                                            ShowHelperText="False" ShowHint="True"
+                                            Stroke="{AppThemeBinding Light={DynamicResource ContentTextColorDark}, Dark={DynamicResource SecondaryTextColorLight}}"
+                                            HorizontalOptions="Fill" VerticalOptions="Fill">
+                                            <input:SfTextInputLayout.HintLabelStyle>
+                                                <input:LabelStyle FontSize="16" FontFamily="Roboto-Regular"
+                                                    TextColor="{AppThemeBinding Light={DynamicResource PlaceholderTextColorLight}, Dark={DynamicResource PlaceholderTextColorDark}}" />
+                                            </input:SfTextInputLayout.HintLabelStyle>
+                                            <Entry Text="{Binding AgentName, Mode=TwoWay}"
+                                                x:Name="AgentNameEntry"
+                                                Focused="OnAgentNameFocused"
+                                                Unfocused="OnAgentNameUnfocused"
+                                                Placeholder="e.g., Data Analyst Assistant" FontFamily="Roboto-Regular"
+                                                FontSize="14" />
+                                        </input:SfTextInputLayout>
+                                        <!-- FR-1.2 / AC-1.2: inline "name is required"
+                                             feedback that appears the moment the user
+                                             touches the field and leaves it empty. The
+                                             label is hidden by default so the layout
+                                             doesn't shift while the user is still typing. -->
+                                        <Label Text="{Binding NameValidationMessage}"
+                                            IsVisible="{Binding HasNameValidationError}"
+                                            FontFamily="Roboto-Regular" FontSize="12"
+                                            TextColor="#D93025" Margin="4,4,0,0" />
+                                    </VerticalStackLayout>
+
+                                    <!-- Description -->
+                                    <VerticalStackLayout>
+                                        <Label Text="Description" FontFamily="Roboto-Regular" FontSize="14"
+                                            TextColor="{AppThemeBinding Light=#313032, Dark=#FFFFFF}" />
+                                        <input:SfTextInputLayout Hint="Briefly describe what this agent does..."
+                                            ContainerType="Outlined" OutlineCornerRadius="4" FocusedStrokeThickness="1"
+                                            UnfocusedStrokeThickness="1" ReserveSpaceForAssistiveLabels="False"
+                                            InputViewPadding="16, 0, 16, 0" EnableFloating="False" Margin="0"
+                                            ShowHelperText="False" ShowHint="True"
+                                            Stroke="{AppThemeBinding Light={DynamicResource ContentTextColorDark}, Dark={DynamicResource SecondaryTextColorLight}}"
+                                            HorizontalOptions="Fill" VerticalOptions="Fill">
+                                            <input:SfTextInputLayout.HintLabelStyle>
+                                                <input:LabelStyle FontSize="16" FontFamily="Roboto-Regular"
+                                                    TextColor="{AppThemeBinding Light={DynamicResource PlaceholderTextColorLight}, Dark={DynamicResource PlaceholderTextColorDark}}" />
+                                            </input:SfTextInputLayout.HintLabelStyle>
+                                            <Entry Text="{Binding Description, Mode=TwoWay}"
+                                                Placeholder="Briefly describe what this agent does..."
+                                                FontFamily="Roboto-Regular" FontSize="14" />
+                                        </input:SfTextInputLayout>
+                                    </VerticalStackLayout>
+                                </VerticalStackLayout>
+
+                                <!-- BEHAVIOUR SECTION -->
+                                <VerticalStackLayout Margin="0,24,0,0">
+                                    <Label Text="Behaviour" FontFamily="Roboto-Medium" Margin="0,0,0,8" FontSize="22"
+                                        TextColor="{AppThemeBinding Light=#313032, Dark=#FFFFFF}" />
+                                    <VerticalStackLayout Margin="0,0,0,12">
+                                        <Label Text="Instructions" FontFamily="Roboto-Regular" FontSize="14"
+                                            TextColor="{AppThemeBinding Light=#313032, Dark=#FFFFFF}" />
+                                        <input:SfTextInputLayout ContainerType="Outlined" Hint="Enter instructions"
+                                            OutlineCornerRadius="4" FocusedStrokeThickness="1"
+                                            UnfocusedStrokeThickness="1" ReserveSpaceForAssistiveLabels="False"
+                                            InputViewPadding="16, 0, 16, 0" EnableFloating="False" Margin="0"
+                                            ShowHelperText="False" ShowHint="True"
+                                            Stroke="{AppThemeBinding Light={DynamicResource ContentTextColorDark}, Dark={DynamicResource SecondaryTextColorLight}}"
+                                            HorizontalOptions="Fill" VerticalOptions="Fill">
+                                            <input:SfTextInputLayout.HintLabelStyle>
+                                                <input:LabelStyle FontSize="16" FontFamily="Roboto-Regular"
+                                                    TextColor="{AppThemeBinding Light={DynamicResource PlaceholderTextColorLight}, Dark={DynamicResource PlaceholderTextColorDark}}" />
+                                            </input:SfTextInputLayout.HintLabelStyle>
+                                            <Entry Text="{Binding Instructions, Mode=TwoWay}"
+                                                FontFamily="Roboto-Regular" FontSize="14" />
+                                        </input:SfTextInputLayout>
+                                    </VerticalStackLayout>
+
+                                    <VerticalStackLayout>
+                                        <Label Text="Description" FontFamily="Roboto-Regular" FontSize="14"
+                                            TextColor="{AppThemeBinding Light=#313032, Dark=#FFFFFF}" />
+                                        <input:SfTextInputLayout Hint="Enter company name" ContainerType="Outlined"
+                                            OutlineCornerRadius="4" FocusedStrokeThickness="1"
+                                            UnfocusedStrokeThickness="1" ReserveSpaceForAssistiveLabels="False"
+                                            InputViewPadding="16, 0, 16, 0" EnableFloating="False" Margin="0"
+                                            ShowHelperText="False" ShowHint="True"
+                                            Stroke="{AppThemeBinding Light={DynamicResource ContentTextColorDark}, Dark={DynamicResource SecondaryTextColorLight}}"
+                                            HorizontalOptions="Fill" VerticalOptions="Fill">
+                                            <input:SfTextInputLayout.HintLabelStyle>
+                                                <input:LabelStyle FontSize="16" FontFamily="Roboto-Regular"
+                                                    TextColor="{AppThemeBinding Light={DynamicResource PlaceholderTextColorLight}, Dark={DynamicResource PlaceholderTextColorDark}}" />
+                                            </input:SfTextInputLayout.HintLabelStyle>
+                                            <Entry Text="{Binding CompanyName, Mode=TwoWay}"
+                                                Placeholder="Enter company name" FontFamily="Roboto-Regular"
+                                                FontSize="14" />
+                                        </input:SfTextInputLayout>
+                                    </VerticalStackLayout>
+                                </VerticalStackLayout>
+                            </VerticalStackLayout>
+                        </ScrollView>
+                    </Grid>
+                </Grid>
+            </ScrollView>
+
+        </Grid>
+
+        <controls:AIChatNavigationPanel Grid.Column="0" x:Name="AIChatNavigationPanel" HorizontalOptions="Start"
+            InitialSelectedItem="NewChat" ZIndex="2" />
+
+    </Grid>
+
+</ContentPage>

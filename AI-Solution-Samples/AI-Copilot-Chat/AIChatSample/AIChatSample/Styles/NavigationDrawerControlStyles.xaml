@@ -1,0 +1,229 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ResourceDictionary xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="AIChatSample.Styles.NavigationDrawerControlStyles"
+             xmlns:buttons="clr-namespace:Syncfusion.Maui.Toolkit.Buttons;assembly=Syncfusion.Maui.Toolkit"
+             xmlns:combobox="clr-namespace:Syncfusion.Maui.Inputs;assembly=Syncfusion.Maui.Inputs"
+             xmlns:listView="clr-namespace:Syncfusion.Maui.ListView;assembly=Syncfusion.Maui.ListView"
+             xmlns:expander="clr-namespace:Syncfusion.Maui.Expander;assembly=Syncfusion.Maui.Expander"
+             xmlns:sfavatar="clr-namespace:Syncfusion.Maui.Core;assembly=Syncfusion.Maui.Core"
+             xmlns:model="clr-namespace:EssentialMAUIUIKit.Models"
+             xmlns:navigationDrawer="clr-namespace:Syncfusion.Maui.NavigationDrawer;assembly=Syncfusion.Maui.NavigationDrawer">
+
+    <!-- Palette -->
+    <Color x:Key="DrawerBg">#F8F8F8</Color>
+    <Color x:Key="DrawerBorder">#E6E6E6</Color>
+    <Color x:Key="DrawerSeparator">#E5E1E3</Color>
+    <Color x:Key="DrawerHeaderText">#333333</Color>
+    <Color x:Key="DrawerItemText">#333333</Color>
+    <Color x:Key="DrawerSubItemText">#444444</Color>
+    <Color x:Key="DrawerIconColor">#555555</Color>
+    <Color x:Key="DrawerAvatarBg">#7C3AED</Color>
+    <Color x:Key="NewAgentBg">#F3EFF2</Color>
+    <Color x:Key="HeaderBg">#FFFFFF</Color>
+    <Color x:Key="HeaderTextPrimary">#2D2D2D</Color>
+    <Color x:Key="HeaderTextSecondary">#666666</Color>
+    <Color x:Key="HeaderHoverBg">#F3F3F3</Color>
+
+    <!-- Header glyphs -->
+    <FontImageSource x:Key="HamburgerIcon"
+                 Glyph="&#xe715;"
+                 FontFamily="UIKitIcons"
+                 Color="{StaticResource DrawerIconColor}"
+                 Size="20" />
+    <FontImageSource x:Key="HeaderChevronDownIcon"
+                 Glyph="&#xe70E;"
+                 FontFamily="UIKitIcons"
+                 Color="{StaticResource HeaderTextSecondary}"
+                 Size="14" />
+    <FontImageSource x:Key="HeaderMessageIcon"
+                 Glyph="&#xe73b;"
+                 FontFamily="UIKitIcons"
+                 Color="{StaticResource HeaderTextSecondary}"
+                 Size="20" />
+
+    <!-- Drawer action glyphs -->
+    <FontImageSource x:Key="DrawerPlusIcon"
+                 Glyph="&#xe730;"
+                 FontFamily="UIKitIcons"
+                 Color="{StaticResource DrawerIconColor}"
+                 Size="18" />
+    <FontImageSource x:Key="DrawerSearchIcon"
+                 Glyph="&#xe705;"
+                 FontFamily="UIKitIcons"
+                 Color="{StaticResource DrawerIconColor}"
+                 Size="18" />
+    <FontImageSource x:Key="DrawerLibraryIcon"
+                 Glyph="&#xe71C;"
+                 FontFamily="UIKitIcons"
+                 Color="{StaticResource DrawerIconColor}"
+                 Size="18" />
+    <FontImageSource x:Key="DrawerChevronUpIcon"
+                 Glyph="&#xe70E;"
+                 FontFamily="UIKitIcons"
+                 Color="{StaticResource DrawerIconColor}"
+                 Size="14" />
+    <FontImageSource x:Key="DrawerChevronDownIcon"
+                 Glyph="&#xe70D;"
+                 FontFamily="UIKitIcons"
+                 Color="{StaticResource DrawerIconColor}"
+                 Size="14" />
+
+    <!-- HEADER styles -->
+    <Style x:Key="HeaderIconButton" TargetType="buttons:SfButton">
+        <Setter Property="Background" Value="{AppThemeBinding Light=white, Dark=#1C1B1D}" />
+        <Setter Property="CornerRadius" Value="4" />
+        <Setter Property="HeightRequest" Value="8" />
+        <Setter Property="WidthRequest" Value="8" />
+        <Setter Property="Padding" Value="0" />
+        <Setter Property="HorizontalTextAlignment" Value="Center" />
+        <Setter Property="VerticalTextAlignment" Value="Center" />
+        <Setter Property="EnableRippleEffect" Value="True" />
+        <Setter Property="ShowIcon" Value="True" />
+        <Setter Property="VisualStateManager.VisualStateGroups">
+            <Setter.Value>
+                <VisualStateGroupList>
+                    <VisualStateGroup>
+                        <VisualState x:Name="Normal">
+                            <VisualState.Setters>
+                                <Setter Property="Background" Value="Transparent" />
+                            </VisualState.Setters>
+                        </VisualState>
+                        <VisualState x:Name="PointerOver">
+                            <VisualState.Setters>
+                                <Setter Property="Background" Value="{StaticResource HeaderHoverBg}" />
+                            </VisualState.Setters>
+                        </VisualState>
+                    </VisualStateGroup>
+                </VisualStateGroupList>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style x:Key="HeaderHamburgerButton" TargetType="ImageButton">
+        <Setter Property="Background" Value="Transparent" />
+        <Setter Property="HeightRequest" Value="40" />
+        <Setter Property="WidthRequest" Value="40" />
+        <Setter Property="HorizontalOptions" Value="Start" />
+        <Setter Property="VerticalOptions" Value="Center" />
+        <Setter Property="Padding" Value="10" />
+    </Style>
+
+    <Style x:Key="HeaderModelComboBox" TargetType="combobox:SfComboBox">
+        <Setter Property="Background" Value="Transparent" />
+        <Setter Property="Stroke" Value="Transparent" />
+        <Setter Property="ShowBorder" Value="False" />
+        <Setter Property="IsEditable" Value="False" />
+        <Setter Property="DropDownPlacement" Value="Bottom" />
+        <Setter Property="TextColor" Value="{AppThemeBinding Light=#313032, Dark=#FFFFFF}" />
+        <Setter Property="DropDownItemTextColor" Value="{StaticResource HeaderTextPrimary}" />
+        <Setter Property="DropDownBackground" Value="White" />
+        <Setter Property="FontFamily" Value="Roboto-Medium" />
+        <Setter Property="FontSize" Value="16" />
+        <Setter Property="VerticalOptions" Value="Center" />
+        <Setter Property="VerticalTextAlignment" Value="Center" /> 
+    </Style>
+
+    <!-- DRAWER styles -->
+    <Style x:Key="DrawerHeaderHamburger" TargetType="ImageButton">
+        <Setter Property="Background" Value="Transparent" />
+        <Setter Property="HeightRequest" Value="40" />
+        <Setter Property="WidthRequest" Value="40" />
+        <Setter Property="HorizontalOptions" Value="Start" />
+        <Setter Property="VerticalOptions" Value="Center" />
+        <Setter Property="Margin" Value="16,0,0,0" />
+        <Setter Property="Padding" Value="10" />
+    </Style>
+
+    <Style x:Key="DrawerRowLabel" TargetType="Label">
+        <Setter Property="FontFamily" Value="Roboto-Regular" />
+        <Setter Property="FontSize" Value="16" />
+        <Setter Property="TextColor" Value="{AppThemeBinding Light=#313032, Dark=#FFFFFF}" />
+        <Setter Property="VerticalOptions" Value="Center" />
+        <Setter Property="HorizontalOptions" Value="Start" />
+    </Style>
+
+    <Style x:Key="DrawerSubItemLabel" TargetType="Label">
+        <Setter Property="FontFamily" Value="Roboto-Regular" />
+        <Setter Property="FontSize" Value="16" />
+        <Setter Property="TextColor" Value="{AppThemeBinding Light=#313032, Dark=#FFFFFF}" />
+        <Setter Property="VerticalOptions" Value="Center" />
+        <Setter Property="HorizontalOptions" Value="Start" />
+    </Style>
+
+    <Style x:Key="DrawerSectionHeaderLabel" TargetType="Label">
+        <Setter Property="FontFamily" Value="Roboto-Regular" />
+        <Setter Property="FontSize" Value="16" />
+        <Setter Property="TextColor" Value="{AppThemeBinding Light=#313032, Dark=#FFFFFF}" />
+        <Setter Property="VerticalOptions" Value="Center" />
+        <Setter Property="HorizontalOptions" Value="Start" />
+    </Style>
+
+    <!-- Drawer row button — transparent, fills width, hover via VSM -->
+    <Style x:Key="DrawerRowButton" TargetType="buttons:SfButton">
+        <Setter Property="Background" Value="Transparent" />
+        <Setter Property="CornerRadius" Value="8" />
+        <Setter Property="HeightRequest" Value="44" />
+        <Setter Property="HorizontalOptions" Value="Fill" />
+        <Setter Property="VerticalOptions" Value="Center" />
+        <Setter Property="Padding" Value="16,0" />
+        <Setter Property="EnableRippleEffect" Value="True" />
+        <Setter Property="VisualStateManager.VisualStateGroups">
+            <Setter.Value>
+                <VisualStateGroupList>
+                    <VisualStateGroup>
+                        <VisualState x:Name="Normal">
+                            <VisualState.Setters>
+                                <Setter Property="Background" Value="Transparent" />
+                            </VisualState.Setters>
+                        </VisualState>
+                        <VisualState x:Name="PointerOver">
+                            <VisualState.Setters>
+                                <Setter Property="Background" Value="{StaticResource HeaderHoverBg}" />
+                            </VisualState.Setters>
+                        </VisualState>
+                    </VisualStateGroup>
+                </VisualStateGroupList>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!-- New Agent button -->
+    <Style x:Key="NewAgentButton" TargetType="buttons:SfButton">
+        <Setter Property="Background" Value="{StaticResource NewAgentBg}" />
+        <Setter Property="CornerRadius" Value="10" />
+        <Setter Property="HeightRequest" Value="42" />
+        <Setter Property="HorizontalOptions" Value="Fill" />
+        <Setter Property="VerticalOptions" Value="Center" />
+        <Setter Property="Margin" Value="8,0" />
+        <Setter Property="Padding" Value="16,0" />
+        <Setter Property="HorizontalTextAlignment" Value="Center" />
+        <Setter Property="VerticalTextAlignment" Value="Center" />
+        <Setter Property="EnableRippleEffect" Value="True" />
+    </Style>
+
+    <!-- Expander header grid -->
+    <Style x:Key="ExpanderHeaderGrid" TargetType="Grid">
+        <Setter Property="HeightRequest" Value="40" />
+        <Setter Property="ColumnDefinitions" Value="*,Auto" />
+        <Setter Property="Padding" Value="16,0,8,0" />
+    </Style>
+
+    <!-- SfListView item template for primary actions -->
+    <DataTemplate x:Key="PrimaryActionTemplate" x:DataType="model:SidebarItem">
+        <Grid HeightRequest="44"
+          ColumnDefinitions="18,*"
+          ColumnSpacing="12"
+          Padding="16,0">
+            <Image Grid.Column="0"
+               Source="{Binding IconImageSource}"
+               WidthRequest="18"
+               HeightRequest="18"
+               VerticalOptions="Center" />
+            <Label Grid.Column="1"
+               Style="{StaticResource DrawerRowLabel}"
+               Text="{Binding Title}" />
+        </Grid>
+    </DataTemplate>
+
+</ResourceDictionary>

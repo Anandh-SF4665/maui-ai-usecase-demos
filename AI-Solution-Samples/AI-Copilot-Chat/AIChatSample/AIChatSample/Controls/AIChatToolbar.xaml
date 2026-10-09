@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:buttons="clr-namespace:Syncfusion.Maui.Toolkit.Buttons;assembly=Syncfusion.Maui.Toolkit"
+    xmlns:expander="clr-namespace:Syncfusion.Maui.Expander;assembly=Syncfusion.Maui.Expander"
+    xmlns:popup="clr-namespace:Syncfusion.Maui.Popup;assembly=Syncfusion.Maui.Popup"
+    xmlns:combobox="clr-namespace:Syncfusion.Maui.Inputs;assembly=Syncfusion.Maui.Inputs"
+    x:Class="AIChatSample.Controls.AIChatToolbar" x:Name="Root">
+    <Grid RowDefinitions="56, *">
+        <!-- Toolbar -->
+        <Grid Grid.Row="0"
+            BackgroundColor="{AppThemeBinding Light={DynamicResource BackgroundColorLight}, Dark={DynamicResource BackgroundColorDark}}"
+            HeightRequest="56" ColumnDefinitions="Auto,Auto,*,Auto"
+            ColumnSpacing="{OnPlatform Android=24, Default=10}"
+            Padding="{OnPlatform Android='28,0,16,0', Default='16,0,16,0'}">
+            <!-- Back button (shown on every page except root) -->
+            <Label Grid.Column="0" Text="&#xe5c4;" FontFamily="MaterialAssets" FontSize="22"
+                TextColor="{AppThemeBinding Light={DynamicResource ContentTextColorLight}, Dark={DynamicResource ContentTextColorDark}}"
+                IsVisible="{Binding IsBackVisible, Source={x:Reference Root}}" VerticalOptions="Center"
+                VerticalTextAlignment="Center" Margin="0,0,8,0">
+                <Label.GestureRecognizers>
+                    <TapGestureRecognizer Tapped="OnBackTapped" />
+                </Label.GestureRecognizers>
+            </Label>
+
+            <!-- Model Selector -->
+            <Grid Grid.Column="1" ColumnDefinitions="Auto" ColumnSpacing="6" VerticalOptions="Center"
+                IsVisible="{Binding IsModelSelectorVisible, Source={x:Reference Root}}">
+                <combobox:SfComboBox x:Name="ModelCombo" WidthRequest="120" MaxDropDownHeight="200"
+                    Style="{StaticResource HeaderModelComboBox}" FontSize="{OnIdiom Phone=14}" IsClearButtonVisible="False"
+                    ItemsSource="{Binding ModelOptions}" SelectedItem="{Binding SelectedModel, Mode=TwoWay}"
+                    HorizontalOptions="Start" />
+            </Grid>
+
+        </Grid>
+
+        <BoxView Grid.Row="0" HeightRequest="1" HorizontalOptions="Fill" VerticalOptions="End"
+            BackgroundColor="{AppThemeBinding Light={DynamicResource SeparatorColorLight}, Dark={DynamicResource SeparatorColorDark}}"
+            InputTransparent="True" ZIndex="2" />
+    </Grid>
+</ContentView>

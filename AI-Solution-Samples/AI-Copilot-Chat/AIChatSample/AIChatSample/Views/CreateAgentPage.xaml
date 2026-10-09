@@ -1,0 +1,164 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+            xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml" x:Class="AIChatSample.Views.AIChat.CreateAgentPage"
+            xmlns:buttons="clr-namespace:Syncfusion.Maui.Toolkit.Buttons;assembly=Syncfusion.Maui.Toolkit"
+            xmlns:aiassist="clr-namespace:Syncfusion.Maui.AIAssistView;assembly=Syncfusion.Maui.AIAssistView"
+            xmlns:syncTheme="clr-namespace:Syncfusion.Maui.Themes;assembly=Syncfusion.Maui.Core"
+            xmlns:chatViews="clr-namespace:AIChatSample.Views.AIChat"
+            xmlns:listView="clr-namespace:Syncfusion.Maui.ListView;assembly=Syncfusion.Maui.ListView"
+            xmlns:controls="clr-namespace:AIChatSample.Controls"
+            xmlns:local="clr-namespace:AIChatSample"
+            xmlns:core="clr-namespace:Syncfusion.Maui.Core;assembly=Syncfusion.Maui.Core"
+            xmlns:model="clr-namespace:AIChatSample.Models" 
+            xmlns:viewModel="clr-namespace:AIChatSample.ViewModel">
+
+    <ContentPage.Resources>
+        <ResourceDictionary>
+            <DataTemplate x:Key="HeaderView">
+                <VerticalStackLayout>
+                    <Grid RowDefinitions="*,Auto" RowSpacing="14" Padding="0,0,0,24" VerticalOptions="Center">
+                        <Border HorizontalOptions="Center" Stroke="Transparent">
+                            <Border.StrokeShape>
+                                <RoundRectangle CornerRadius="11" />
+                            </Border.StrokeShape>
+                            <VerticalStackLayout Spacing="16" VerticalOptions="Center" HorizontalOptions="Center">
+
+                                <core:SfAvatarView ContentType="Custom" AvatarShape="Square" StrokeThickness="0"
+                                    ImageSource="background.png" WidthRequest="64" Background="Transparent" Margin="0"
+                                    HeightRequest="64" HorizontalOptions="Center" VerticalOptions="Center"
+                                    SemanticProperties.Description="Specialist agent avatar">
+
+                                </core:SfAvatarView>
+
+                                <Label Style="{StaticResource CA_HeadingLabel}"
+                                    Text="Create your own specialist agent" />
+                            </VerticalStackLayout>
+                        </Border>
+                    </Grid>
+                </VerticalStackLayout>
+            </DataTemplate>
+
+
+            <Style x:Key="CA_HeadingLabel" TargetType="Label">
+                <Setter Property="FontFamily" Value="Roboto-Medium" />
+                <Setter Property="FontSize" Value="28" />
+                <Setter Property="TextColor" Value="{AppThemeBinding Light=#313032, Dark=#FFFFFF}" />
+                <Setter Property="HorizontalTextAlignment" Value="Center" />
+                <Setter Property="LineBreakMode" Value="WordWrap" />
+
+            </Style>
+
+            <Style x:Key="CA_CreateAgentButton" TargetType="buttons:SfButton">
+                <Setter Property="Background" Value="{AppThemeBinding Light=#7633DA, Dark=#8D4CF5}" />
+                <Setter Property="TextColor" Value="White" />
+                <Setter Property="FontFamily" Value="Roboto-Medium" />
+                <Setter Property="FontSize" Value="14" />
+                <Setter Property="CornerRadius" Value="16" />
+                <Setter Property="HeightRequest" Value="34" />
+                <Setter Property="Padding" Value="14,0" />
+                <Setter Property="ShowIcon" Value="True" />
+                <Setter Property="ImageAlignment" Value="Left" />
+                <Setter Property="ImageSize" Value="14" />
+                <Setter Property="StrokeThickness" Value="0" />
+                <Setter Property="EnableRippleEffect" Value="True" />
+
+            </Style>
+
+            <FontImageSource x:Key="CA_PlusGlyph" Glyph="&#xe70d;" FontFamily="MaterialAssets" Color="White"
+                Size="14" />
+            <model:LoadedScaleConverter x:Key="CALoadedScale" />
+
+        </ResourceDictionary>
+    </ContentPage.Resources>
+
+    <Grid x:Name="RootGrid">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="{Binding NavigationColumnWidth, Source={x:Reference AIChatNavigationPanel}}" />
+            <ColumnDefinition Width="*" />
+        </Grid.ColumnDefinitions>
+
+        <!-- CONTENT -->
+
+        <Grid Grid.Column="{Binding ContentColumn, Source={x:Reference AIChatNavigationPanel}}"
+            Grid.ColumnSpan="{Binding ContentColumnSpan, Source={x:Reference AIChatNavigationPanel}}"
+            x:Name="ContentGrid" RowDefinitions="56, *">
+
+            <controls:AIChatToolbar x:Name="AIChatToolbar" Grid.Row="0"
+                                    IsNavigationMenuVisible="{Binding IsNavigationMenuVisible, Source={x:Reference AIChatNavigationPanel}}"
+                                    IsModelSelectorVisible="True"
+                                    NavigationMenuTapped="OnNavigationMenuTapped" />
+
+            <!-- AssistView -->
+            <ScrollView Grid.Row="1" VerticalScrollBarVisibility="Never">
+                <Grid RowDefinitions="56,*" Background="{AppThemeBinding Light=white,Dark=#1C1B1D}" RowSpacing="0">
+
+                    <Grid Grid.Row="0" ColumnDefinitions="Auto,*,Auto" ColumnSpacing="12" VerticalOptions="Center"
+                        Background="{AppThemeBinding Light=white,Dark=#1C1B1D}">
+                        <HorizontalStackLayout Grid.Column="0" Margin="5,0,0,0" Spacing="10">
+                            <Border Background="{AppThemeBinding Light=#EBDCFF, Dark=#3C3B3D}"
+                                StrokeThickness="1" Stroke="{AppThemeBinding Light=#7633DA, Dark=#8D4CF5}"
+                                StrokeShape="RoundRectangle 16" Padding="14,0,12,0" HeightRequest="34"
+                                VerticalOptions="Center" HorizontalOptions="Start">
+                                <Border.GestureRecognizers>
+                                    <TapGestureRecognizer Command="{Binding ConfigureCommand}" />
+                                </Border.GestureRecognizers>
+                                <Label Text="Describe"
+                                    TextColor="{AppThemeBinding Light=#313032, Dark=#FFFFFF}"
+                                    FontFamily="Roboto-Medium" FontSize="14" VerticalOptions="Center" />
+                            </Border>
+                            <Border Background="{AppThemeBinding Light=#F3F0F2, Dark=#3C3B3D}"
+                                StrokeThickness="0" StrokeShape="RoundRectangle 16" Padding="14,0,12,0"
+                                HeightRequest="34" VerticalOptions="Center" HorizontalOptions="Start">
+                                <Border.GestureRecognizers>
+                                    <TapGestureRecognizer Command="{Binding ConfigureCommand}" />
+                                </Border.GestureRecognizers>
+                                <Label Text="Configure"
+                                    TextColor="{AppThemeBinding Light=#313032, Dark=#FFFFFF}"
+                                    FontFamily="Roboto-Medium" FontSize="14" VerticalOptions="Center" />
+                            </Border>
+                            <Border IsVisible="{OnIdiom Phone=false, Default=true}"
+                                Background="{AppThemeBinding Light=#F3F0F2, Dark=#3C3B3D}"
+                                StrokeThickness="0" StrokeShape="RoundRectangle 16" Padding="14,0,12,0"
+                                HeightRequest="34" VerticalOptions="Center" HorizontalOptions="Start">
+                                <Border.GestureRecognizers>
+                                    <TapGestureRecognizer Command="{Binding ConfigureCommand}" />
+                                </Border.GestureRecognizers>
+                                <Label Text="Preview"
+                                    TextColor="{AppThemeBinding Light=#313032, Dark=#FFFFFF}"
+                                    FontFamily="Roboto-Medium" FontSize="14" VerticalOptions="Center" />
+                            </Border>
+                        </HorizontalStackLayout>
+
+                        <BoxView Grid.Column="1" Background="Transparent" />
+                        <buttons:SfButton Grid.Column="2" Style="{StaticResource CA_CreateAgentButton}"
+                            Text="Create Agent" ImageSource="{StaticResource CA_PlusGlyph}"
+                            SemanticProperties.Description="Create Agent"
+                            SemanticProperties.Hint="Saves the specialist agent and opens it"
+                            Command="{Binding CreateAgentCommand}"
+                            Scale="{Binding IsLoaded, Converter={StaticResource CALoadedScale}}" />
+                    </Grid>
+
+                    <aiassist:SfAIAssistView x:Name="sfAIAssistView" Grid.Row="2" VerticalOptions="Start" Margin="10,0"
+                        Background="{AppThemeBinding Light=white,Dark=#1C1B1D}" MinimumHeightRequest="320"
+                        EnableConversationHistory="False" ShowToolbar="False"
+                        HeaderTemplate="{StaticResource HeaderView}" ShowScrollToBottomButton="True"
+                        CanAutoScrollToBottom="False">
+                        <aiassist:SfAIAssistView.EditorViewTemplate>
+                            <DataTemplate>
+                                <controls:AIChatInputEditor HorizontalOptions="Fill"
+                                    Placeholder="Type Message..." x:Name="InputEditor" />
+                            </DataTemplate>
+                        </aiassist:SfAIAssistView.EditorViewTemplate>
+                    </aiassist:SfAIAssistView>
+
+                </Grid>
+            </ScrollView>
+
+        </Grid>
+
+        <controls:AIChatNavigationPanel Grid.Column="0" x:Name="AIChatNavigationPanel" HorizontalOptions="Start"
+            InitialSelectedItem="NewChat" ZIndex="2" />
+
+    </Grid>
+
+</ContentPage>

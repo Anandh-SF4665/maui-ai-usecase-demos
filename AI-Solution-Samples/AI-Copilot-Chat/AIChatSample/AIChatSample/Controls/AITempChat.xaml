@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+            xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+            x:Class="AIChatSample.Controls.AITempChat"
+            xmlns:assistView="clr-namespace:Syncfusion.Maui.AIAssistView;assembly=Syncfusion.Maui.AIAssistView"
+            xmlns:controls="clr-namespace:AIChatSample.Controls"
+            xmlns:viewModel="clr-namespace:AIChatSample.ViewModel">
+
+    <ContentView.BindingContext>
+        <viewModel:AIChatSuggestionViewModel />
+    </ContentView.BindingContext>
+
+    <ContentView.Resources>
+        <ResourceDictionary>
+            <DataTemplate x:Key="headerTemplate">
+                <Grid RowDefinitions="Auto,Auto" HorizontalOptions="Center" MaximumWidthRequest="800"
+                    VerticalOptions="Center" RowSpacing="12" Padding="0,0,0,32">
+                    <Label Text="Temporary chat"
+                        TextColor="{AppThemeBinding Light={DynamicResource PrimaryTextColorLight}, Dark={DynamicResource PrimaryTextColorDark}}"
+                        FontSize="28" FontFamily="Roboto-Regular" HorizontalOptions="Center"
+                        HorizontalTextAlignment="Center" VerticalTextAlignment="Center" />
+
+                    <Label Grid.Row="1"
+                        Text="This chat won&apos;t be saved or create memories. It follows your organization&apos;s retention policy, and may still be accessible to your admin."
+                        TextColor="{AppThemeBinding Light={DynamicResource ContentTextColorLight}, Dark={DynamicResource ContentTextColorDark}}"
+                        FontSize="14" LineBreakMode="WordWrap" FontFamily="Roboto-Regular"
+                        HorizontalOptions="Center" HorizontalTextAlignment="Center"
+                        VerticalTextAlignment="Center" />
+                </Grid>
+            </DataTemplate>
+        </ResourceDictionary>
+    </ContentView.Resources>
+
+    <Grid x:Name="RootGrid">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="{Binding NavigationColumnWidth, Source={x:Reference AIChatNavigationPanel}}" />
+            <ColumnDefinition Width="*" />
+        </Grid.ColumnDefinitions>
+
+        <Grid Grid.Column="{Binding ContentColumn, Source={x:Reference AIChatNavigationPanel}}"
+            Grid.ColumnSpan="{Binding ContentColumnSpan, Source={x:Reference AIChatNavigationPanel}}"
+            x:Name="ContentGrid" RowDefinitions="56,*">
+
+            <controls:AIChatToolbar x:Name="AIChatToolbar" Grid.Row="0"
+                IsNavigationMenuVisible="{Binding IsNavigationMenuVisible, Source={x:Reference AIChatNavigationPanel}}"
+                IsModelSelectorVisible="True"
+                NavigationMenuTapped="AndroidMenuTapped" />
+
+            <ScrollView Grid.Row="1" VerticalOptions="Fill" HorizontalOptions="Fill">
+                <assistView:SfAIAssistView x:Name="sfAIAssistView" HeaderTemplate="{StaticResource headerTemplate}"
+                    ShowToolbar="False" EnableConversationHistory="False" Padding="20" HorizontalOptions="Fill"
+                    VerticalOptions="Fill">
+
+                    <assistView:SfAIAssistView.EditorViewTemplate>
+                        <DataTemplate>
+                            <VerticalStackLayout HorizontalOptions="Fill" MaximumWidthRequest="710" Margin="0"
+                                Spacing="14">
+                                <controls:AIChatInputEditor HeightRequest="56" HorizontalOptions="Fill"
+                                                            MaximumWidthRequest="710" Margin="{OnPlatform Android='0', Default='0,0,0,8'}"
+                                                            Placeholder="Type Message..."
+                                                            SendCommand="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.RequestCommand}" />
+
+                                <Label Text="Suggested for you" FontSize="16" FontFamily="Roboto-Regular"
+                                    LineHeight="2.4" CharacterSpacing="0.5"
+                                    TextColor="{AppThemeBinding Light={DynamicResource ContentTextColorLight}, Dark={DynamicResource ContentTextColorDark}}"
+                                    Margin="{OnPlatform Android='0,0,0,12', Default='0,0,0,8'}"
+                                    HorizontalOptions="Center" VerticalTextAlignment="Center"
+                                    HorizontalTextAlignment="Center" />
+
+                                <CollectionView x:Name="SuggestionsLayout" ItemsSource="{Binding Suggestions}"
+                                    HorizontalOptions="Fill" MaximumWidthRequest="600" SelectionMode="None"
+                                    SizeChanged="SuggestionsLayoutSizeChanged">
+                                    <CollectionView.ItemsLayout>
+                                        <GridItemsLayout Orientation="Vertical" Span="2" HorizontalItemSpacing="12"
+                                            VerticalItemSpacing="12" />
+                                    </CollectionView.ItemsLayout>
+                                    <CollectionView.ItemTemplate>
+                                        <DataTemplate>
+                                            <Border HeightRequest="58" HorizontalOptions="Fill"
+                                                BackgroundColor="{AppThemeBinding Light={DynamicResource BackgroundColorLight}, Dark={DynamicResource BackgroundColorDark}}"
+                                                Stroke="{AppThemeBinding Light={DynamicResource SeparatorColorLight}, Dark={DynamicResource SeparatorColorDark}}"
+                                                StrokeThickness="1" Padding="16">
+                                                <Border.StrokeShape>
+                                                    <RoundRectangle CornerRadius="12" />
+                                                </Border.StrokeShape>
+
+                                                <Grid ColumnDefinitions="18,16,*">
+                                                    <Image Grid.Column="0" Source="{Binding ImageSource}"
+                                                        WidthRequest="16" HeightRequest="20" VerticalOptions="Center" />
+
+                                                    <Label Grid.Column="2" Text="{Binding Text}" FontSize="16"
+                                                        LineHeight="1.4" FontFamily="Roboto-Regular"
+                                                        TextColor="{AppThemeBinding Light={DynamicResource ContentTextColorLight}, Dark={DynamicResource ContentTextColorDark}}"
+                                                        VerticalOptions="Center" VerticalTextAlignment="Center" />
+                                                </Grid>
+                                            </Border>
+                                        </DataTemplate>
+                                    </CollectionView.ItemTemplate>
+                                </CollectionView>
+                            </VerticalStackLayout>
+                        </DataTemplate>
+                    </assistView:SfAIAssistView.EditorViewTemplate>
+                </assistView:SfAIAssistView>
+            </ScrollView>
+        </Grid>
+
+        <controls:AIChatNavigationPanel Grid.Column="0" x:Name="AIChatNavigationPanel" HorizontalOptions="Start"
+            InitialSelectedItem="NewChat" ZIndex="2" />
+    </Grid>
+</ContentView>

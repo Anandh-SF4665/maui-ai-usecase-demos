@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+            xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml" x:Class="AIChatSample.Views.AIChat.SearchPage"
+            xmlns:aiassist="clr-namespace:Syncfusion.Maui.AIAssistView;assembly=Syncfusion.Maui.AIAssistView"
+            xmlns:syncTheme="clr-namespace:Syncfusion.Maui.Themes;assembly=Syncfusion.Maui.Core"
+            xmlns:chatViews="clr-namespace:AIChatSample.Views.AIChat"
+            xmlns:listView="clr-namespace:Syncfusion.Maui.ListView;assembly=Syncfusion.Maui.ListView"
+            xmlns:controls="clr-namespace:AIChatSample.Controls"
+            xmlns:local="clr-namespace:AIChatSample"
+            xmlns:core="clr-namespace:Syncfusion.Maui.Core;assembly=Syncfusion.Maui.Core"
+            xmlns:model="clr-namespace:AIChatSample.Models"
+            xmlns:viewModel="clr-namespace:AIChatSample.ViewModel">
+
+    <ContentPage.Resources>
+        <ResourceDictionary>
+            <!-- Search glyph -->
+            <FontImageSource x:Key="LB_SearchGlyph" Glyph="{DynamicResource Search}" FontFamily="FontIcons"
+                Color="{AppThemeBinding Light=#313032, Dark=#FFFFFF}" Size="18" />
+        </ResourceDictionary>
+    </ContentPage.Resources>
+
+    <Grid x:Name="RootGrid">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="{Binding NavigationColumnWidth, Source={x:Reference AIChatNavigationPanel}}" />
+            <ColumnDefinition Width="*" />
+        </Grid.ColumnDefinitions>
+
+        <!-- CONTENT -->
+
+        <Grid Grid.Column="{Binding ContentColumn, Source={x:Reference AIChatNavigationPanel}}"
+            Grid.ColumnSpan="{Binding ContentColumnSpan, Source={x:Reference AIChatNavigationPanel}}"
+            x:Name="ContentGrid" RowDefinitions="56, *">
+
+            <controls:AIChatToolbar x:Name="AIChatToolbar" Grid.Row="0"
+                IsNavigationMenuVisible="{Binding IsNavigationMenuVisible, Source={x:Reference AIChatNavigationPanel}}"
+                IsModelSelectorVisible="True"
+                NavigationMenuTapped="OnNavigationMenuTapped" />
+
+            <!-- AssistView -->
+            <ScrollView Grid.Row="1" VerticalScrollBarVisibility="Never">
+                <VerticalStackLayout HorizontalOptions="Center" 
+                     Padding="{OnIdiom Default='40,16', Phone='16,16'}" Spacing="12"
+                    Background="{AppThemeBinding Light=#FAF8FA,Dark=#313032}">
+
+                    <!-- SEARCH SECTION -->
+                    <core:SfTextInputLayout Hint="Search for files..." ContainerType="Outlined" OutlineCornerRadius="28"
+                        ContainerBackground="{AppThemeBinding Dark=#1C1B1D, Light=white}" FocusedStrokeThickness="1"
+                        UnfocusedStrokeThickness="1" ReserveSpaceForAssistiveLabels="False"
+                        InputViewPadding="16, 0, 16, 0" EnableFloating="False" Margin="0" ShowHelperText="False"
+                        ShowHint="True"
+                        Stroke="{AppThemeBinding Light={DynamicResource ContentTextColorDark}, Dark={DynamicResource SecondaryTextColorLight}}"
+                        HorizontalOptions="Fill" VerticalOptions="Fill">
+                        <core:SfTextInputLayout.LeadingView>
+                            <Image Source="{StaticResource LB_SearchGlyph}" WidthRequest="18" HeightRequest="18"
+                                VerticalOptions="Center" Margin="0,5,0,0" />
+                        </core:SfTextInputLayout.LeadingView>
+                        <core:SfTextInputLayout.HintLabelStyle>
+                            <core:LabelStyle FontSize="14" FontFamily="Roboto-Regular"
+                                TextColor="{AppThemeBinding Light={DynamicResource PlaceholderTextColorLight}, Dark={DynamicResource PlaceholderTextColorDark}}" />
+                        </core:SfTextInputLayout.HintLabelStyle>
+                        <Entry Text="{Binding SearchText, Mode=TwoWay}" FontFamily="Roboto-Regular"
+                            FontSize="14" Placeholder="Search recent chats" />
+                    </core:SfTextInputLayout>
+
+                    <!-- FILTER SECTION: Chat history filter is now just the
+                         text query above. The chip group is intentionally
+                         omitted so the Search page stays focused on FR-4.1
+                         (filter chat history by title/query). -->
+
+                    <!-- CONTENT LIST -->
+                    <listView:SfListView ItemsSource="{Binding FilteredRecentChats}" SelectionMode="Single"
+                        ItemSize="64" ItemSpacing="6" HeightRequest="500" BackgroundColor="Transparent"
+                        Margin="0,4,0,16" ItemTapped="RecentChatItemTapped"
+                        SelectionBackground="{AppThemeBinding Light={DynamicResource SelectionBackgroundLight}, Dark={DynamicResource SelectionBackgroundDark}}">
+
+                        <listView:SfListView.ItemTemplate>
+                            <DataTemplate x:DataType="model:RecentChatItem">
+                                <Border Stroke="Transparent" StrokeShape="RoundRectangle 8" Padding="12"
+                                        HeightRequest="64" BackgroundColor="Transparent">
+                                    <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="12"
+                                        VerticalOptions="Center">
+
+                                        <!-- LEFT ICON -->
+                                        <Label Grid.Column="0" Text="{Binding Glyph}" FontFamily="MaterialAssets"
+                                            FontSize="18" VerticalOptions="Center"
+                                            TextColor="{AppThemeBinding Light=#313032, Dark=#FFFFFF}" />
+
+                                        <!-- TITLE -->
+                                        <VerticalStackLayout Grid.Column="1" Spacing="2" VerticalOptions="Center">
+                                            <Label Text="{Binding Title}" FontFamily="Roboto-Medium" FontSize="16"
+                                                LineBreakMode="TailTruncation" MaxLines="1"
+                                                TextColor="{AppThemeBinding Light=#313032, Dark=#FFFFFF}" />
+                                        </VerticalStackLayout>
+
+                                        <!-- TIME -->
+                                        <Label Grid.Column="2" Text="{Binding Time}" FontFamily="Roboto-Regular"
+                                            FontSize="12"
+                                            TextColor="{AppThemeBinding Light=#5F5E60, Dark=#929092}"
+                                            VerticalOptions="Center" />
+                                    </Grid>
+                                </Border>
+                            </DataTemplate>
+                        </listView:SfListView.ItemTemplate>
+                    </listView:SfListView>
+
+                </VerticalStackLayout>
+            </ScrollView>
+
+        </Grid>
+
+        <controls:AIChatNavigationPanel Grid.Column="0" x:Name="AIChatNavigationPanel" HorizontalOptions="Start"
+            InitialSelectedItem="NewChat" ZIndex="2" />
+
+    </Grid>
+
+</ContentPage>

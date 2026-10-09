@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+            xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml" x:Class="AIChatSample.Views.AIChat.ExistingChat"
+            xmlns:assistView="clr-namespace:Syncfusion.Maui.AIAssistView;assembly=Syncfusion.Maui.AIAssistView"
+            xmlns:markdown="clr-namespace:Syncfusion.Maui.MarkdownViewer;assembly=Syncfusion.Maui.MarkdownViewer"
+            xmlns:core="clr-namespace:Syncfusion.Maui.Core;assembly=Syncfusion.Maui.Core"
+            xmlns:syncTheme="clr-namespace:Syncfusion.Maui.Themes;assembly=Syncfusion.Maui.Core"
+            xmlns:chatViews="clr-namespace:AIChatSample.Views.AIChat"
+            xmlns:controls="clr-namespace:AIChatSample.Controls"
+            xmlns:viewModel="clr-namespace:AIChatSample.ViewModel"
+            xmlns:local="clr-namespace:AIChatSample.Views.AIChat"
+            xmlns:model="clr-namespace:AIChatSample.Models">
+
+    <ContentPage.BindingContext>
+        <viewModel:AIChatMessageViewModel />
+    </ContentPage.BindingContext>
+
+    <Grid x:Name="RootGrid">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="{Binding NavigationColumnWidth, Source={x:Reference AIChatNavigationPanel}}" />
+            <ColumnDefinition Width="*" />
+        </Grid.ColumnDefinitions>
+
+        <!-- CONTENT -->
+        <Grid Grid.Column="{Binding ContentColumn, Source={x:Reference AIChatNavigationPanel}}"
+            Grid.ColumnSpan="{Binding ContentColumnSpan, Source={x:Reference AIChatNavigationPanel}}"
+            x:Name="ContentGrid" RowDefinitions="{OnPlatform Android='44,*', Default='56,*'}">
+            <controls:AIChatToolbar x:Name="AIChatToolbar" Grid.Row="0"
+                IsNavigationMenuVisible="{Binding IsNavigationMenuVisible, Source={x:Reference AIChatNavigationPanel}}"
+                IsModelSelectorVisible="True"
+                NavigationMenuTapped="AndroidMenuTapped"
+                />
+            <!-- AssistView -->
+            <assistView:SfAIAssistView Grid.Row="1" x:Name="sfAIAssistView" ShowToolbar="False" ShowHeader="False"
+                AssistItems="{Binding AssistItems}" EnableConversationHistory="False" CanAutoScrollToBottom="False">
+
+                <assistView:SfAIAssistView.EditorViewTemplate>
+                    <DataTemplate>
+                        <controls:AIChatInputEditor HeightRequest="56" HorizontalOptions="Fill" Padding="20,0"
+                            Placeholder="Type Message..."
+                            SendCommand="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.RequestCommand}" />
+                    </DataTemplate>
+                </assistView:SfAIAssistView.EditorViewTemplate>
+            </assistView:SfAIAssistView>
+        </Grid>
+
+        <controls:AIChatNavigationPanel Grid.Column="0" Grid.ColumnSpan="1" x:Name="AIChatNavigationPanel"
+            HorizontalOptions="Start" InitialSelectedItem="RecentChat1" ZIndex="2" />
+    </Grid>
+
+</ContentPage>
