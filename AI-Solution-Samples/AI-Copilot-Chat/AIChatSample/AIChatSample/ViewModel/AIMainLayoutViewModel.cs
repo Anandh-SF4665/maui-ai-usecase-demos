@@ -17,6 +17,7 @@ namespace AIChatSample.ViewModel
         public AIChatNavigationViewModel chatVM { get; }
         public AgentConfigurationViewModel AgentVM { get; }
         public ProfileSettingsViewModel ProfileVM { get; }
+        public UserProfile UserProfile { get; }
         public LibraryViewModel LibraryVM { get; }
         public ImageLibraryViewModel ImageLibraryVM { get; }
         public AgentLogoPopupViewModel AgentPopUpVM { get; }
@@ -33,6 +34,9 @@ namespace AIChatSample.ViewModel
 
         private string userName = "Alexa John";
         private string userAvatar = "userprofile.png";
+        private string profileName = "Alexa John";
+        private string profileEmail = "alex.dev@example.com";
+        private string profileErrorMessage = string.Empty;
 
         // Commands
         private ICommand? toggleSidebarCommand;
@@ -79,6 +83,9 @@ namespace AIChatSample.ViewModel
             AgentVM = new AgentConfigurationViewModel(agentService, store);
             chatVM = new AIChatNavigationViewModel();
             ProfileVM = new ProfileSettingsViewModel();
+            UserProfile = _chatDataService?.Profile ?? new UserProfile();
+            profileName = UserProfile.Name;
+            profileEmail = UserProfile.Email;
             LibraryVM = new LibraryViewModel();
             ImageLibraryVM = new ImageLibraryViewModel();
             AgentPopUpVM = new AgentLogoPopupViewModel();
@@ -285,6 +292,24 @@ namespace AIChatSample.ViewModel
             set => this.SetProperty(ref this.userAvatar, value);
         }
 
+        public string ProfileName
+        {
+            get => this.profileName;
+            set => this.SetProperty(ref this.profileName, value);
+        }
+
+        public string ProfileEmail
+        {
+            get => this.profileEmail;
+            set => this.SetProperty(ref this.profileEmail, value);
+        }
+
+        public string ProfileErrorMessage
+        {
+            get => this.profileErrorMessage;
+            set => this.SetProperty(ref this.profileErrorMessage, value);
+        }
+
         /// <summary>True when a menu item has been selected (used by drawer isVisible / chevron).</summary>
         public bool HasSelectedMenuItem => this.selectedMenuItem is not null;
 
@@ -366,6 +391,8 @@ namespace AIChatSample.ViewModel
         public ICommand CreateAgentCommand =>
             this.createAgentCommand ??= new Command(this.OnCreateAgentClicked);
 
+        public ICommand SaveProfileCommand => new Command(this.OnSaveProfileClicked);
+
         #endregion
 
         #region Methods
@@ -445,6 +472,35 @@ namespace AIChatSample.ViewModel
         private void OnConfigureClicked() { }
         private void OnCreateAgentClicked() { }
 
+        private void OnSaveProfileClicked()
+        {
+            var name = (ProfileName ?? string.Empty).Trim();
+            var email = (ProfileEmail ?? string.Empty).Trim();
+
+            if (string.IsNullOrWhiteSpace(name))
+            {
+                ProfileErrorMessage = "Display name is required.";
+                return;
+            }
+
+            if (!string.IsNullOrWhiteSpace(email) && !email.Contains('@'))
+            {
+                ProfileErrorMessage = "Enter a valid email address.";
+                return;
+            }
+
+            ProfileErrorMessage = string.Empty;
+            UserProfile.Name = name;
+            UserProfile.Email = email;
+            UserName = UserProfile.Name;
+
+            if (_chatDataService is not null)
+            {
+                _chatDataService.Profile.Name = name;
+                _chatDataService.Profile.Email = email;
+            }
+        }
+
         private void OnUserProfileChanged(object? sender, PropertyChangedEventArgs e)
         {
             if (_chatDataService is null) return;
@@ -452,13 +508,17 @@ namespace AIChatSample.ViewModel
             if (e.PropertyName is nameof(UserProfile.Name) or nameof(UserProfile.Initial))
             {
                 UserName = _chatDataService.Profile.Name;
+                ProfileName = _chatDataService.Profile.Name;
+            }
+            else if (e.PropertyName is nameof(UserProfile.Email))
+            {
+                ProfileEmail = _chatDataService.Profile.Email;
             }
         }
 
         private void OnProfileVMChanged(object? sender, PropertyChangedEventArgs e)
         {
-            // No-op placeholder; T09 will mutate _chatDataService.Profile
-            // directly from the profile editor.
+            // No-op placeholder; T09 mutates UserProfile via SaveProfileCommand.
         }
 
         private void OnChatSessionsChanged(object? sender, NotifyCollectionChangedEventArgs e)

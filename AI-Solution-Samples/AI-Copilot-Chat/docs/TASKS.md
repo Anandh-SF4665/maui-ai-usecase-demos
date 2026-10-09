@@ -40,9 +40,11 @@ Exactly **10 tasks**, ordered by dependency. Each task is independently verifiab
   `FilePicker` image upload → custom avatar with graceful fallback on unsupported platforms; extracted/shared avatar rendering applied to agent listing, nav avatar, and chat header. Verify AC-2 end-to-end.
   *Covers:* FR-2.3, FR-2.5, AC-2 · *Depends on:* T07
 
-- [ ] **T09 — Profile page & live propagation** (M) — *Phase 4*
+- [x] **T09 — Profile page & live propagation** (M) — *Phase 4*
   `ProfilePage`: Name + Email editors per Figma; validation (non-empty name; email `.*@.*\..*`); Save mutates shared `UserProfile`; nav header initial/name updates live. Verify AC-3 end-to-end.
   *Covers:* FR-3.1–FR-3.4, AC-3, NFR-1 · *Depends on:* T03
+
+  - **Evidence:** `ProfilePage.xaml` now binds editable `ProfileName` / `ProfileEmail` fields and a Save button to `AIMainLayoutViewModel.SaveProfileCommand`; `AIMainLayoutViewModel` validates the name and email, updates the shared `UserProfile`, and mirrors the saved data into the live nav header via `OnUserProfileChanged`.
 
 - [ ] **T10 — Theme, responsiveness, README & release matrix** (M) — *Phase 5*
   Theme pass against UI Kit palette (light/dark contrast); responsive nav behavior on windowed Android/Windows; README (features, AI config, no keys); final manual test matrix Feature × {Android, Windows}; document design deviations.

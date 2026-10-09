@@ -1,19 +1,13 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
-            xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml" x:Class="AIChatSample.Views.AIChat.ProfilePage"
-            xmlns:buttons="clr-namespace:Syncfusion.Maui.Toolkit.Buttons;assembly=Syncfusion.Maui.Toolkit"
-            xmlns:aiassist="clr-namespace:Syncfusion.Maui.AIAssistView;assembly=Syncfusion.Maui.AIAssistView"
-            xmlns:syncTheme="clr-namespace:Syncfusion.Maui.Themes;assembly=Syncfusion.Maui.Core"
-            xmlns:chatViews="clr-namespace:AIChatSample.Views.AIChat"
-            xmlns:listView="clr-namespace:Syncfusion.Maui.ListView;assembly=Syncfusion.Maui.ListView"
-            xmlns:controls="clr-namespace:AIChatSample.Controls"
-            xmlns:local="clr-namespace:AIChatSample"
-            xmlns:core="clr-namespace:Syncfusion.Maui.Core;assembly=Syncfusion.Maui.Core"
-            xmlns:model="clr-namespace:AIChatSample.Models" xmlns:viewModel="clr-namespace:AIChatSample.ViewModel">
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="AIChatSample.Views.AIChat.ProfilePage"
+             xmlns:buttons="clr-namespace:Syncfusion.Maui.Toolkit.Buttons;assembly=Syncfusion.Maui.Toolkit"
+             xmlns:controls="clr-namespace:AIChatSample.Controls"
+             xmlns:core="clr-namespace:Syncfusion.Maui.Core;assembly=Syncfusion.Maui.Core">
 
     <ContentPage.Resources>
         <ResourceDictionary>
-            <!-- CARD (SfBorder) -->
             <Style x:Key="AC_SectionCard" TargetType="Border">
                 <Setter Property="BackgroundColor" Value="{AppThemeBinding Light=white,Dark=#1C1B1D}" />
                 <Setter Property="Stroke" Value="{AppThemeBinding Light=#E5E1E3, Dark=#474648}" />
@@ -24,80 +18,12 @@
                     </Setter.Value>
                 </Setter>
                 <Setter Property="Padding" Value="24" />
-
             </Style>
-            <!-- Sub-card for one row inside "Connected Services" -->
-            <Style x:Key="AC_RowCard" TargetType="Border">
-                <Setter Property="BackgroundColor" Value="#fcf8fa" />
-                <Setter Property="StrokeThickness" Value="0" />
-                <Setter Property="StrokeShape">
-                    <Setter.Value>
-                        <RoundRectangle CornerRadius="10" />
-                    </Setter.Value>
-                </Setter>
-                <Setter Property="Padding" Value="14,12" />
-                <Setter Property="HeightRequest" Value="72" />
-
-            </Style>
-
-            <Style x:Key="AC_AccountTypeChip" TargetType="Border">
-                <Setter Property="BackgroundColor" Value="{AppThemeBinding Light=#F3F0F2 ,Dark=#3C3B3D}" />
-                <Setter Property="StrokeThickness" Value="0" />
-                <Setter Property="Padding" Value="10,4" />
-                <Setter Property="HorizontalOptions" Value="Center" />
-                <Setter Property="StrokeShape">
-                    <Setter.Value>
-                        <RoundRectangle CornerRadius="6" />
-                    </Setter.Value>
-                </Setter>
-
-            </Style>
-
-            <!-- Active-plan chip -->
-            <Style x:Key="AC_ActiveChip" TargetType="Border">
-                <Setter Property="BackgroundColor" Value="{StaticResource AC_PurpleSoft}" />
-                <Setter Property="StrokeThickness" Value="0" />
-                <Setter Property="Padding" Value="10,3" />
-                <Setter Property="StrokeShape">
-                    <Setter.Value>
-                        <RoundRectangle CornerRadius="6" />
-                    </Setter.Value>
-                </Setter>
-
-            </Style>
-
-            <!-- Field label (Display Name / Email Address) -->
             <Style x:Key="AC_FieldLabel" TargetType="Label">
                 <Setter Property="FontFamily" Value="Roboto-Regular" />
                 <Setter Property="FontSize" Value="14" />
                 <Setter Property="TextColor" Value="{AppThemeBinding Light=#5F5E60, Dark=#929092}" />
-
             </Style>
-
-            <!-- Field value -->
-            <Style x:Key="AC_FieldValue" TargetType="Label">
-                <Setter Property="FontFamily" Value="Roboto-Medium" />
-                <Setter Property="FontSize" Value="16" />
-                <Setter Property="TextColor" Value="{AppThemeBinding Light=#313032, Dark=#FFFFFF}" />
-
-            </Style>
-
-            <!-- Section title inside a card -->
-            <Style x:Key="AC_SectionTitle" TargetType="Label">
-                <Setter Property="FontFamily" Value="Roboto-Medium" />
-                <Setter Property="FontSize" Value="16" />
-                <Setter Property="TextColor" Value="{AppThemeBinding Light=#313032, Dark=#FFFFFF}" />
-
-            </Style>
-
-            <!-- Section inter-title (Connected Services, Account Management, Plan features) -->
-            <Style x:Key="AC_BigSectionTitle" TargetType="Label">
-                <Setter Property="FontFamily" Value="Roboto-Medium" />
-                <Setter Property="FontSize" Value="22" />
-                <Setter Property="TextColor" Value="{AppThemeBinding Light=#313032, Dark=#FFFFFF}" />
-
-            </Style>
-
         </ResourceDictionary>
     </ContentPage.Resources>
 
@@ -107,592 +33,56 @@
             <ColumnDefinition Width="*" />
         </Grid.ColumnDefinitions>
 
-        <!-- CONTENT -->
-
         <Grid Grid.Column="{Binding ContentColumn, Source={x:Reference AIChatNavigationPanel}}"
-            Grid.ColumnSpan="{Binding ContentColumnSpan, Source={x:Reference AIChatNavigationPanel}}"
-            x:Name="ContentGrid" RowDefinitions="56, *">
+              Grid.ColumnSpan="{Binding ContentColumnSpan, Source={x:Reference AIChatNavigationPanel}}"
+              RowDefinitions="56,*">
 
-            <controls:AIChatToolbar x:Name="AIChatToolbar" Grid.Row="0"
-                IsNavigationMenuVisible="{Binding IsNavigationMenuVisible, Source={x:Reference AIChatNavigationPanel}}"
-                IsModelSelectorVisible="True"
-                NavigationMenuTapped="OnNavigationMenuTapped" />
+            <controls:AIChatToolbar x:Name="AIChatToolbar"
+                                    Grid.Row="0"
+                                    IsNavigationMenuVisible="{Binding IsNavigationMenuVisible, Source={x:Reference AIChatNavigationPanel}}"
+                                    IsModelSelectorVisible="True"
+                                    NavigationMenuTapped="OnNavigationMenuTapped" />
 
-            <!-- AssistView -->
             <ScrollView Grid.Row="1" VerticalScrollBarVisibility="Never">
                 <Grid Padding="24,24,24,32" BackgroundColor="{AppThemeBinding Light=#FAF8FA,Dark=#313032}">
+                    <VerticalStackLayout Spacing="20" HorizontalOptions="Center" MaximumWidthRequest="760" WidthRequest="{OnIdiom Default=760, Phone=-1}">
+                        <Label Text="Profile" FontFamily="Roboto-Regular" FontSize="28" TextColor="{AppThemeBinding Light=#313032, Dark=#FFFFFF}" />
+                        <Label Text="Edit your account name and email. Changes update the app immediately." FontFamily="Roboto-Regular" FontSize="16" TextColor="{AppThemeBinding Light=#474648, Dark=#C9C6C8}" />
 
-                    <VerticalStackLayout Spacing="0" HorizontalOptions="Center" MaximumWidthRequest="850"
-                        MinimumWidthRequest="{OnIdiom Default=700, Phone=-1}"
-                        WidthRequest="{OnIdiom Default=780, Phone=-1}">
-
-                        <!-- PAGE TITLE + SUBTITLE -->
-                        <Label Text="Profile" FontFamily="Roboto-Regular" FontSize="28" Margin="0,0,0,8"
-                            TextColor="{AppThemeBinding Light=#313032, Dark=#FFFFFF}" />
-                        <Label Text="Manage your account details and connected services." FontFamily="Roboto-Regular"
-                            FontSize="16" TextColor="{AppThemeBinding Light=#313032, Dark=#FFFFFF}" Margin="0,0,0,0" />
-
-                        <Grid Margin="0,32,0,0" ColumnDefinitions="*,*" ColumnSpacing="16"
-                            IsVisible="{OnIdiom Default=True, Phone=False}">
-
-                            <!-- LEFT: Profile card -->
-                            <Border Grid.Column="0" Style="{StaticResource AC_SectionCard}">
-                                <HorizontalStackLayout Spacing="32">
-                                    <StackLayout Spacing="16">
-                                        <core:SfAvatarView ContentType="Custom" AvatarShape="Circle"
-                                            AvatarSize="ExtraLarge" WidthRequest="128" HeightRequest="128"
-                                            HorizontalOptions="Center" ImageSource="userprofile.png" />
-                                        <Border Style="{StaticResource AC_AccountTypeChip}">
-                                            <Label Text="{Binding ProfileVM.AccountType}" FontFamily="Roboto-Regular"
-                                                FontSize="12"
-                                                TextColor="{AppThemeBinding Light=#313032, Dark=#FFFFFF}" />
-                                        </Border>
-                                    </StackLayout>
-
-                                    <StackLayout>
-                                        <Label Text="Display Name" Style="{StaticResource AC_FieldLabel}" />
-                                        <Label Text="{Binding ProfileVM.DisplayName}"
-                                            Style="{StaticResource AC_FieldValue}" />
-
-                                        <Label Text="Email Address" Margin="0,12,0,0"
-                                            Style="{StaticResource AC_FieldLabel}" />
-                                        <Label Text="{Binding ProfileVM.EmailAddress}"
-                                            Style="{StaticResource AC_FieldValue}" />
-                                        <BoxView Margin="0,20,0,16" VerticalOptions="End" HeightRequest="1"
-                                            BackgroundColor="{AppThemeBinding Light=#E5E1E3, Dark=#474648}" />
-                                        <buttons:SfButton Background="Transparent" HorizontalOptions="Start"
-                                            CornerRadius="0">
-                                            <DataTemplate>
-                                                <Border Stroke="{AppThemeBinding Light=#C9C6C8, Dark=#858385}"
-                                                    StrokeThickness="1" StrokeShape="RoundRectangle 8" Padding="12,6">
-                                                    <HorizontalStackLayout Spacing="8">
-                                                        <ImageButton Style="{StaticResource HeaderIconButton}"
-                                                            Background="Transparent"
-                                                            Source="{AppThemeBinding Light=editicon.png,Dark=editicondark.png}"
-                                                            HorizontalOptions="Start" VerticalOptions="Center"
-                                                            Command="{Binding OpenMessagesCommand}" />
-                                                        <Label Text="Edit profile" FontFamily="Roboto-Medium"
-                                                            FontSize="14"
-                                                            TextColor="{AppThemeBinding Light=#313032, Dark=#FFFFFF}"
-                                                            HorizontalOptions="Start" VerticalOptions="Center" />
-                                                    </HorizontalStackLayout>
-                                                </Border>
-                                            </DataTemplate>
-                                        </buttons:SfButton>
-                                    </StackLayout>
-                                </HorizontalStackLayout>
-                            </Border>
-
-                            <!-- RIGHT: Current plan card -->
-                            <Border Grid.Column="1" Style="{StaticResource AC_SectionCard}">
-                                <VerticalStackLayout Spacing="6">
-                                    <Grid ColumnDefinitions="*,Auto" Margin="0,0,0,16">
-                                        <Label Grid.Column="0" Text="Current Plan"
-                                            Style="{StaticResource AC_SectionTitle}" />
-                                        <Border Grid.Column="1" Style="{StaticResource AC_ActiveChip}"
-                                            Background="{AppThemeBinding Light=#F7EDFF, Dark=#35303C}">
-                                            <Label Text="ACTIVE" FontFamily="Roboto-Medium" FontSize="12"
-                                                TextColor="{AppThemeBinding Light=#7633DA, Dark=#8D4CF5}"
-                                                Background="{AppThemeBinding Light=#F7EDFF, Dark=#35303C}" />
-                                        </Border>
-                                    </Grid>
-
-                                    <Label Text="{Binding ProfileVM.PlanName}" FontFamily="Roboto-Regular" FontSize="28"
-                                        TextColor="{AppThemeBinding Light=#7633DA, Dark=#8D4CF5}" />
-                                    <Label Text="{Binding ProfileVM.BillingCycle}" FontFamily="Roboto-Regular"
-                                        FontSize="12" TextColor="{AppThemeBinding Light=#5F5E60, Dark=#929092}" />
-
-                                    <listView:SfListView ItemsSource="{Binding ProfileVM.PlanFeatures}"
-                                        BackgroundColor="Transparent" ItemSize="18" ItemSpacing="8" Margin="0,16,0,0">
-                                        <listView:SfListView.ItemTemplate>
-                                            <DataTemplate x:DataType="x:String">
-                                                <Grid ColumnDefinitions="Auto,*" ColumnSpacing="8"
-                                                    VerticalOptions="Center">
-                                                    <Label Grid.Column="0" Text="✓" FontFamily="Roboto-Medium"
-                                                        FontSize="14" TextColor="#16A34A" VerticalOptions="Center" />
-                                                    <Label Grid.Column="1" Text="{Binding .}"
-                                                        FontFamily="Roboto-Regular" FontSize="12"
-                                                        TextColor="{AppThemeBinding Light=#474648, Dark=#C9C6C8}"
-                                                        VerticalOptions="Center" />
-                                                </Grid>
-                                            </DataTemplate>
-                                        </listView:SfListView.ItemTemplate>
-                                    </listView:SfListView>
-
-                                    <buttons:SfButton Text="Manage Billing"
-                                        Command="{Binding ProfileVM.ManageBillingCommand}" FontFamily="Roboto-Medium"
-                                        FontSize="14" CornerRadius="0"
-                                        TextColor="{AppThemeBinding Light=#313032, Dark=#FFFFFF}"
-                                        Background="{AppThemeBinding Light=#F3F0F2, Dark=#3C3B3D}"
-                                        HorizontalOptions="Fill" Margin="0,18,0,0" />
-                                </VerticalStackLayout>
-                            </Border>
-                        </Grid>
-
-                        <!-- ── MOBILE: Profile + Plan stacked vertically ── -->
-                        <VerticalStackLayout Spacing="16" Margin="0,32,0,0"
-                            IsVisible="{OnIdiom Default=False, Phone=True}">
-
-                            <!-- Profile info -->
-                            <Border Style="{StaticResource AC_SectionCard}">
-                                <VerticalStackLayout Spacing="16" HorizontalOptions="Center">
-                                    <core:SfAvatarView ContentType="Custom" AvatarShape="Circle" AvatarSize="ExtraLarge"
-                                        WidthRequest="128" HeightRequest="128" HorizontalOptions="Center"
-                                        ImageSource="userprofile.png" />
-                                    <Border Style="{StaticResource AC_AccountTypeChip}" HorizontalOptions="Center">
-                                        <Label Text="{Binding ProfileVM.AccountType}" FontFamily="Roboto-Regular"
-                                            FontSize="12" TextColor="{AppThemeBinding Light=#313032, Dark=#FFFFFF}"
-                                            HorizontalOptions="Center" />
+                        <Border Style="{StaticResource AC_SectionCard}">
+                            <VerticalStackLayout Spacing="16">
+                                <HorizontalStackLayout Spacing="16">
+                                    <Border WidthRequest="88" HeightRequest="88" BackgroundColor="{Binding UserProfile.Color}" StrokeThickness="0" StrokeShape="RoundRectangle 44">
+                                        <Label Text="{Binding UserProfile.Initial}" FontFamily="Roboto-Medium" FontSize="28" TextColor="White" HorizontalOptions="Center" VerticalOptions="Center" />
                                     </Border>
-
-                                    <VerticalStackLayout Spacing="4" HorizontalOptions="Fill">
-                                        <Label Text="Display Name" Style="{StaticResource AC_FieldLabel}" />
-                                        <Label Text="{Binding ProfileVM.DisplayName}"
-                                            Style="{StaticResource AC_FieldValue}" />
+                                    <VerticalStackLayout Spacing="6" VerticalOptions="Center">
+                                        <Label Text="{Binding UserProfile.Name}" FontFamily="Roboto-Medium" FontSize="20" TextColor="{AppThemeBinding Light=#313032, Dark=#FFFFFF}" />
+                                        <Label Text="{Binding UserProfile.Email}" FontFamily="Roboto-Regular" FontSize="14" TextColor="{AppThemeBinding Light=#5F5E60, Dark=#929092}" />
                                     </VerticalStackLayout>
+                                </HorizontalStackLayout>
 
-                                    <VerticalStackLayout Spacing="4" HorizontalOptions="Fill">
-                                        <Label Text="Email Address" Style="{StaticResource AC_FieldLabel}" />
-                                        <Label Text="{Binding ProfileVM.EmailAddress}"
-                                            Style="{StaticResource AC_FieldValue}" />
-                                    </VerticalStackLayout>
-
-                                    <BoxView HeightRequest="1"
-                                        BackgroundColor="{AppThemeBinding Light=#E5E1E3, Dark=#474648}" />
-
-                                    <buttons:SfButton Background="Transparent" HorizontalOptions="Fill" CornerRadius="0"
-                                        HeightRequest="40">
-                                        <DataTemplate>
-                                            <Border Stroke="{AppThemeBinding Light=#C9C6C8, Dark=#858385}"
-                                                StrokeThickness="1" StrokeShape="RoundRectangle 8" Padding="12,6">
-                                                <HorizontalStackLayout HorizontalOptions="Center" Spacing="8">
-                                                    <Image Style="{StaticResource HeaderIconButton}"
-                                                        HeightRequest="24" WidthRequest="24"
-                                                        Background="Transparent"
-                                                        Source="{AppThemeBinding Light=editicon.png,Dark=editicondark.png}"
-                                                        HorizontalOptions="Start" VerticalOptions="Center" />
-                                                    <Label Text="Edit profile" FontFamily="Roboto-Medium"
-                                                        FontSize="14"
-                                                        TextColor="{AppThemeBinding Light=#313032, Dark=#FFFFFF}"
-                                                        VerticalOptions="Center" />
-                                                </HorizontalStackLayout>
-                                            </Border>
-                                        </DataTemplate>
-                                    </buttons:SfButton>
-                                </VerticalStackLayout>
-                            </Border>
-
-                            <!-- Current Plan card -->
-                            <Border Style="{StaticResource AC_SectionCard}">
                                 <VerticalStackLayout Spacing="6">
-                                    <Grid ColumnDefinitions="*,Auto" Margin="0,0,0,16">
-                                        <Label Grid.Column="0" Text="Current Plan"
-                                            Style="{StaticResource AC_SectionTitle}" />
-                                        <Border Grid.Column="1" Style="{StaticResource AC_ActiveChip}"
-                                            Background="{AppThemeBinding Light=#F7EDFF, Dark=#35303C}">
-                                            <Label Text="ACTIVE" FontFamily="Roboto-Medium" FontSize="12"
-                                                TextColor="{AppThemeBinding Light=#7633DA, Dark=#8D4CF5}"
-                                                Background="{AppThemeBinding Light=#F7EDFF, Dark=#35303C}" />
-                                        </Border>
-                                    </Grid>
-                                    <Label Text="{Binding ProfileVM.PlanName}" FontFamily="Roboto-Regular" FontSize="28"
-                                        TextColor="{AppThemeBinding Light=#7633DA, Dark=#8D4CF5}" />
-                                    <Label Text="{Binding ProfileVM.BillingCycle}" FontFamily="Roboto-Regular"
-                                        FontSize="12" TextColor="{AppThemeBinding Light=#5F5E60, Dark=#929092}" />
-
-                                    <listView:SfListView ItemsSource="{Binding ProfileVM.PlanFeatures}"
-                                        BackgroundColor="Transparent" ItemSize="18" ItemSpacing="8" Margin="0,16,0,0">
-                                        <listView:SfListView.ItemTemplate>
-                                            <DataTemplate x:DataType="x:String">
-                                                <Grid ColumnDefinitions="Auto,*" ColumnSpacing="8"
-                                                    VerticalOptions="Center">
-                                                    <Label Grid.Column="0" Text="✓" FontFamily="Roboto-Medium"
-                                                        FontSize="14" TextColor="#16A34A" VerticalOptions="Center" />
-                                                    <Label Grid.Column="1" Text="{Binding .}"
-                                                        FontFamily="Roboto-Regular" FontSize="12"
-                                                        TextColor="{AppThemeBinding Light=#474648, Dark=#C9C6C8}"
-                                                        VerticalOptions="Center" />
-                                                </Grid>
-                                            </DataTemplate>
-                                        </listView:SfListView.ItemTemplate>
-                                    </listView:SfListView>
-
-                                    <buttons:SfButton Text="Manage Billing"
-                                        Command="{Binding ProfileVM.ManageBillingCommand}" FontFamily="Roboto-Medium"
-                                        FontSize="14" CornerRadius="0"
-                                        TextColor="{AppThemeBinding Light=#313032, Dark=#FFFFFF}"
-                                        Background="{AppThemeBinding Light=#F3F0F2, Dark=#3C3B3D}"
-                                        HorizontalOptions="Fill" Margin="0,18,0,0" />
+                                    <Label Text="Display Name" Style="{StaticResource AC_FieldLabel}" />
+                                    <Entry Text="{Binding ProfileName}" Placeholder="Enter your display name" />
                                 </VerticalStackLayout>
-                            </Border>
-                        </VerticalStackLayout>
 
-                        <Grid>
-                            <Border Style="{StaticResource AC_SectionCard}" Margin="0,24,0,20">
-                                <StackLayout>
-                                    <Label Text="Connected Services" Margin="0,0,0,24"
-                                        Style="{StaticResource AC_BigSectionTitle}" />
+                                <VerticalStackLayout Spacing="6">
+                                    <Label Text="Email Address" Style="{StaticResource AC_FieldLabel}" />
+                                    <Entry Text="{Binding ProfileEmail}" Placeholder="name@example.com" Keyboard="Email" />
+                                </VerticalStackLayout>
 
-                                    <!-- DESKTOP: two services side-by-side -->
-                                    <Grid ColumnDefinitions="*,*" ColumnSpacing="16"
-                                        IsVisible="{OnIdiom Default=True, Phone=False}">
-                                        <Border Grid.Column="0" Style="{StaticResource AC_RowCard}"
-                                            BackgroundColor="{AppThemeBinding Light=#FAF8FA,Dark=#313032}"
-                                            StrokeThickness="1" Stroke="{AppThemeBinding Light=#E5E1E3, Dark=#333333}">
-                                            <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="12"
-                                                VerticalOptions="Center">
-                                                <Border Grid.Column="0" Background="White" StrokeThickness="1"
-                                                    Stroke="{AppThemeBinding Light=#E5E1E3, Dark=#333333}"
-                                                    WidthRequest="35" HeightRequest="35" StrokeShape="RoundRectangle 4"
-                                                    VerticalOptions="Center">
-                                                    <Image Source="google.png" HeightRequest="20" WidthRequest="20" />
-                                                </Border>
-                                                <VerticalStackLayout Grid.Column="1" Spacing="2"
-                                                    VerticalOptions="Center">
-                                                    <Label Text="Google Drive" FontFamily="Roboto-Medium" FontSize="16"
-                                                        TextColor="{AppThemeBinding Light=#313032, Dark=#FFFFFF}" />
-                                                    <Label Text="Connected" FontFamily="Roboto-Medium" FontSize="12"
-                                                        TextColor="{AppThemeBinding Light=#5F5E60, Dark=#929092}" />
-                                                </VerticalStackLayout>
-                                                <ImageButton Grid.Column="2" Background="Transparent"
-                                                    Style="{StaticResource HeaderIconButton}"
-                                                    Source="{AppThemeBinding Light=connecticon.png,Dark= connecticondark.png}"
-                                                    HorizontalOptions="Start" VerticalOptions="Center"
-                                                    Command="{Binding OpenMessagesCommand}" />
-                                            </Grid>
-                                        </Border>
+                                <Label Text="{Binding ProfileErrorMessage}" TextColor="#D93025" />
 
-                                        <Border Grid.Column="1" Style="{StaticResource AC_RowCard}" StrokeThickness="1"
-                                            BackgroundColor="{AppThemeBinding Light=#FAF8FA,Dark=#313032}"
-                                            Stroke="{AppThemeBinding Light=#E5E1E3, Dark=#333333}">
-                                            <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="12"
-                                                VerticalOptions="Center">
-                                                <Border Grid.Column="0" Background="White" WidthRequest="35"
-                                                    StrokeShape="RoundRectangle 4" StrokeThickness="1"
-                                                    Stroke="{AppThemeBinding Light=#E5E1E3, Dark=#333333}"
-                                                    HeightRequest="35" VerticalOptions="Center">
-                                                    <Image Source="cloud.png" HeightRequest="20" WidthRequest="20" />
-                                                </Border>
-                                                <VerticalStackLayout Grid.Column="1" Spacing="2"
-                                                    VerticalOptions="Center">
-                                                    <Label Text="OneDrive" FontFamily="Roboto-Medium" FontSize="16"
-                                                        TextColor="{AppThemeBinding Light=#313032, Dark=#FFFFFF}" />
-                                                    <Label Text="Not connected" FontFamily="Roboto-Medium" FontSize="12"
-                                                        TextColor="{AppThemeBinding Light=#5F5E60, Dark=#929092}" />
-                                                </VerticalStackLayout>
-                                                <buttons:SfButton Grid.Column="2" Text="Connect"
-                                                    Command="{Binding ConnectServiceCommand}"
-                                                    CommandParameter="{Binding ConnectedServices[1]}"
-                                                    Background="Transparent"
-                                                    TextColor="{AppThemeBinding Light=#7633DA, Dark=#8D4CF5}"
-                                                    FontFamily="Roboto-Regular" StrokeThickness="0" FontSize="14"
-                                                    Stroke="Transparent" HeightRequest="32" CornerRadius="8" />
-                                            </Grid>
-                                        </Border>
-                                    </Grid>
-
-                                    <!-- MOBILE two service -->
-                                    <VerticalStackLayout Spacing="16" IsVisible="{OnIdiom Default=False, Phone=True}">
-
-                                        <Border Style="{StaticResource AC_RowCard}"
-                                            BackgroundColor="{AppThemeBinding Light=#FAF8FA,Dark=#313032}"
-                                            StrokeThickness="1" Stroke="{AppThemeBinding Light=#E5E1E3, Dark=#333333}">
-                                            <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="12"
-                                                VerticalOptions="Center">
-                                                <Border Grid.Column="0" Background="White" StrokeThickness="1"
-                                                    Stroke="{AppThemeBinding Light=#E5E1E3, Dark=#333333}"
-                                                    WidthRequest="35" HeightRequest="35" StrokeShape="RoundRectangle 4"
-                                                    VerticalOptions="Center">
-                                                    <Image Source="google.png" HeightRequest="20" WidthRequest="20" />
-                                                </Border>
-                                                <VerticalStackLayout Grid.Column="1" Spacing="2"
-                                                    VerticalOptions="Center">
-                                                    <Label Text="Google Drive" FontFamily="Roboto-Medium" FontSize="16"
-                                                        TextColor="{AppThemeBinding Light=#313032, Dark=#FFFFFF}" />
-                                                    <Label Text="Connected" FontFamily="Roboto-Medium" FontSize="12"
-                                                        TextColor="{AppThemeBinding Light=#5F5E60, Dark=#929092}" />
-                                                </VerticalStackLayout>
-                                                <Image Grid.Column="2" Background="Transparent" HeightRequest="24"
-                                                    WidthRequest="24" Style="{StaticResource HeaderIconButton}"
-                                                    Source="{AppThemeBinding Light=connecticon.png, Dark=connecticondark.png}"
-                                                    HorizontalOptions="End" VerticalOptions="Center" />
-                                            </Grid>
-                                        </Border>
-
-                                        <Border Style="{StaticResource AC_RowCard}" StrokeThickness="1"
-                                            BackgroundColor="{AppThemeBinding Light=#FAF8FA,Dark=#313032}"
-                                            Stroke="{AppThemeBinding Light=#E5E1E3, Dark=#333333}">
-                                            <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="12"
-                                                VerticalOptions="Center">
-                                                <Border Grid.Column="0" Background="White" WidthRequest="35"
-                                                    StrokeShape="RoundRectangle 4" StrokeThickness="1"
-                                                    Stroke="{AppThemeBinding Light=#E5E1E3, Dark=#333333}"
-                                                    HeightRequest="35" VerticalOptions="Center">
-                                                    <Image Source="cloud.png" HeightRequest="20" WidthRequest="20" />
-                                                </Border>
-                                                <VerticalStackLayout Grid.Column="1" Spacing="2"
-                                                    VerticalOptions="Center">
-                                                    <Label Text="OneDrive" FontFamily="Roboto-Medium" FontSize="16"
-                                                        TextColor="{AppThemeBinding Light=#313032, Dark=#FFFFFF}" />
-                                                    <Label Text="Not connected" FontFamily="Roboto-Medium" FontSize="12"
-                                                        TextColor="{AppThemeBinding Light=#5F5E60, Dark=#929092}" />
-                                                </VerticalStackLayout>
-                                                <buttons:SfButton Grid.Column="2" Text="Connect"
-                                                    Command="{Binding ConnectServiceCommand}"
-                                                    CommandParameter="{Binding ConnectedServices[1]}"
-                                                    Background="Transparent"
-                                                    TextColor="{AppThemeBinding Light=#7633DA, Dark=#8D4CF5}"
-                                                    FontFamily="Roboto-Regular" StrokeThickness="0" FontSize="14"
-                                                    Stroke="Transparent" HeightRequest="32" CornerRadius="8" />
-                                            </Grid>
-                                        </Border>
-                                    </VerticalStackLayout>
-                                </StackLayout>
-                            </Border>
-                        </Grid>
-
-                        <Grid>
-                            <Border Style="{StaticResource AC_SectionCard}">
-                                <StackLayout>
-                                    <Label Text="Account Management" FontFamily="Roboto-SemiBold" FontSize="18"
-                                        Margin="0,0,0,24" TextColor="{AppThemeBinding Light=#313032, Dark=#FFFFFF}" />
-
-                                    <!-- DESKTOP -->
-                                    <Grid RowDefinitions="*,1,*,1,*" ColumnSpacing="16"
-                                        IsVisible="{OnIdiom Default=True, Phone=False}">
-
-                                        <!-- Data Export -->
-                                        <Border Grid.Row="0" Style="{StaticResource AC_SectionCard}"
-                                            StrokeThickness="0">
-                                            <Grid ColumnDefinitions="*,Auto">
-                                                <StackLayout Grid.Column="0">
-                                                    <Label Text="Data Export" FontFamily="Roboto-SemiBold" FontSize="16"
-                                                        TextColor="{AppThemeBinding Light=#313032, Dark=#FFFFFF}" />
-                                                    <Label Text="Download a copy of your chat history and account data."
-                                                        FontFamily="Roboto-Regular" FontSize="12"
-                                                        TextColor="{AppThemeBinding Light=#5F5E60, Dark=#929092}"
-                                                        LineBreakMode="WordWrap" />
-                                                </StackLayout>
-                                                <buttons:SfButton Grid.Column="1" HorizontalOptions="End"
-                                                    CornerRadius="8" Background="Transparent">
-                                                    <DataTemplate>
-                                                        <Border
-                                                            Stroke="{AppThemeBinding Light=#C9C6C8, Dark=#858385}"
-                                                            StrokeThickness="1" StrokeShape="RoundRectangle 8" Padding="12,6">
-                                                            <HorizontalStackLayout Spacing="8">
-                                                                <ImageButton Background="Transparent"
-                                                                    Style="{StaticResource HeaderIconButton}"
-                                                                    Source="{AppThemeBinding Light=exporticon.png, Dark=exporticondark.png}"
-                                                                    HorizontalOptions="Start"
-                                                                    VerticalOptions="Center"
-                                                                    Command="{Binding OpenMessagesCommand}" />
-                                                                <Label Text="Request Export"
-                                                                    FontFamily="Roboto-Medium" FontSize="14"
-                                                                    TextColor="{AppThemeBinding Light=#313032, Dark=#FFFFFF}"
-                                                                    HorizontalOptions="Start"
-                                                                    VerticalOptions="Center" />
-                                                            </HorizontalStackLayout>
-                                                        </Border>
-                                                    </DataTemplate>
-                                                </buttons:SfButton>
-                                            </Grid>
-                                        </Border>
-
-                                        <BoxView Grid.Row="1" VerticalOptions="End" Margin="25,0" HeightRequest="1"
-                                            BackgroundColor="{AppThemeBinding Light=#E5E1E3, Dark=#474648}" />
-
-                                        <!-- Sign Out -->
-                                        <Border Grid.Row="2" Style="{StaticResource AC_SectionCard}"
-                                            StrokeThickness="0">
-                                            <Grid ColumnDefinitions="*,Auto">
-                                                <StackLayout Grid.Column="0">
-                                                    <Label Text="Sign Out" FontFamily="Roboto-SemiBold" FontSize="16"
-                                                        TextColor="{AppThemeBinding Light=#313032, Dark=#FFFFFF}" />
-                                                    <Label Text="Sign out of this device securely."
-                                                        FontFamily="Roboto-Regular" FontSize="12"
-                                                        TextColor="{AppThemeBinding Light=#5F5E60, Dark=#929092}"
-                                                        LineBreakMode="WordWrap" />
-                                                </StackLayout>
-                                                <buttons:SfButton Grid.Column="1" HorizontalOptions="End"
-                                                    CornerRadius="8" Background="Transparent">
-                                                    <DataTemplate>
-                                                        <Border
-                                                            Stroke="{AppThemeBinding Light=#C9C6C8, Dark=#858385}"
-                                                            StrokeThickness="1" StrokeShape="RoundRectangle 8" Padding="12,6">
-                                                            <HorizontalStackLayout Spacing="8">
-                                                                <ImageButton
-                                                                    Style="{StaticResource HeaderIconButton}"
-                                                                    Source="{AppThemeBinding Light=signout.png, Dark=signoutdark.png}"
-                                                                    HorizontalOptions="Start"
-                                                                    VerticalOptions="Center"
-                                                                    Background="Transparent"
-                                                                    Command="{Binding OpenMessagesCommand}" />
-                                                                <Label Text="Sign Out" FontFamily="Roboto-Medium"
-                                                                    FontSize="14"
-                                                                    TextColor="{AppThemeBinding Light=#313032, Dark=#FFFFFF}"
-                                                                    HorizontalOptions="Start"
-                                                                    VerticalOptions="Center" />
-                                                            </HorizontalStackLayout>
-                                                        </Border>
-                                                    </DataTemplate>
-                                                </buttons:SfButton>
-                                            </Grid>
-                                        </Border>
-
-                                        <BoxView Grid.Row="3" VerticalOptions="End" Margin="25,0" HeightRequest="1"
-                                            BackgroundColor="{AppThemeBinding Light=#E5E1E3, Dark=#474648}" />
-
-                                        <!-- Delete Account -->
-                                        <Border Grid.Row="4" Style="{StaticResource AC_SectionCard}"
-                                            StrokeThickness="0">
-                                            <Grid ColumnDefinitions="*,Auto">
-                                                <StackLayout Grid.Column="0">
-                                                    <Label Text="Delete Account" FontFamily="Roboto-SemiBold"
-                                                        FontSize="16"
-                                                        TextColor="{AppThemeBinding Dark=#FF5C61, Light=#C20D32}" />
-                                                    <Label
-                                                        Text="Permanently remove your account and all data. This action cannot be undone."
-                                                        FontFamily="Roboto-Regular" FontSize="12"
-                                                        TextColor="{AppThemeBinding Light=#5F5E60, Dark=#929092}"
-                                                        LineBreakMode="WordWrap" />
-                                                </StackLayout>
-                                                <buttons:SfButton Grid.Column="1" HorizontalOptions="End"
-                                                    CornerRadius="4" Background="Transparent">
-                                                    <DataTemplate>
-                                                        <Border StrokeShape="RoundRectangle 4" StrokeThickness="0"
-                                                            Background="{AppThemeBinding Light=#FFEEEC, Dark=#4B0D14}"
-                                                            Padding="12,6">
-                                                            <HorizontalStackLayout Spacing="8">
-                                                                <ImageButton
-                                                                    Style="{StaticResource HeaderIconButton}"
-                                                                    Background="{AppThemeBinding Light=#FFEEEC, Dark=#4B0D14}"
-                                                                    Source="delete.png" HorizontalOptions="Start"
-                                                                    VerticalOptions="Center"
-                                                                    Command="{Binding OpenMessagesCommand}" />
-                                                                <Label Text="Delete account"
-                                                                    FontFamily="Roboto-Medium" FontSize="14"
-                                                                    TextColor="{AppThemeBinding Dark=#FF5C61, Light=#C20D32}"
-                                                                    HorizontalOptions="Start"
-                                                                    VerticalOptions="Center" />
-                                                            </HorizontalStackLayout>
-                                                        </Border>
-                                                    </DataTemplate>
-                                                </buttons:SfButton>
-                                            </Grid>
-                                        </Border>
-                                    </Grid>
-
-                                    <!-- MOBILE -->
-                                    <VerticalStackLayout Spacing="0" IsVisible="{OnIdiom Default=False, Phone=True}">
-
-                                        <!-- Data Export -->
-                                        <VerticalStackLayout Spacing="8">
-                                            <Label Text="Data Export" FontFamily="Roboto-SemiBold" FontSize="16"
-                                                TextColor="{AppThemeBinding Light=#313032, Dark=#FFFFFF}" />
-                                            <Label Text="Download a copy of your chat history and account data."
-                                                FontFamily="Roboto-Regular" FontSize="12"
-                                                TextColor="{AppThemeBinding Light=#5F5E60, Dark=#929092}"
-                                                LineBreakMode="WordWrap" />
-                                            <buttons:SfButton HorizontalOptions="Fill" CornerRadius="8"
-                                                HeightRequest="40" Background="Transparent" Margin="0,4,0,0">
-                                                <DataTemplate>
-                                                    <Border Stroke="{AppThemeBinding Light=#C9C6C8, Dark=#858385}"
-                                                        StrokeThickness="1" StrokeShape="RoundRectangle 8" Padding="12,6">
-                                                        <HorizontalStackLayout HorizontalOptions="Center" Spacing="8">
-                                                            <Image Style="{StaticResource HeaderIconButton}"
-                                                                HeightRequest="24" WidthRequest="24"
-                                                                Background="Transparent"
-                                                                Source="{AppThemeBinding Light=exporticon.png, Dark=exporticondark.png}"
-                                                                HorizontalOptions="Start"
-                                                                VerticalOptions="Center" />
-                                                            <Label Text="Request Export" FontFamily="Roboto-Medium"
-                                                                FontSize="14"
-                                                                TextColor="{AppThemeBinding Light=#313032, Dark=#FFFFFF}"
-                                                                VerticalOptions="Center" />
-                                                        </HorizontalStackLayout>
-                                                    </Border>
-                                                </DataTemplate>
-                                            </buttons:SfButton>
-                                        </VerticalStackLayout>
-
-                                        <BoxView HeightRequest="1" Margin="0,16"
-                                            BackgroundColor="{AppThemeBinding Light=#E5E1E3, Dark=#474648}" />
-
-                                        <!-- Sign Out -->
-                                        <VerticalStackLayout Spacing="8">
-                                            <Label Text="Sign Out" FontFamily="Roboto-SemiBold" FontSize="16"
-                                                TextColor="{AppThemeBinding Light=#313032, Dark=#FFFFFF}" />
-                                            <Label Text="Sign out of this device securely." FontFamily="Roboto-Regular"
-                                                FontSize="12" TextColor="{AppThemeBinding Light=#5F5E60, Dark=#929092}"
-                                                LineBreakMode="WordWrap" />
-                                            <buttons:SfButton HorizontalOptions="Fill" CornerRadius="8"
-                                                HeightRequest="40" Background="Transparent" Margin="0,4,0,0">
-                                                <DataTemplate>
-                                                    <Border Stroke="{AppThemeBinding Light=#C9C6C8, Dark=#858385}"
-                                                        StrokeThickness="1" StrokeShape="RoundRectangle 8" Padding="12,6">
-                                                        <HorizontalStackLayout HorizontalOptions="Center" Spacing="8">
-                                                            <Image Style="{StaticResource HeaderIconButton}"
-                                                                HeightRequest="24" WidthRequest="24"
-                                                                Background="Transparent"
-                                                                Source="{AppThemeBinding Light=signout.png, Dark=signoutdark.png}"
-                                                                HorizontalOptions="Start"
-                                                                VerticalOptions="Center" />
-                                                            <Label Text="Sign Out" FontFamily="Roboto-Medium"
-                                                                FontSize="14"
-                                                                TextColor="{AppThemeBinding Light=#313032, Dark=#FFFFFF}"
-                                                                VerticalOptions="Center" />
-                                                        </HorizontalStackLayout>
-                                                    </Border>
-                                                </DataTemplate>
-                                            </buttons:SfButton>
-                                        </VerticalStackLayout>
-
-                                        <BoxView HeightRequest="1" Margin="0,16"
-                                            BackgroundColor="{AppThemeBinding Light=#E5E1E3, Dark=#474648}" />
-
-                                        <!-- Delete Account -->
-                                        <VerticalStackLayout Spacing="8">
-                                            <Label Text="Delete Account" FontFamily="Roboto-SemiBold" FontSize="16"
-                                                TextColor="{AppThemeBinding Dark=#FF5C61, Light=#C20D32}" />
-                                            <Label
-                                                Text="Permanently remove your account and all data. This action cannot be undone."
-                                                FontFamily="Roboto-Regular" FontSize="12"
-                                                TextColor="{AppThemeBinding Light=#5F5E60, Dark=#929092}"
-                                                LineBreakMode="WordWrap" />
-                                            <buttons:SfButton HorizontalOptions="Fill" CornerRadius="4"
-                                                HeightRequest="40" Background="Transparent" Margin="0,4,0,0">
-                                                <DataTemplate>
-                                                    <Border StrokeShape="RoundRectangle 4" StrokeThickness="0"
-                                                        Background="{AppThemeBinding Light=#FFEEEC, Dark=#4B0D14}"
-                                                        Padding="12,6">
-                                                        <HorizontalStackLayout HorizontalOptions="Center" Spacing="8">
-                                                            <Image Style="{StaticResource HeaderIconButton}"
-                                                                HeightRequest="24" WidthRequest="24"
-                                                                Background="{AppThemeBinding Light=#FFEEEC, Dark=#4B0D14}"
-                                                                Source="delete.png" HorizontalOptions="Start"
-                                                                VerticalOptions="Center" />
-                                                            <Label Text="Delete account" FontFamily="Roboto-Medium"
-                                                                FontSize="14"
-                                                                TextColor="{AppThemeBinding Dark=#FF5C61, Light=#C20D32}"
-                                                                VerticalOptions="Center" />
-                                                        </HorizontalStackLayout>
-                                                    </Border>
-                                                </DataTemplate>
-                                            </buttons:SfButton>
-                                        </VerticalStackLayout>
-                                    </VerticalStackLayout>
-                                </StackLayout>
-                            </Border>
-                        </Grid>
+                                <buttons:SfButton Text="Save Changes"
+                                                  Command="{Binding SaveProfileCommand}"
+                                                  FontFamily="Roboto-Medium"
+                                                  CornerRadius="0"
+                                                  HorizontalOptions="Start" />
+                            </VerticalStackLayout>
+                        </Border>
                     </VerticalStackLayout>
                 </Grid>
             </ScrollView>
-
         </Grid>
-
-        <controls:AIChatNavigationPanel Grid.Column="0" x:Name="AIChatNavigationPanel" HorizontalOptions="Start"
-            InitialSelectedItem="NewChat" ZIndex="2" />
-
     </Grid>
-
 </ContentPage>
