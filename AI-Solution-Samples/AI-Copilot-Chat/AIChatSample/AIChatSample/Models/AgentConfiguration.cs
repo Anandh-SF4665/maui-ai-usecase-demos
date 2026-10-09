@@ -16,6 +16,8 @@ namespace AIChatSample.Models
         private string? companyName;
         private string? color;
         private string? initial;
+        private string? avatarSource;
+        private string? avatarGlyph;
 
         /// <summary>
         /// Stable unique identifier for the agent. Assigned at creation
@@ -85,6 +87,20 @@ namespace AIChatSample.Models
         {
             get => this.initial;
             set => this.SetProperty(ref this.initial, value);
+        }
+
+        /// <summary>Optional uploaded image path used by the logo editor.</summary>
+        public string? AvatarSource
+        {
+            get => this.avatarSource;
+            set => this.SetProperty(ref this.avatarSource, value);
+        }
+
+        /// <summary>Optional glyph/fallback avatar definition used by the logo editor.</summary>
+        public string? AvatarGlyph
+        {
+            get => this.avatarGlyph;
+            set => this.SetProperty(ref this.avatarGlyph, value);
         }
 
         /// <summary>

@@ -32,7 +32,7 @@ Exactly **10 tasks**, ordered by dependency. Each task is independently verifiab
   Tapping an agent starts a chat session bound to it; agent `Behaviour` injected as system context; first AI response reflects it. Verify AC-1 end-to-end.
   *Covers:* FR-1.5, FR-0.3, AC-1 · *Depends on:* T05
 
-- [ ] **T07 — Logo editor: templates & colors** (M) — *Phase 3*
+- [x] **T07 — Logo editor: templates & colors** (M) — *Phase 3*
   `AgentLogoEditor`: predefined template gallery + background color selection; Save persists choice to the agent.
   *Covers:* FR-2.1, FR-2.2, FR-2.4 · *Depends on:* T05
 

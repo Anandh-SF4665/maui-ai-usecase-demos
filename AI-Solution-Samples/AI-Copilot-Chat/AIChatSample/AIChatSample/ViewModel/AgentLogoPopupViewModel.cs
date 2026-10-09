@@ -1,4 +1,5 @@
-﻿using System.Collections.ObjectModel;
+using System.Collections.ObjectModel;
+using System.Linq;
 using System.Windows.Input;
 using AIChatSample.Models;
 using CommunityToolkit.Mvvm.ComponentModel;
@@ -21,6 +22,7 @@ namespace AIChatSample.ViewModel
         [ObservableProperty] private LogoIconModel? selectedIcon;
         [ObservableProperty] private LogoColorModel? selectedColor;
         [ObservableProperty] private string? selectedImage;
+        [ObservableProperty] private AgentConfiguration? targetAgent;
 
         #endregion
 
@@ -141,15 +143,18 @@ namespace AIChatSample.ViewModel
         }
 
         /// <summary>Resets in-progress state so Create mode shows fresh on each open.</summary>
-        public void ResetForOpen()
+        public void ResetForOpen(AgentConfiguration? agent = null)
         {
+            TargetAgent = agent;
             SelectedTab = 0;                                          // Create by default
-            SelectedImage = null;
+            SelectedImage = agent?.AvatarSource;
             // Restore icon/color selection defaults
             foreach (var i in AvailableIcons) i.IsSelected = (i == AvailableIcons[0]);
             SelectedIcon = AvailableIcons[0];
             foreach (var c in AvailableColors) c.IsSelected = (c == AvailableColors[5]);
-            SelectedColor = AvailableColors[5];
+            SelectedColor = agent is null
+                ? AvailableColors[5]
+                : AvailableColors.FirstOrDefault(c => c.ColorHex == agent.Color) ?? AvailableColors[5];
             RefreshApplyEnabled();
         }
 
@@ -213,14 +218,23 @@ namespace AIChatSample.ViewModel
         {
             if (IsUploadMode && !string.IsNullOrEmpty(SelectedImage))
             {
-                // Uploaded file → its path renders directly via Image.Source.
                 AgentAvatar = SelectedImage;
+                if (TargetAgent is not null)
+                {
+                    TargetAgent.AvatarSource = SelectedImage;
+                    TargetAgent.AvatarGlyph = null;
+                    TargetAgent.Color = SelectedColor?.ColorHex ?? TargetAgent.Color;
+                }
             }
             else if (SelectedIcon is { } icon)
             {
-                // Create mode → encode "FontFamily;Glyph;Color" so IconAvatar
-                // builds a FontImageSource the avatar Image can render.
                 AgentAvatar = $"{icon.IconFontFamily};{icon.IconGlyph};{SelectedColor?.ColorHex ?? "#8B5AE0"}";
+                if (TargetAgent is not null)
+                {
+                    TargetAgent.AvatarGlyph = AgentAvatar;
+                    TargetAgent.AvatarSource = null;
+                    TargetAgent.Color = SelectedColor?.ColorHex ?? TargetAgent.Color;
+                }
             }
             RequestClose?.Invoke(this, EventArgs.Empty);
         }
