@@ -84,5 +84,9 @@
                 </Grid>
             </ScrollView>
         </Grid>
+
+        <controls:AIChatNavigationPanel Grid.Column="0" x:Name="AIChatNavigationPanel" HorizontalOptions="Start"
+            InitialSelectedItem="Profile" ZIndex="2" />
+
     </Grid>
 </ContentPage>

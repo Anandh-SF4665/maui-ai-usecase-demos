@@ -44,9 +44,9 @@ namespace AIChatSample.Views.AIChat
             }
         }
 
-private void OnNavigationRequested(object? sender, NavigationRequestEventArgs e)
-    {
-        ChatNavigationService.Handle(this, e.Key, e.Parameter);
+        private void OnNavigationRequested(object? sender, NavigationRequestEventArgs e)
+        {
+            ChatNavigationService.Handle(this, e.Key, e.Parameter);
         }
 
         private void OnNavigationMenuTapped(object sender, EventArgs e)
