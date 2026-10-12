@@ -20,25 +20,18 @@ namespace DataFormAISolution
 		{
 			InitializeComponent();
 			_viewModel = new FormViewModel();
-
 			BindingContext = _viewModel;
-
-			_viewModel.PropertyChanged +=
-				ViewModel_PropertyChanged;
+			_viewModel.PropertyChanged += ViewModel_PropertyChanged;
 		}
 
 		/// <summary>
 		/// Handles viewmodel property changes.
 		/// </summary>
-		private void ViewModel_PropertyChanged(
-object? sender,
-PropertyChangedEventArgs e)
+		private void ViewModel_PropertyChanged(object? sender, PropertyChangedEventArgs e)
 		{
-			if (e.PropertyName ==
-			nameof(FormViewModel.FormGenerationVersion))
+			if (e.PropertyName == nameof(FormViewModel.FormGenerationVersion))
 			{
-				MainThread.BeginInvokeOnMainThread(
-				GenerateDataForm);
+				MainThread.BeginInvokeOnMainThread(GenerateDataForm);
 			}
 		}
 
@@ -52,8 +45,7 @@ PropertyChangedEventArgs e)
 			/// <summary>
 			/// Initializes a new instance of the <see cref="DynamicDataFormItemManager"/> class.
 			/// </summary>
-			public DynamicDataFormItemManager(
-				Dictionary<string, object> formData)
+			public DynamicDataFormItemManager(Dictionary<string, object> formData)
 			{
 				_formData = formData;
 			}
@@ -61,84 +53,57 @@ PropertyChangedEventArgs e)
 			/// <summary>
 			/// Gets the current value for the specified DataForm item.
 			/// </summary>
-			public override object GetValue(
-				DataFormItem dataFormItem)
+			public override object GetValue(DataFormItem dataFormItem)
 			{
-				if (_formData.TryGetValue(
-					dataFormItem.FieldName,
-					out var value))
+				if (_formData.TryGetValue(dataFormItem.FieldName, out var value))
 				{
 					return value;
 				}
-
 				return string.Empty;
 			}
 
 			/// <summary>
 			/// Updates the value for the specified DataForm item.
 			/// </summary>
-			public override void SetValue(
-				DataFormItem dataFormItem,
-				object value)
+			public override void SetValue(DataFormItem dataFormItem, object value)
 			{
 				_formData[dataFormItem.FieldName] = value;
 			}
 		}
 
-	private void GenerateDataForm()
+		private void GenerateDataForm()
 		{
 			GeneratedDataForm.Items.Clear();
 
 			_formData.Clear();
 
-			// STEP 1:
-			// Store all AI values.
 			foreach (var field in _viewModel.GeneratedFields)
 			{
-				string fieldName =
-					GetValidPropertyName(field.FieldName);
-
-				object value =
-					ConvertFieldValue(field);
-
+				string fieldName = GetValidPropertyName(field.FieldName);
+				object value = ConvertFieldValue(field);
 				_formData[fieldName] = value;
 			}
 
-			// STEP 2:
-			// Connect dictionary to SfDataForm.
-			GeneratedDataForm.ItemManager =
-				new DynamicDataFormItemManager(
-					_formData);
+			GeneratedDataForm.ItemManager = new DynamicDataFormItemManager(_formData);
 
-			// STEP 3:
-			// Generate editors.
 			foreach (var field in _viewModel.GeneratedFields)
 			{
-				string fieldName =
-					GetValidPropertyName(field.FieldName);
-
-				DataFormItem item =
-					CreateDataFormItem(
-						field,
-						fieldName);
-
+				string fieldName = GetValidPropertyName(field.FieldName);
+				DataFormItem item = CreateDataFormItem(field, fieldName);
 				GeneratedDataForm.Items.Add(item);
 			}
 		}
 
-		private static string GetValidPropertyName(
-		string fieldName)
+		private static string GetValidPropertyName(string fieldName)
 		{
 			if (string.IsNullOrWhiteSpace(fieldName))
 			{
 				return "Field";
 			}
 
-			var characters =
-				fieldName.Where(char.IsLetterOrDigit);
+			var characters = fieldName.Where(char.IsLetterOrDigit);
 
-			string propertyName =
-				string.Concat(characters);
+			string propertyName = string.Concat(characters);
 
 			if (string.IsNullOrWhiteSpace(propertyName))
 			{
@@ -147,16 +112,13 @@ PropertyChangedEventArgs e)
 
 			if (char.IsDigit(propertyName[0]))
 			{
-				propertyName =
-					"Field" + propertyName;
+				propertyName = "Field" + propertyName;
 			}
 
 			return propertyName;
 		}
 
-		private static DataFormItem CreateDataFormItem(
-		AIField field,
-		string fieldName)
+		private static DataFormItem CreateDataFormItem(AIField field, string fieldName)
 		{
 			switch (field.FieldType?.ToLowerInvariant())
 			{
@@ -165,9 +127,8 @@ PropertyChangedEventArgs e)
 					return new DataFormNumericItem
 					{
 						FieldName = fieldName,
-						LabelText = field.FieldName,						
-						PlaceholderText =
-							$"Enter {field.FieldName}",
+						LabelText = field.FieldName,
+						PlaceholderText = $"Enter {field.FieldName}",
 					};
 
 				case "phone":
@@ -176,8 +137,7 @@ PropertyChangedEventArgs e)
 					{
 						FieldName = fieldName,
 						LabelText = field.FieldName,
-						PlaceholderText =
-							$"Enter {field.FieldName}"
+						PlaceholderText = $"Enter {field.FieldName}"
 					};
 
 				case "email":
@@ -186,8 +146,7 @@ PropertyChangedEventArgs e)
 					{
 						FieldName = fieldName,
 						LabelText = field.FieldName,
-						PlaceholderText =
-							$"Enter {field.FieldName}"
+						PlaceholderText = $"Enter {field.FieldName}"
 					};
 
 				case "text":
@@ -198,29 +157,23 @@ PropertyChangedEventArgs e)
 					{
 						FieldName = fieldName,
 						LabelText = field.FieldName,
-						PlaceholderText =
-							$"Enter {field.FieldName}"
+						PlaceholderText = $"Enter {field.FieldName}"
 					};
 			}
 		}
 
-		private static object? ConvertFieldValue(
-	AIField field)
+		private static object? ConvertFieldValue(AIField field)
 		{
-			string value =
-				field.Value ?? string.Empty;
+			string value = field.Value ?? string.Empty;
 
 			switch (field.FieldType?.ToLowerInvariant())
 			{
 				case "number":
 
-					if (double.TryParse(
-						value,
-						out double number))
+					if (double.TryParse(value, out double number))
 					{
 						return number;
 					}
-
 					return 0d;
 
 				case "phone":
@@ -228,7 +181,6 @@ PropertyChangedEventArgs e)
 				case "text":
 
 				default:
-
 					return value;
 			}
 		}

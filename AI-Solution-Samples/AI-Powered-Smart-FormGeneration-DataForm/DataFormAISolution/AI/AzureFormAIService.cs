@@ -12,31 +12,19 @@ namespace DataFormAISolution;
 /// </summary>
 public class AzureFormAIService : IAIFormService
 {
-	/// <summary>
-	/// Creates a new instance of the <see cref="AzureFormAIService"/> class.
-	/// </summary>
-	private readonly AzureOpenAiOptions _options;
+	private readonly AzureOpenAIOptions _options;
 
 	private ChatClient? _chatClient;
 
-
-	private static readonly JsonSerializerOptions
-		SerializerOptions =
-			new()
-			{
-				PropertyNameCaseInsensitive = true
-			};
-
+	private static readonly JsonSerializerOptions SerializerOptions =new(){ PropertyNameCaseInsensitive = true};
 
 	/// <summary>
 	/// Initializes a new instance of the <see cref="AzureFormAIService"/> class.
 	/// </summary>
 	public AzureFormAIService()
 	{
-		_options =
-			new AzureOpenAiOptions();
+		_options =new AzureOpenAIOptions();
 	}
-
 
 	/// <summary>
 	/// Generates a structured form response from the supplied text.
@@ -44,38 +32,23 @@ public class AzureFormAIService : IAIFormService
 	/// <param name="userInput">The free-text content to analyze.</param>
 	/// <param name="cancellationToken">A cancellation token.</param>
 	/// <returns>A structured response describing the generated form.</returns>
-	public async Task<AIFormResponse?>
-		GenerateFormAsync(
-			string userInput,
-			CancellationToken cancellationToken = default)
+	public async Task<AIFormResponse?>GenerateFormAsync(string userInput, CancellationToken cancellationToken = default)
 	{
-		if (string.IsNullOrWhiteSpace(
-			userInput))
+		if (string.IsNullOrWhiteSpace(userInput))
 		{
 			return null;
 		}
 
+		string? validationError = _options.ValidateCredentials();
 
-		string? validationError =
-			_options.ValidateCredentials();
-
-
-		if (!string.IsNullOrWhiteSpace(
-			validationError))
+		if (!string.IsNullOrWhiteSpace(validationError))
 		{
-			throw new InvalidOperationException(
-				validationError);
+			throw new InvalidOperationException(validationError);
 		}
-
 
 		try
 		{
-			// Create client only once
-
 			EnsureChatClient();
-
-
-			// System prompt
 
 			string systemPrompt =
 				"""
@@ -174,9 +147,6 @@ public class AzureFormAIService : IAIFormService
                 }
                 """;
 
-
-			// User prompt
-
 			string userPrompt =
 				$$"""
                 Analyze the following user content and
@@ -187,9 +157,6 @@ public class AzureFormAIService : IAIFormService
                 {{userInput}}
                 """;
 
-
-			// Chat messages
-
 			List<ChatMessage> messages =
 			[
 				new SystemChatMessage(
@@ -199,84 +166,53 @@ public class AzureFormAIService : IAIFormService
 					userPrompt)
 			];
 
-
-			// Chat options
-
 			var chatOptions = new ChatCompletionOptions
 			{
 				ResponseFormat =
 		ChatResponseFormat.CreateJsonObjectFormat()
 			};
 
+			ClientResult<ChatCompletion> result =await _chatClient!.CompleteChatAsync(messages, chatOptions, cancellationToken);
 
-			// Azure OpenAI request
+			ChatCompletion completion = result.Value;
 
-			ClientResult<ChatCompletion> result =
-	await _chatClient!
-		.CompleteChatAsync(
-			messages,
-			chatOptions,
-			cancellationToken);
-
-			ChatCompletion completion =
-				result.Value;
-
-			if (completion.Content == null ||
-				completion.Content.Count == 0)
+			if (completion.Content == null || completion.Content.Count == 0)
 			{
-				throw new InvalidOperationException(
-					"Azure OpenAI returned no content.");
+				throw new InvalidOperationException("Azure OpenAI returned no content.");
 			}
 
-			string rawJson =
-				string.Concat(
-					completion.Content
-						.Select(part => part.Text ?? string.Empty));
+			string rawJson =string.Concat(completion.Content.Select(part => part.Text ?? string.Empty));
 
 
-			if (string.IsNullOrWhiteSpace(
-				rawJson))
+			if (string.IsNullOrWhiteSpace(rawJson))
 			{
 				return null;
 			}
 
 
-			rawJson =
-				CleanJson(rawJson);
+			rawJson = CleanJson(rawJson);
 
 
-			AIFormResponse? response =
-				JsonSerializer.Deserialize<
-					AIFormResponse>(
-						rawJson,
-						SerializerOptions);
+			AIFormResponse? response =JsonSerializer.Deserialize<AIFormResponse>(rawJson, SerializerOptions);
 
 
 			if (response == null)
 			{
-				Debug.WriteLine(
-					"AIFormResponse is null.");
-
+				Debug.WriteLine("AIFormResponse is null.");
 				return null;
 			}
 
 
-			if (response.Fields == null ||
-				response.Fields.Count == 0)
+			if (response.Fields == null || response.Fields.Count == 0)
 			{
-				Debug.WriteLine(
-					"Azure AI returned no form fields.");
-
+				Debug.WriteLine("Azure AI returned no form fields.");
 				return null;
 			}
 
 			foreach (AIField field
 				in response.Fields)
 			{
-				Debug.WriteLine(
-					$"{field.FieldName} | " +
-					$"{field.Value} | " +
-					$"{field.FieldType}");
+				Debug.WriteLine($"{field.FieldName} | " + $"{field.Value} | " + $"{field.FieldType}");
 			}
 
 
@@ -284,56 +220,34 @@ public class AzureFormAIService : IAIFormService
 		}
 		catch (RequestFailedException ex)
 		{
-			Debug.WriteLine(
-				$"Azure request failed: " +
-				$"{ex.Status} | " +
-				$"{ex.ErrorCode} | " +
-				$"{ex.Message}");
+			Debug.WriteLine($"Azure request failed: " + $"{ex.Status} | " + $"{ex.ErrorCode} | " + $"{ex.Message}");
 
-			throw new InvalidOperationException(
-				$"Azure OpenAI request failed " +
-				$"({ex.Status}: {ex.ErrorCode}). " +
-				ex.Message,
-				ex);
+			throw new InvalidOperationException($"Azure OpenAI request failed " + $"({ex.Status}: {ex.ErrorCode}). " + ex.Message, ex);
 		}
 		catch (ClientResultException ex)
 		{
-			Debug.WriteLine(
-				$"OpenAI client request failed: " +
-				$"{ex.Status} | {ex.Message}");
+			Debug.WriteLine($"OpenAI client request failed: " + $"{ex.Status} | {ex.Message}");
 
-			throw new InvalidOperationException(
-				$"Azure OpenAI request failed " +
-				$"({ex.Status}). {ex.Message}",
-				ex);
+			throw new InvalidOperationException($"Azure OpenAI request failed " + $"({ex.Status}). {ex.Message}", ex);
 		}
 		catch (OperationCanceledException)
 		{
-			Debug.WriteLine(
-				"Azure OpenAI request cancelled.");
+			Debug.WriteLine("Azure OpenAI request cancelled.");
 
 			throw;
 		}
 		catch (JsonException ex)
 		{
-			Debug.WriteLine(
-				$"Invalid JSON returned by Azure AI: " +
-				$"{ex.Message}");
+			Debug.WriteLine($"Invalid JSON returned by Azure AI: " + $"{ex.Message}");
 
-			throw new InvalidOperationException(
-				"Azure AI returned an invalid form response.",
-				ex);
+			throw new InvalidOperationException("Azure AI returned an invalid form response.", ex);
 		}
 		catch (Exception ex)
 		{
-			Debug.WriteLine(
-				$"AzureFormAIService Error: {ex}");
-
+			Debug.WriteLine($"AzureFormAIService Error: {ex}");
 			throw;
 		}
 	}
-
-	// CREATE AZURE OPENAI CLIENT
 
 	private void EnsureChatClient()
 	{
@@ -342,56 +256,28 @@ public class AzureFormAIService : IAIFormService
 			return;
 		}
 
-
-		AzureOpenAIClient client =
-			new(
-				new Uri(
-					_options.EndpointValue),
-
-				new AzureKeyCredential(
-					_options.KeyValue));
-
-
-		_chatClient =
-			client.GetChatClient(
-				_options.DeploymentNameValue);
+		AzureOpenAIClient client =new(new Uri(_options.EndpointValue), new AzureKeyCredential(_options.KeyValue));
+		_chatClient =client.GetChatClient(_options.DeploymentNameValue);
 	}
 
-	// CLEAN JSON
-
-	private static string CleanJson(
-		string content)
+	private static string CleanJson(string content)
 	{
-		content =
-			content.Trim();
+		content =content.Trim();
 
-
-		if (content.StartsWith(
-			"```json",
-			StringComparison.OrdinalIgnoreCase))
+		if (content.StartsWith("```json", StringComparison.OrdinalIgnoreCase))
 		{
-			content =
-				content[7..];
+			content =content[7..];
 		}
 
-
-		if (content.StartsWith(
-			"```",
-			StringComparison.Ordinal))
+		if (content.StartsWith("```", StringComparison.Ordinal))
 		{
-			content =
-				content[3..];
+			content = content[3..];
 		}
 
-
-		if (content.EndsWith(
-			"```",
-			StringComparison.Ordinal))
+		if (content.EndsWith("```", StringComparison.Ordinal))
 		{
-			content =
-				content[..^3];
+			content =content[..^3];
 		}
-
 
 		return content.Trim();
 	}

@@ -76,7 +76,6 @@
 											  CornerRadius="9" />
 
 						</Grid>
-
 					</VerticalStackLayout>
 
 				</Border>
@@ -136,4 +135,5 @@
 			</VerticalStackLayout>
 		</ScrollView>
 	</Grid>
+
 </ContentPage>

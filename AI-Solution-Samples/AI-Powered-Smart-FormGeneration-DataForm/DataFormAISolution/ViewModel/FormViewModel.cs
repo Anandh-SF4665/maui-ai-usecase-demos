@@ -35,8 +35,7 @@ namespace DataFormAISolution
 		public FormViewModel()
 		{
 			_aiFormService = new AzureFormAIService();
-			GeneratedFields =
-new ObservableCollection<AIField>();
+			GeneratedFields = new ObservableCollection<AIField>();
 		}
 
 		/// <summary>
@@ -89,22 +88,12 @@ new ObservableCollection<AIField>();
 			try
 			{
 				_cancellationTokenSource?.Cancel();
+				_cancellationTokenSource = new CancellationTokenSource();
+				var response = await _aiFormService.GenerateFormAsync( UserInput, _cancellationTokenSource.Token);
 
-				_cancellationTokenSource =
-				new CancellationTokenSource();
-
-				var response =
-				await _aiFormService.GenerateFormAsync(
-				UserInput,
-				_cancellationTokenSource.Token);
-
-				if (response == null ||
-				response.Fields == null ||
-				response.Fields.Count == 0)
+				if (response == null || response.Fields == null || response.Fields.Count == 0)
 				{
-					Debug.WriteLine(
-					"AI returned no form fields.");
-
+					Debug.WriteLine("AI returned no form fields.");
 					return;
 				}
 
@@ -112,29 +101,20 @@ new ObservableCollection<AIField>();
 
 				foreach (var field in response.Fields)
 				{
-					Debug.WriteLine(
-					$"{field.FieldName} | " +
-					$"{field.Value} | " +
-					$"{field.FieldType}");
-
+					Debug.WriteLine($"{field.FieldName} | " + $"{field.Value} | " + $"{field.FieldType}");
 					GeneratedFields.Add(field);
 				}
 
 				ShowForm = true;
-
-				// Notify View that a completely new
-				// AI-generated schema is available.
 				FormGenerationVersion++;
 			}
 			catch (OperationCanceledException)
 			{
-				Debug.WriteLine(
-				"AI form generation cancelled.");
+				Debug.WriteLine("AI form generation cancelled.");
 			}
 			catch (Exception ex)
 			{
-				Debug.WriteLine(
-				$"GenerateFormAsync Error: {ex}");
+				Debug.WriteLine($"GenerateFormAsync Error: {ex}");
 			}
 			finally
 			{
@@ -143,5 +123,4 @@ new ObservableCollection<AIField>();
 			}
 		}
 	}
-
 }

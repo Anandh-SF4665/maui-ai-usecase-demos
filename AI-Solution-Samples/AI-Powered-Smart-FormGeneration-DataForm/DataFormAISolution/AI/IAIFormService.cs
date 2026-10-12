@@ -15,8 +15,6 @@ namespace DataFormAISolution
 		/// <param name="userInput">The free-text content to analyze.</param>
 		/// <param name="cancellationToken">A cancellation token.</param>
 		/// <returns>The generated form response, or <c>null</c> when no fields are produced.</returns>
-		Task<AIFormResponse?> GenerateFormAsync(
-		string userInput,
-		CancellationToken cancellationToken = default);
+		Task<AIFormResponse?> GenerateFormAsync(string userInput, CancellationToken cancellationToken = default);
 	}
 }

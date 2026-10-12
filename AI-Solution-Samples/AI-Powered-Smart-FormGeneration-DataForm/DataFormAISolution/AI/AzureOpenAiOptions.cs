@@ -10,22 +10,22 @@ namespace DataFormAISolution;
 /// <summary>
 /// Stores Azure OpenAI configuration and validates credentials.
 /// </summary>
-public class AzureOpenAiOptions
+public class AzureOpenAIOptions
 {
 	/// <summary>
 	/// Gets the default Azure OpenAI endpoint.
 	/// </summary>
-	public const string Endpoint = "https://YOUR-RESOURCE.openai.azure.com/";
+	public const string Endpoint = "AZURE_OPENAI_ENDPOINT";
 
 	/// <summary>
 	/// Gets the default Azure OpenAI deployment name.
 	/// </summary>
-	public const string DeploymentName = "YOUR-DEPLOYMENT-NAME";
+	public const string DeploymentName = "AZURE_OPENAI_DEPLOYMENT";
 
 	/// <summary>
 	/// Gets the default Azure OpenAI API key.
 	/// </summary>
-	public const string Key = "YOUR-AZURE-OPENAI-KEY";
+	public const string Key = "AZURE_OPENAI_KEY";
 
 	/// <summary>
 	/// Gets the resolved Azure OpenAI endpoint.
@@ -44,9 +44,9 @@ public class AzureOpenAiOptions
 
 
 	/// <summary>
-	/// Initializes a new instance of the <see cref="AzureOpenAiOptions"/> class.
+	/// Initializes a new instance of the <see cref="AzureOpenAIOptions"/> class.
 	/// </summary>
-	public AzureOpenAiOptions()
+	public AzureOpenAIOptions()
 	{
 		EndpointValue =
 			(Environment.GetEnvironmentVariable(
@@ -71,29 +71,22 @@ public class AzureOpenAiOptions
 	/// <returns>A validation error message, or <c>null</c> when valid.</returns>
 	public string? ValidateCredentials()
 	{
-		if (string.IsNullOrWhiteSpace(
-				EndpointValue))
+		if (string.IsNullOrWhiteSpace(EndpointValue))
 		{
 			return "Azure OpenAI endpoint is missing.";
 		}
 
-		if (string.IsNullOrWhiteSpace(
-				DeploymentNameValue))
+		if (string.IsNullOrWhiteSpace(DeploymentNameValue))
 		{
 			return "Azure OpenAI deployment name is missing.";
 		}
 
-		if (string.IsNullOrWhiteSpace(
-				KeyValue))
+		if (string.IsNullOrWhiteSpace(KeyValue))
 		{
 			return "Azure OpenAI API key is missing.";
 		}
 
-		if (!Uri.TryCreate(
-				EndpointValue,
-				UriKind.Absolute,
-				out var uri) ||
-			uri.Scheme != Uri.UriSchemeHttps)
+		if (!Uri.TryCreate(EndpointValue,UriKind.Absolute,out var uri) || uri.Scheme != Uri.UriSchemeHttps)
 		{
 			return "Azure OpenAI endpoint is invalid.";
 		}
