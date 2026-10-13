@@ -1,0 +1,247 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:buttons="clr-namespace:Syncfusion.Maui.Toolkit.Buttons;assembly=Syncfusion.Maui.Toolkit"
+    xmlns:listView="clr-namespace:Syncfusion.Maui.ListView;assembly=Syncfusion.Maui.ListView"
+    xmlns:viewModel="clr-namespace:AIChatSample.ViewModel" xmlns:model="clr-namespace:AIChatSample.Models"
+    x:Class="AIChatSample.Views.AIChat.AgentLogoPage" x:DataType="viewModel:AgentLogoPopupViewModel" x:Name="root"
+    BackgroundColor="{AppThemeBinding Light=#80000000, Dark=#80000000} ">
+
+    <ContentPage.Resources>
+        <ResourceDictionary>
+            <Color x:Key="AL_Border">#E5E5E5</Color>
+
+            <Style x:Key="AL_CloseButton" TargetType="buttons:SfButton">
+                <Setter Property="Background" Value="Transparent" />
+                <Setter Property="WidthRequest" Value="24" />
+                <Setter Property="HeightRequest" Value="24" />
+                <Setter Property="CornerRadius" Value="12" />
+                <Setter Property="Padding" Value="0" />
+                <Setter Property="StrokeThickness" Value="0" />
+                <Setter Property="TextColor" Value="{AppThemeBinding Light=#474648, Dark=#C9C6C8}" />
+                <Setter Property="FontSize" Value="16" />
+                <Setter Property="FontFamily" Value="Roboto-Regular" />
+
+            </Style>
+
+            <Style x:Key="AL_CancelButton" TargetType="buttons:SfButton">
+                <Setter Property="Background" Value="White" />
+                <Setter Property="TextColor" Value="{AppThemeBinding Light=#7633DA, Dark=#8D4CF5}" />
+                <Setter Property="FontFamily" Value="Roboto-Medium" />
+                <Setter Property="FontSize" Value="14" />
+                <Setter Property="CornerRadius" Value="18" />
+                <Setter Property="HeightRequest" Value="36" />
+                <Setter Property="WidthRequest" Value="80" />
+                <Setter Property="Stroke" Value="{AppThemeBinding Light=#7633DA, Dark=#8D4CF5}" />
+                <Setter Property="StrokeThickness" Value="1" />
+                <Setter Property="Padding" Value="0" />
+
+            </Style>
+
+            <Style x:Key="AL_ApplyButton" TargetType="buttons:SfButton">
+                <Setter Property="Background" Value="{AppThemeBinding Light=#7633DA, Dark=#8D4CF5}" />
+                <Setter Property="TextColor" Value="White" />
+                <Setter Property="FontFamily" Value="Roboto-Medium" />
+                <Setter Property="FontSize" Value="14" />
+                <Setter Property="CornerRadius" Value="18" />
+                <Setter Property="HeightRequest" Value="36" />
+                <Setter Property="WidthRequest" Value="80" />
+                <Setter Property="StrokeThickness" Value="0" />
+                <Setter Property="Padding" Value="0" />
+
+            </Style>
+
+            <Style x:Key="AL_IconCell" TargetType="Border">
+                <Setter Property="WidthRequest" Value="36" />
+                <Setter Property="HeightRequest" Value="36" />
+                <Setter Property="StrokeThickness" Value="1" />
+                <Setter Property="Stroke" Value="{StaticResource AL_Border}" />
+                <Setter Property="StrokeShape" Value="RoundRectangle 18" />
+                <Setter Property="BackgroundColor" Value="Transparent" />
+
+            </Style>
+        </ResourceDictionary>
+    </ContentPage.Resources>
+
+    <ContentPage.Content>
+        <Border
+            BackgroundColor="{AppThemeBinding Light={DynamicResource SentMessageColorLight}, Dark={DynamicResource SentMessageColorDark}}"
+            StrokeThickness="0" StrokeShape="RoundRectangle 16" Padding="20"
+            WidthRequest="{OnIdiom Phone=400, Default=540}" HorizontalOptions="Center" VerticalOptions="Center">
+            <Border.Shadow>
+                <Shadow Brush="#40000000" Offset="0,8" Radius="16" Opacity="0.35" />
+            </Border.Shadow>
+
+            <Grid RowDefinitions="Auto,Auto,Auto,Auto" RowSpacing="0">
+                <!-- HEADER -->
+                <Grid Grid.Row="0" ColumnDefinitions="*,Auto" ColumnSpacing="8" Margin="0,0,0,16">
+                    <Label Grid.Column="0" Text="Agent Logo" FontFamily="Roboto-Medium" FontSize="22"
+                        TextColor="{AppThemeBinding Light=#313032, Dark=#FFFFFF}" VerticalOptions="Center" />
+                    <buttons:SfButton Grid.Column="1" Style="{StaticResource AL_CloseButton}" Text="✕"
+                        Command="{Binding ClosePopupCommand}" />
+                </Grid>
+
+                <!-- MODE SELECTOR -->
+                <HorizontalStackLayout Grid.Row="1" HorizontalOptions="Center" Spacing="8" Margin="0,0,0,16">
+                    <buttons:SfButton Text="Create" WidthRequest="80"
+                        TextColor="{AppThemeBinding Light=#313032, Dark=#FFFFFF}"
+                        Command="{Binding SwitchToCreateCommand}">
+                        <buttons:SfButton.Triggers>
+                            <DataTrigger TargetType="buttons:SfButton" Binding="{Binding IsCreateMode}" Value="True">
+                                <Setter Property="Background" Value="{AppThemeBinding Light=#EBDCFF, Dark=#3C3B3D}" />
+                                <Setter Property="Stroke" Value="{AppThemeBinding Light=#7633DA, Dark=#8D4CF5}" />
+                                <Setter Property="StrokeThickness" Value="1" />
+                            </DataTrigger>
+                            <DataTrigger TargetType="buttons:SfButton" Binding="{Binding IsCreateMode}" Value="False">
+                                <Setter Property="Background" Value="{AppThemeBinding Light=#F3F0F2, Dark=#3C3B3D}" />
+                                <Setter Property="StrokeThickness" Value="0" />
+                            </DataTrigger>
+                        </buttons:SfButton.Triggers>
+                    </buttons:SfButton>
+
+                    <buttons:SfButton Text="Upload" WidthRequest="85"
+                        TextColor="{AppThemeBinding Light=#313032, Dark=#FFFFFF}"
+                        Command="{Binding SwitchToUploadCommand}">
+                        <buttons:SfButton.Triggers>
+                            <DataTrigger TargetType="buttons:SfButton" Binding="{Binding IsUploadMode}" Value="True">
+                                <Setter Property="Background" Value="{AppThemeBinding Light=#EBDCFF, Dark=#3C3B3D}" />
+                                <Setter Property="TextColor" Value="{AppThemeBinding Light=#313032, Dark=#FFFFFF}" />
+                                <Setter Property="Stroke" Value="{AppThemeBinding Light=#7633DA, Dark=#8D4CF5}" />
+                                <Setter Property="StrokeThickness" Value="1" />
+                            </DataTrigger>
+                            <DataTrigger TargetType="buttons:SfButton" Binding="{Binding IsUploadMode}" Value="False">
+                                <Setter Property="Background" Value="{AppThemeBinding Light=#F3F0F2, Dark=#3C3B3D}" />
+                                <Setter Property="StrokeThickness" Value="0" />
+                            </DataTrigger>
+                        </buttons:SfButton.Triggers>
+                    </buttons:SfButton>
+                </HorizontalStackLayout>
+
+                <ScrollView Grid.Row="2" VerticalScrollBarVisibility="Never" VerticalOptions="Start"
+                            MaximumHeightRequest="{OnPlatform Android=360, WinUI=500}">
+                    <Grid>
+
+                        <VerticalStackLayout Spacing="0" IsVisible="{Binding IsCreateMode}">
+                            <Border WidthRequest="80" HeightRequest="80" StrokeThickness="0"
+                                StrokeShape="RoundRectangle 16" HorizontalOptions="Center" Margin="0,0,0,8"
+                                BackgroundColor="{Binding SelectedColor.ColorHex}">
+                                <Label Text="{Binding SelectedIcon.IconGlyph}"
+                                    FontFamily="{Binding SelectedIcon.IconFontFamily}" FontSize="34" TextColor="White"
+                                    HorizontalOptions="Center" VerticalOptions="Center" />
+                            </Border>
+
+                            <!-- Icons -->
+                            <Label Text="Icons" FontFamily="Roboto-Medium" FontSize="22"
+                                TextColor="{AppThemeBinding Light=#313032, Dark=#FFFFFF}" />
+                            <listView:SfListView x:Name="IconsList" ItemsSource="{Binding AvailableIcons}"
+                                SelectionMode="Single" ItemSize="44" ItemSpacing="3" SelectionBackground="Transparent"
+                                BackgroundColor="Transparent" HeightRequest="120"
+                                SelectionChanged="IconsList_SelectionChanged">
+                                <listView:SfListView.ItemsLayout>
+                                    <listView:GridLayout SpanCount="5" />
+                                </listView:SfListView.ItemsLayout>
+                                <listView:SfListView.ItemTemplate>
+                                    <DataTemplate x:DataType="model:LogoIconModel">
+                                        <Border Style="{StaticResource AL_IconCell}" StrokeThickness="0"
+                                            BackgroundColor="Transparent">
+                                            <Border.Triggers>
+                                                <DataTrigger TargetType="Border" Binding="{Binding IsSelected}"
+                                                    Value="True">
+                                                    <Setter Property="Background"
+                                                        Value="{AppThemeBinding Light=#EBDCFF, Dark=#41394E}" />
+                                                    <Setter Property="StrokeThickness" Value="0" />
+                                                </DataTrigger>
+                                            </Border.Triggers>
+                                            <Label Text="{Binding IconGlyph}" FontFamily="{Binding IconFontFamily}"
+                                                FontSize="20" TextColor="{AppThemeBinding Light=#474648, Dark=#C9C6C8}"
+                                                HorizontalOptions="Center" VerticalOptions="Center">
+                                                <Label.Triggers>
+                                                    <DataTrigger TargetType="Label" Binding="{Binding IsSelected}"
+                                                        Value="True">
+                                                        <Setter Property="TextColor"
+                                                            Value="{AppThemeBinding Light={DynamicResource PrimaryColorLight}, Dark=#A572F7}" />
+                                                    </DataTrigger>
+                                                </Label.Triggers>
+                                            </Label>
+                                        </Border>
+                                    </DataTemplate>
+                                </listView:SfListView.ItemTemplate>
+                            </listView:SfListView>
+
+                            <!-- Colors -->
+                            <Label Text="Colors" FontFamily="Roboto-Medium" FontSize="22"
+                                TextColor="{AppThemeBinding Light=#313032, Dark=#FFFFFF}" />
+                            <listView:SfListView x:Name="ColorsList" ItemsSource="{Binding AvailableColors}"
+                                HeightRequest="60" SelectionMode="Single" ItemSize="40" ItemSpacing="10"
+                                BackgroundColor="Transparent" SelectionBackground="Transparent" Orientation="Horizontal"
+                                SelectionChanged="ColorsList_SelectionChanged">
+                                <listView:SfListView.ItemTemplate>
+                                    <DataTemplate x:DataType="model:LogoColorModel">
+                                        <Border WidthRequest="40" HeightRequest="40" StrokeThickness="0"
+                                            StrokeShape="RoundRectangle 20" BackgroundColor="Transparent">
+                                            <Border WidthRequest="32" HeightRequest="32" StrokeThickness="2"
+                                                Stroke="Transparent" StrokeShape="RoundRectangle 16"
+                                                BackgroundColor="{Binding ColorHex}" HorizontalOptions="Center"
+                                                VerticalOptions="Center">
+                                                <Border.Triggers>
+                                                    <DataTrigger TargetType="Border" Binding="{Binding IsSelected}"
+                                                        Value="True">
+                                                        <Setter Property="Stroke"
+                                                            Value="{AppThemeBinding Light=#5F5E60, Dark=#FFFFFF}" />
+                                                    </DataTrigger>
+                                                </Border.Triggers>
+                                            </Border>
+                                        </Border>
+                                    </DataTemplate>
+                                </listView:SfListView.ItemTemplate>
+                            </listView:SfListView>
+                        </VerticalStackLayout>
+
+                        <!-- UPLOAD MODE -->
+                        <VerticalStackLayout Spacing="0" IsVisible="{Binding IsUploadMode}" HorizontalOptions="Fill"
+                            VerticalOptions="Fill" Margin="0,8,0,0">
+                            <Border WidthRequest="80" HeightRequest="80"
+                                Stroke="{AppThemeBinding Light=#C9C6C8, Dark=#858385}" StrokeThickness="1"
+                                StrokeShape="RoundRectangle 15" BackgroundColor="Transparent" HorizontalOptions="Center"
+                                Margin="0,0,0,8">
+                                <Grid>
+                                    <Image Source="{AppThemeBinding Light=photolight.png, Dark=photodark.png}"
+                                        WidthRequest="24" HeightRequest="24" HorizontalOptions="Center"
+                                        VerticalOptions="Center" />
+                                </Grid>
+                            </Border>
+
+                            <buttons:SfButton Text="Remove Image" FontSize="14" TextColor="#929092"
+                                Background="Transparent" FontFamily="Roboto-Medium" StrokeThickness="0"
+                                HorizontalOptions="End" Padding="0" Margin="0,0,0,4" CornerRadius="50"
+                                Command="{Binding RemoveImageCommand}" />
+
+                            <!-- Upload drop zone -->
+                            <Border Stroke="{AppThemeBinding Light=#C9C6C8, Dark=#858385}" StrokeThickness="1"
+                                StrokeShape="RoundRectangle 10"
+                                BackgroundColor="{AppThemeBinding Light=#FCF8FA, Dark=#313032}" HeightRequest="90"
+                                Margin="0,8,0,0" Padding="0">
+                                <VerticalStackLayout Spacing="8" HorizontalOptions="Center" VerticalOptions="Center">
+                                    <Image Source="{AppThemeBinding Light=container.png, Dark=containerdark.png}"
+                                        WidthRequest="24" HeightRequest="24" HorizontalOptions="Center"
+                                        VerticalOptions="Center" />
+                                    <Label Text="Click or drag your image here" FontFamily="Roboto-Regular"
+                                        FontSize="14" TextColor="{AppThemeBinding Light=#474648, Dark=#C9C6C8}"
+                                        HorizontalOptions="Center" />
+                                </VerticalStackLayout>
+                            </Border>
+                        </VerticalStackLayout>
+                    </Grid>
+                </ScrollView>
+
+                <!-- FOOTER -->
+                <HorizontalStackLayout Grid.Row="3" Spacing="12" HorizontalOptions="End" Margin="0,16,0,0">
+                    <buttons:SfButton Style="{StaticResource AL_CancelButton}" Text="Cancel"
+                        Command="{Binding CancelCommand}" />
+                    <buttons:SfButton Style="{StaticResource AL_ApplyButton}" Text="Apply"
+                        Command="{Binding ApplyCommand}" />
+                </HorizontalStackLayout>
+            </Grid>
+        </Border>
+    </ContentPage.Content>
+</ContentPage>
