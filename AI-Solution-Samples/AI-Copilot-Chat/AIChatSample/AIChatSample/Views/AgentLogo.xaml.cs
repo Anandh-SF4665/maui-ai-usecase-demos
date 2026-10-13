@@ -12,9 +12,19 @@ namespace AIChatSample.Views.AIChat
         {
             InitializeComponent();
             _vm = new AgentLogoPopupViewModel();
-            this.BindingContext = _vm;
+            BindingContext = _vm;
+            _vm.RequestClose += OnRequestClose;
+            _vm.ResetForOpen();
         }
-         
+
+        private void OnRequestClose(object? sender, EventArgs e)
+        {
+            if (Navigation?.ModalStack.Contains(this) == true)
+            {
+                Navigation.PopModalAsync(animated: true);
+            }
+        }
+
         private void IconsList_SelectionChanged(object? sender, ItemSelectionChangedEventArgs e)
         {
             if (IconsList.SelectedItem is LogoIconModel icon && _vm.SelectIconCommand.CanExecute(icon))

@@ -79,6 +79,11 @@ public partial class AgentConfigurePageViewModel : ObservableObject
     public string[] ModeTabs => AgentVM.ModeTabs;
     public bool IsConfigureMode => AgentVM.IsConfigureMode;
     public bool IsPreviewMode => AgentVM.IsPreviewMode;
+    public string? SelectedChipText
+    {
+        get => AgentVM.SelectedChipText;
+        set => AgentVM.SelectedChipText = value;
+    }
     public bool HasAvatar => AgentVM.HasAvatar;
     public bool IsCreateEnabled => AgentVM.IsCreateEnabled;
     public bool IsBusy => AgentVM.IsBusy;
