@@ -57,16 +57,16 @@ namespace AIChatSample.Views.AIChat
         // popup's host element. Because the mirrors bind to the same
         // collections, we just forward the change into the VM via the
         // same selection logic.
-        private void IconsMirror_SelectionChanged(object? sender, SelectionChangedEventArgs e)
+        private void ColorsMirror_SelectionChanged(object? sender, ItemSelectionChangedEventArgs e)
         {
-            if (e.CurrentSelection.FirstOrDefault() is LogoIconModel icon && _vm.SelectIconCommand.CanExecute(icon))
-                _vm.SelectIconCommand.Execute(icon);
+            if (e.AddedItems.FirstOrDefault() is LogoColorModel color && _vm.SelectColorCommand.CanExecute(color))
+                _vm.SelectColorCommand.Execute(color);
         }
 
-        private void ColorsMirror_SelectionChanged(object? sender, SelectionChangedEventArgs e)
+        private void IconsMirror_SelectionChanged(object sender, ItemSelectionChangedEventArgs e)
         {
-            if (e.CurrentSelection.FirstOrDefault() is LogoColorModel color && _vm.SelectColorCommand.CanExecute(color))
-                _vm.SelectColorCommand.Execute(color);
+            if (e.AddedItems.FirstOrDefault() is LogoIconModel icon && _vm.SelectIconCommand.CanExecute(icon))
+                _vm.SelectIconCommand.Execute(icon);
         }
     }
 }

@@ -1,15 +1,15 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
-    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-    xmlns:buttons="clr-namespace:Syncfusion.Maui.Toolkit.Buttons;assembly=Syncfusion.Maui.Toolkit"
-    xmlns:listView="clr-namespace:Syncfusion.Maui.ListView;assembly=Syncfusion.Maui.ListView"
-    xmlns:popup="clr-namespace:Syncfusion.Maui.Toolkit.Popup;assembly=Syncfusion.Maui.Toolkit"
-    xmlns:viewModel="clr-namespace:AIChatSample.ViewModel"
-    xmlns:model="clr-namespace:AIChatSample.Models"
-    x:Class="AIChatSample.Views.AIChat.AgentLogoPage"
-    x:DataType="viewModel:AgentLogoPopupViewModel"
-    x:Name="root"
-    BackgroundColor="Transparent">
+            xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+            xmlns:buttons="clr-namespace:Syncfusion.Maui.Toolkit.Buttons;assembly=Syncfusion.Maui.Toolkit"
+            xmlns:listView="clr-namespace:Syncfusion.Maui.ListView;assembly=Syncfusion.Maui.ListView"
+            xmlns:popup="clr-namespace:Syncfusion.Maui.Toolkit.Popup;assembly=Syncfusion.Maui.Toolkit"
+            xmlns:viewModel="clr-namespace:AIChatSample.ViewModel"
+            xmlns:model="clr-namespace:AIChatSample.Models"
+            x:Class="AIChatSample.Views.AIChat.AgentLogoPage"
+            x:DataType="viewModel:AgentLogoPopupViewModel"
+            x:Name="root"
+            BackgroundColor="Transparent">
 
     <ContentPage.Resources>
         <ResourceDictionary>
@@ -54,6 +54,7 @@
         </ResourceDictionary>
     </ContentPage.Resources>
 
+    <StackLayout>
     <!-- All controls that need to be addressable from code-behind
          (IconsList, ColorsList) live as direct children of the page so
          they can be referenced via x:Name. The popup re-uses the same
@@ -76,8 +77,10 @@
                    IsOpen="True"
                    ShowHeader="False"
                    ShowFooter="False"
+                   ShowCloseButton="True"
+                   AutoSizeMode="Both"
                    OverlayMode="Transparent"
-                   StaysOpen="True"
+                   StaysOpen="False"
                    BackgroundColor="Transparent">
         <popup:SfPopup.ContentTemplate>
             <DataTemplate x:DataType="viewModel:AgentLogoPopupViewModel">
@@ -150,16 +153,17 @@
                                     <!-- Mirrors the same ItemsSource as the hidden IconsList
                                          so the code-behind handler (on the page-level
                                          list) is the single source of truth. -->
-                                    <CollectionView x:Name="IconsMirror" HeightRequest="120"
-                                        ItemsSource="{Binding AvailableIcons}"
-                                        SelectionMode="Single"
-                                        BackgroundColor="Transparent"
-                                        SelectionChanged="IconsMirror_SelectionChanged">
-                                        <CollectionView.ItemsLayout>
-                                            <GridItemsLayout Span="5" Orientation="Vertical"
-                                                HorizontalItemSpacing="3" VerticalItemSpacing="3" />
-                                        </CollectionView.ItemsLayout>
-                                        <CollectionView.ItemTemplate>
+                                        <listView:SfListView x:Name="IconsMirror" 
+                                                             HeightRequest="120"
+                                                             ItemsSource="{Binding AvailableIcons}"
+                                                             Orientation="Vertical" 
+                                                             SelectionMode="Single"
+                                                             BackgroundColor="Transparent"
+                                                             SelectionChanged="IconsMirror_SelectionChanged">
+                                        <listView:SfListView.ItemsLayout>
+                                            <listView:GridLayout SpanCount="5"/>
+                                        </listView:SfListView.ItemsLayout>
+                                        <listView:SfListView.ItemTemplate>
                                             <DataTemplate x:DataType="model:LogoIconModel">
                                                 <Border WidthRequest="36" HeightRequest="36" StrokeThickness="0"
                                                     StrokeShape="RoundRectangle 18" BackgroundColor="Transparent">
@@ -181,20 +185,22 @@
                                                     </Label>
                                                 </Border>
                                             </DataTemplate>
-                                        </CollectionView.ItemTemplate>
-                                    </CollectionView>
+                                        </listView:SfListView.ItemTemplate>
+                                    </listView:SfListView>
 
                                     <Label Text="Colors" FontFamily="Roboto-Medium" FontSize="22"
                                         TextColor="{AppThemeBinding Light=#313032, Dark=#FFFFFF}" />
-                                    <CollectionView x:Name="ColorsMirror" HeightRequest="60"
-                                        ItemsSource="{Binding AvailableColors}"
-                                        SelectionMode="Single"
-                                        BackgroundColor="Transparent"
-                                        SelectionChanged="ColorsMirror_SelectionChanged">
-                                        <CollectionView.ItemsLayout>
-                                            <LinearItemsLayout Orientation="Horizontal" ItemSpacing="10" />
-                                        </CollectionView.ItemsLayout>
-                                        <CollectionView.ItemTemplate>
+                                    
+                                        <listView:SfListView x:Name="ColorsMirror" HeightRequest="60"
+                                                            ItemsSource="{Binding AvailableColors}"
+                                                            SelectionMode="Single"
+                                                            Orientation="Horizontal" ItemSpacing="10"
+                                                            BackgroundColor="Transparent"
+                                                            SelectionChanged="ColorsMirror_SelectionChanged">
+                                        <listView:SfListView.ItemsLayout>
+                                             <listView:LinearLayout />
+                                        </listView:SfListView.ItemsLayout>
+                                        <listView:SfListView.ItemTemplate>
                                             <DataTemplate x:DataType="model:LogoColorModel">
                                                 <Border WidthRequest="40" HeightRequest="40" StrokeThickness="0"
                                                     StrokeShape="RoundRectangle 20" BackgroundColor="Transparent">
@@ -210,8 +216,8 @@
                                                     </Border>
                                                 </Border>
                                             </DataTemplate>
-                                        </CollectionView.ItemTemplate>
-                                    </CollectionView>
+                                        </listView:SfListView.ItemTemplate>
+                                    </listView:SfListView>
                                 </VerticalStackLayout>
 
                                 <VerticalStackLayout Spacing="0" IsVisible="{Binding IsUploadMode}" HorizontalOptions="Fill"
@@ -260,4 +266,5 @@
             </DataTemplate>
         </popup:SfPopup.ContentTemplate>
     </popup:SfPopup>
+    </StackLayout>
 </ContentPage>
