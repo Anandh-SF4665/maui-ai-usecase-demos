@@ -10,9 +10,12 @@
     x:Class="AIChatSample.Controls.AIChatNavigationPanel" x:Name="Root">
 
     <ContentView.Resources>
-        <converters:InverseBooleanConverter x:Key="InverseBoolean" />
-        <converters:StringNotEmptyConverter x:Key="StringNotEmpty" />
-        <converters:StringNotEmptyConverter x:Key="StringIsEmpty" />
+        <ResourceDictionary>
+            <converters:InverseBooleanConverter x:Key="InverseBoolean" />
+            <converters:StringNotEmptyConverter x:Key="StringNotEmpty" />
+            <converters:StringNotEmptyConverter x:Key="StringIsEmpty" />
+            <converters:StringToImageSourceConverter x:Key="StringToImageSource" />
+        </ResourceDictionary>
         <Style TargetType="Border">
             <Setter Property="VisualStateManager.VisualStateGroups">
                 <Setter.Value>
@@ -151,8 +154,9 @@
                                             <Grid HeightRequest="42" Padding="36,0,0,0" ColumnDefinitions="28,*" ColumnSpacing="10">
                                                 <Border WidthRequest="28" HeightRequest="28" StrokeThickness="0" StrokeShape="RoundRectangle 14" BackgroundColor="{Binding Color}">
                                                     <Grid>
-                                                        <Image Source="{Binding AvatarSource}" Aspect="AspectFill" IsVisible="{Binding AvatarSource, Converter={StaticResource StringNotEmpty}}" />
-                                                        <Label Text="{Binding Initial}" FontSize="14" FontFamily="Roboto-Medium" TextColor="White" HorizontalOptions="Center" VerticalOptions="Center" IsVisible="{Binding AvatarSource, Converter={StaticResource StringIsEmpty}}" />
+                                                        <Image Source="{Binding AvatarSource, Converter={StaticResource StringToImageSource}}" Aspect="AspectFill" IsVisible="{Binding AvatarSource, Converter={StaticResource StringNotEmpty}}" />
+                                                        <Image Source="{Binding IconAvatar}" WidthRequest="18" HeightRequest="18" HorizontalOptions="Center" VerticalOptions="Center" IsVisible="{Binding ShowIconAvatar}" />
+                                                        <Label Text="{Binding Initial}" FontSize="14" FontFamily="Roboto-Medium" TextColor="White" HorizontalOptions="Center" VerticalOptions="Center" IsVisible="{Binding ShowInitial}" />
                                                     </Grid>
                                                 </Border>
                                                 <Label Grid.Column="1" Style="{StaticResource DrawerSubItemLabel}"

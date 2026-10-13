@@ -138,13 +138,17 @@ namespace AIChatSample.ViewModel
                 {
                     Id = DefaultAgentIds.CodeReviewer,
                     Name = "Code Reviewer",
-                    Glyph = "\ue71C",
+                    Initial = "C",
+                    Color = "#7633DA",
+                    AvatarGlyph = "UIKitIcons;\ue72b;#FFFFFF",
                 },
                 new()
                 {
                     Id = DefaultAgentIds.SocialMediaWriter,
                     Name = "Social Media Writer",
-                    Glyph = "\ue7B4",
+                    Initial = "S",
+                    Color = "#D55E2C",
+                    AvatarGlyph = "UIKitIcons;\ue733;#FFFFFF",
                 },
             };
 
@@ -562,7 +566,8 @@ namespace AIChatSample.ViewModel
                 Name = agent.AgentName,
                 Initial = agent.Initial ?? Models.AgentConfiguration.DeriveInitial(agent.AgentName),
                 Color = agent.Color ?? Models.AgentConfiguration.DeriveColor(agent.AgentName),
-                Glyph = "\ue71C",
+                AvatarSource = agent.AvatarSource,
+                AvatarGlyph = agent.AvatarGlyph,
             });
         }
 

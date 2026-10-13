@@ -190,6 +190,8 @@ public partial class AgentConfigurationViewModel : ObservableObject
                 Instructions = Instructions?.Trim(),
                 CompanyName = CompanyName?.Trim(),
                 CreatedUtc = DateTime.UtcNow,
+                AvatarSource = AgentVM.AgentAvatar is { } avatar && !avatar.Contains(';') ? avatar : null,
+                AvatarGlyph = AgentVM.AgentAvatar is { } encoded && encoded.Contains(';') ? encoded : null,
             };
 
             // FR-1.3: every agent gets a unique Id, a default avatar
@@ -198,6 +200,19 @@ public partial class AgentConfigurationViewModel : ObservableObject
             // so chats / nav rows can bind back to a specific agent
             // without re-using the (mutable) display name.
             cfg.EnsureIdentityFields();
+
+            // Preserve a custom Color the user picked in the logo editor
+            // when present (AgentAvatar starts with "Font;Glyph;Color" in
+            // Create mode; EnsureIdentityFields would otherwise overwrite it
+            // with a deterministic palette pick).
+            if (AgentVM.AgentAvatar is { } custom && custom.Contains(';'))
+            {
+                var parts = custom.Split(';');
+                if (parts.Length >= 3 && !string.IsNullOrEmpty(parts[2]))
+                {
+                    cfg.Color = parts[2];
+                }
+            }
 
             var created = await _agentService.CreateAgentAsync(cfg, ct);
             _agentStore.Add(created);

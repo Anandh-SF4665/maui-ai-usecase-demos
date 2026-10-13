@@ -41,6 +41,9 @@ namespace AIChatSample.ViewModel
         /// <summary>
         /// Builds a FontImageSource from the encoded "FontFamily;Glyph;Color"
         /// committed avatar so the avatar Image can render a Create-mode icon.
+        /// The icon glyph itself is rendered in black so the surrounding Border's
+        /// <c>BackgroundColor</c> (driven by the selected color swatch) is the
+        /// only thing the user sees changing.
         /// </summary>
         public ImageSource? IconAvatar
         {
@@ -53,7 +56,7 @@ namespace AIChatSample.ViewModel
                 {
                     FontFamily = parts[0],
                     Glyph = parts[1],
-                    Color = Color.FromArgb(parts[2]),
+                    Color = Colors.Black,
                     Size = 40
                 };
             }
@@ -61,6 +64,42 @@ namespace AIChatSample.ViewModel
 
         partial void OnAgentAvatarChanged(string? value) =>
             OnPropertyChanged(nameof(IconAvatar));
+
+        /// <summary>
+        /// Live preview avatar that reflects the user's *in-progress* selection
+        /// (before Apply is pressed). The Configure page's Preview tab binds
+        /// to this so the avatar stays in sync as the user changes icon/color.
+        /// </summary>
+        [ObservableProperty]
+        [NotifyPropertyChangedFor(nameof(LiveIconAvatar))]
+        [NotifyPropertyChangedFor(nameof(LiveIsIconAvatar))]
+        private string? _liveIconGlyph;
+
+        [ObservableProperty]
+        private string? _liveIconFontFamily;
+
+        [ObservableProperty]
+        private string? _liveIconColor;
+
+        public ImageSource? LiveIconAvatar
+        {
+            get
+            {
+                if (string.IsNullOrEmpty(LiveIconGlyph) || string.IsNullOrEmpty(LiveIconFontFamily))
+                {
+                    return null;
+                }
+                return new FontImageSource
+                {
+                    FontFamily = LiveIconFontFamily,
+                    Glyph = LiveIconGlyph,
+                    Color = Colors.Black,
+                    Size = 40
+                };
+            }
+        }
+
+        public bool LiveIsIconAvatar => !string.IsNullOrEmpty(LiveIconGlyph);
 
         #endregion
 
@@ -160,8 +199,19 @@ namespace AIChatSample.ViewModel
 
         partial void OnSelectedTabChanged(int value) => RefreshApplyEnabled();
         partial void OnSelectedImageChanged(string? value) => RefreshApplyEnabled();
-        partial void OnSelectedIconChanged(LogoIconModel? value) => RefreshApplyEnabled();
-        partial void OnSelectedColorChanged(LogoColorModel? value) => RefreshApplyEnabled();
+        partial void OnSelectedIconChanged(LogoIconModel? value)
+        {
+            LiveIconGlyph = value?.IconGlyph;
+            LiveIconFontFamily = value?.IconFontFamily;
+            OnPropertyChanged(nameof(LiveIconAvatar));
+            OnPropertyChanged(nameof(LiveIsIconAvatar));
+            RefreshApplyEnabled();
+        }
+        partial void OnSelectedColorChanged(LogoColorModel? value)
+        {
+            LiveIconColor = value?.ColorHex;
+            RefreshApplyEnabled();
+        }
 
         private void RefreshApplyEnabled()
         {

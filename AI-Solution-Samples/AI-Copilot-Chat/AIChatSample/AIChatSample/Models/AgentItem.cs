@@ -61,6 +61,7 @@ namespace AIChatSample.Models
                 if (this.avatarSource == value) return;
                 this.avatarSource = value;
                 this.OnPropertyChanged(nameof(this.AvatarSource));
+                this.OnPropertyChanged(nameof(this.ShowInitial));
             }
         }
 
@@ -72,6 +73,9 @@ namespace AIChatSample.Models
                 if (this.avatarGlyph == value) return;
                 this.avatarGlyph = value;
                 this.OnPropertyChanged(nameof(this.AvatarGlyph));
+                this.OnPropertyChanged(nameof(this.ShowIconAvatar));
+                this.OnPropertyChanged(nameof(this.ShowInitial));
+                this.OnPropertyChanged(nameof(this.IconAvatar));
             }
         }
 
@@ -83,6 +87,49 @@ namespace AIChatSample.Models
                 if (this.isSelected == value) return;
                 this.isSelected = value;
                 this.OnPropertyChanged(nameof(this.IsSelected));
+            }
+        }
+
+        /// <summary>
+        /// True when the agent has a custom icon avatar (i.e. the AvatarGlyph
+        /// string is populated with the encoded "FontFamily;Glyph;Color" pair
+        /// produced by the AgentLogo popup). Used by the nav drawer so the
+        /// icon Image is only shown when an icon is actually configured.
+        /// </summary>
+        public bool ShowIconAvatar => !string.IsNullOrEmpty(this.AvatarGlyph) && this.AvatarGlyph!.Contains(';');
+
+        /// <summary>
+        /// True when the nav drawer should fall back to the letter-based
+        /// initial (i.e. no uploaded image and no custom icon).
+        /// </summary>
+        public bool ShowInitial =>
+            string.IsNullOrEmpty(this.AvatarSource) &&
+            !this.ShowIconAvatar;
+
+        /// <summary>
+        /// Built from <see cref="AvatarGlyph"/> so the nav-drawer avatar
+        /// Image can render a Create-mode icon. Mirrors
+        /// <c>AgentLogoPopupViewModel.IconAvatar</c>.
+        /// </summary>
+        public ImageSource? IconAvatar
+        {
+            get
+            {
+                if (string.IsNullOrEmpty(this.avatarGlyph) || !this.avatarGlyph!.Contains(';'))
+                {
+                    return null;
+                }
+
+                var parts = this.avatarGlyph.Split(';');
+                if (parts.Length < 2) return null;
+                var glyphColor = parts.Length >= 3 ? parts[2] : "#FFFFFF";
+                return new FontImageSource
+                {
+                    FontFamily = parts[0],
+                    Glyph = parts[1],
+                    Color = Color.FromArgb(glyphColor),
+                    Size = 18
+                };
             }
         }
 

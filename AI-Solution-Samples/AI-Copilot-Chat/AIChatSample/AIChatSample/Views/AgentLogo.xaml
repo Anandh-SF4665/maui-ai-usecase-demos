@@ -154,7 +154,7 @@
                                         BackgroundColor="{Binding SelectedColor.ColorHex}">
                                         <Label Text="{Binding SelectedIcon.IconGlyph}"
                                             FontFamily="{Binding SelectedIcon.IconFontFamily}" FontSize="34"
-                                            TextColor="White" HorizontalOptions="Center" VerticalOptions="Center" />
+                                            TextColor="Black" HorizontalOptions="Center" VerticalOptions="Center" />
                                     </Border>
 
                                     <Label Text="Icons" FontFamily="Roboto-Medium" FontSize="22"
