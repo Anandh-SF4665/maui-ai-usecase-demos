@@ -122,12 +122,15 @@ namespace AIChatSample.Models
 
                 var parts = this.avatarGlyph.Split(';');
                 if (parts.Length < 2) return null;
-                var glyphColor = parts.Length >= 3 ? parts[2] : "#FFFFFF";
+                // The third part of the encoded avatar is the *background* color
+                // (matches the popup's live preview). The icon glyph itself
+                // should be a contrasting color so it stays visible on the
+                // selected swatch — use white as a safe default.
                 return new FontImageSource
                 {
                     FontFamily = parts[0],
                     Glyph = parts[1],
-                    Color = Color.FromArgb(glyphColor),
+                    Color = Colors.White,
                     Size = 18
                 };
             }

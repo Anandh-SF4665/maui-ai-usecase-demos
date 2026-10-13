@@ -702,6 +702,11 @@ namespace AIChatSample.ViewModel
             if (_chatDataService is null) yield break;
             foreach (var session in _chatDataService.ChatSessions)
             {
+                // Only surface sessions that have at least one user prompt.
+                // Just opening New chat / an agent creates a session, but
+                // those haven't been used yet and shouldn't appear in
+                // Recent chats or the Search page.
+                if (!HasUserPrompt(session)) continue;
                 yield return new RecentChatItem
                 {
                     Title = ResolveChatTitle(session),
@@ -710,6 +715,20 @@ namespace AIChatSample.ViewModel
                     Tag = session,
                 };
             }
+        }
+
+        /// <summary>True if the session contains at least one user (requested) message.</summary>
+        private static bool HasUserPrompt(ChatSession session)
+        {
+            if (session is null) return false;
+            foreach (var message in session.Messages)
+            {
+                if (message is AssistItem ai && ai.IsRequested && !string.IsNullOrWhiteSpace(ai.Text))
+                {
+                    return true;
+                }
+            }
+            return false;
         }
 
         /// <summary>
