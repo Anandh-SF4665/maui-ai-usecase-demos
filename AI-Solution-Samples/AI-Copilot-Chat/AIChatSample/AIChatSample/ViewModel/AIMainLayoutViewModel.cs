@@ -1,5 +1,6 @@
 using AIChatSample.Models;
 using AIChatSample.Services;
+using Syncfusion.Maui.AIAssistView;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.ComponentModel;
@@ -100,7 +101,7 @@ namespace AIChatSample.ViewModel
                 _chatDataService.Profile.PropertyChanged += OnUserProfileChanged;
 
                 RecentChats = new ObservableCollection<RecentChatItem>(BuildRecentChatItems());
-                FilteredRecentChats = new ObservableCollection<RecentChatItem>(RecentChats);
+                FilteredRecentChats = new ObservableCollection<RecentChatItem>();
                 _chatDataService.ChatSessionsChanged += OnChatSessionsChanged;
             }
             this.MenuItems = new ObservableCollection<SidebarItem>
@@ -670,7 +671,9 @@ namespace AIChatSample.ViewModel
         private void ApplySearchFilter()
         {
             // FR-4.1: filter the Recent chats list by Title containing
-            // SearchText. Empty search restores the unfiltered list.
+            // SearchText. The list stays empty until the user has typed
+            // something — opening the Search page should not surface
+            // every chat that's been opened elsewhere.
             if (FilteredRecentChats is null)
             {
                 FilteredRecentChats = new ObservableCollection<RecentChatItem>();
@@ -678,11 +681,15 @@ namespace AIChatSample.ViewModel
 
             FilteredRecentChats.Clear();
             var query = (SearchText ?? string.Empty).Trim();
-            var source = RecentChats;
-            foreach (var item in source)
+            if (query.Length == 0)
             {
-                if (query.Length == 0 ||
-                    (item.Title?.Contains(query, StringComparison.OrdinalIgnoreCase) ?? false))
+                OnPropertyChanged(nameof(FilteredRecentChats));
+                return;
+            }
+
+            foreach (var item in RecentChats)
+            {
+                if (item.Title?.Contains(query, StringComparison.OrdinalIgnoreCase) ?? false)
                 {
                     FilteredRecentChats.Add(item);
                 }
@@ -697,12 +704,38 @@ namespace AIChatSample.ViewModel
             {
                 yield return new RecentChatItem
                 {
-                    Title = session.Title,
+                    Title = ResolveChatTitle(session),
                     Time = FormatRelative(session.LastActiveDate),
                     Glyph = "\ue705",
                     Tag = session,
                 };
             }
+        }
+
+        /// <summary>
+        /// Returns the title to surface in Recent chats / Search. The session
+        /// is promoted to the user's first prompt when the stored title is
+        /// still the "New chat" placeholder or the agent's name, so the
+        /// search list always reflects what was actually asked.
+        /// </summary>
+        private static string ResolveChatTitle(ChatSession session)
+        {
+            if (session is null) return "New chat";
+            var t = session.Title;
+            var isDefault =
+                string.IsNullOrWhiteSpace(t) ||
+                string.Equals(t, "New chat", StringComparison.OrdinalIgnoreCase) ||
+                (session.Agent is not null &&
+                 string.Equals(t, session.Agent.AgentName, StringComparison.OrdinalIgnoreCase));
+            if (!isDefault) return t!;
+            foreach (var message in session.Messages)
+            {
+                if (message is AssistItem ai && ai.IsRequested && !string.IsNullOrWhiteSpace(ai.Text))
+                {
+                    return ai.Text.Length > 80 ? ai.Text.Substring(0, 80) + "…" : ai.Text;
+                }
+            }
+            return "New chat";
         }
 
         private static string FormatRelative(DateTime utc)

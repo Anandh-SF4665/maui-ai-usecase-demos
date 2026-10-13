@@ -152,9 +152,11 @@
                                     <Border WidthRequest="80" HeightRequest="80" StrokeThickness="0"
                                         StrokeShape="RoundRectangle 16" HorizontalOptions="Center" Margin="0,0,0,8"
                                         BackgroundColor="{Binding SelectedColor.ColorHex}">
-                                        <Label Text="{Binding SelectedIcon.IconGlyph}"
-                                            FontFamily="{Binding SelectedIcon.IconFontFamily}" FontSize="34"
-                                            TextColor="Black" HorizontalOptions="Center" VerticalOptions="Center" />
+                                        <Grid HorizontalOptions="Fill" VerticalOptions="Fill">
+                                            <Label Text="{Binding SelectedIcon.IconGlyph}"
+                                                FontFamily="{Binding SelectedIcon.IconFontFamily}" FontSize="34"
+                                                TextColor="Black" HorizontalOptions="Center" VerticalOptions="Center" />
+                                        </Grid>
                                     </Border>
 
                                     <Label Text="Icons" FontFamily="Roboto-Medium" FontSize="22"

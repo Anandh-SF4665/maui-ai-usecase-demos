@@ -340,6 +340,7 @@ public class AIChatSuggestionViewModel : INotifyPropertyChanged
         if (_session is not null && !_session.Messages.Contains(request))
         {
             _session.Messages.Add(request);
+            PromoteFirstPromptToTitle(_session, request.Text);
         }
         var prompt = request.Text;
         this.InputText = string.Empty;
@@ -368,7 +369,30 @@ public class AIChatSuggestionViewModel : INotifyPropertyChanged
             return;
         }
 
+        if (_session is not null)
+        {
+            PromoteFirstPromptToTitle(_session, prompt);
+        }
+
         await SendPromptAsync(prompt).ConfigureAwait(true);
+    }
+
+    /// <summary>
+    /// Promote the first user prompt to the session title so Recent chats /
+    /// Search show what the user actually asked instead of a placeholder.
+    /// Replaces the default "New chat" or agent-name title only.
+    /// </summary>
+    private static void PromoteFirstPromptToTitle(ChatSession session, string prompt)
+    {
+        if (session is null || string.IsNullOrWhiteSpace(prompt)) return;
+        var current = session.Title;
+        var isDefault =
+            string.IsNullOrWhiteSpace(current) ||
+            string.Equals(current, "New chat", StringComparison.OrdinalIgnoreCase) ||
+            (session.Agent is not null &&
+             string.Equals(current, session.Agent.AgentName, StringComparison.OrdinalIgnoreCase));
+        if (!isDefault) return;
+        session.Title = prompt.Length > 80 ? prompt.Substring(0, 80) + "…" : prompt;
     }
 
     /// <summary>
@@ -528,6 +552,7 @@ public class AIChatSuggestionViewModel : INotifyPropertyChanged
         if (_session is not null && !_session.Messages.Contains(item))
         {
             _session.Messages.Add(item);
+            PromoteFirstPromptToTitle(_session, item.Text);
         }
 
         _ = SendPromptAsync(suggestion.Text);

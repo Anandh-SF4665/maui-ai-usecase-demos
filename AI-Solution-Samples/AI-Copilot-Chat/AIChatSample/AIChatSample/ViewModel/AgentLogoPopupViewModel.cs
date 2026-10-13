@@ -39,6 +39,23 @@ namespace AIChatSample.ViewModel
         public bool IsIconAvatar => !string.IsNullOrEmpty(AgentAvatar) && AgentAvatar!.Contains(';');
 
         /// <summary>
+        /// Background color extracted from the committed avatar string. Used
+        /// by the host page (e.g. Configure Agent avatar circle and Preview)
+        /// so the chosen color is only visible AFTER the user taps Apply —
+        /// the in-progress popup selection should not leak into the
+        /// surrounding UI.
+        /// </summary>
+        public string AgentColor
+        {
+            get
+            {
+                if (string.IsNullOrEmpty(AgentAvatar) || !AgentAvatar!.Contains(';')) return string.Empty;
+                var parts = AgentAvatar.Split(';');
+                return parts.Length >= 3 ? parts[2] : string.Empty;
+            }
+        }
+
+        /// <summary>
         /// Builds a FontImageSource from the encoded "FontFamily;Glyph;Color"
         /// committed avatar so the avatar Image can render a Create-mode icon.
         /// The icon glyph itself is rendered in black so the surrounding Border's
@@ -62,8 +79,11 @@ namespace AIChatSample.ViewModel
             }
         }
 
-        partial void OnAgentAvatarChanged(string? value) =>
+        partial void OnAgentAvatarChanged(string? value)
+        {
             OnPropertyChanged(nameof(IconAvatar));
+            OnPropertyChanged(nameof(AgentColor));
+        }
 
         /// <summary>
         /// Live preview avatar that reflects the user's *in-progress* selection

@@ -21,6 +21,17 @@ public partial class AgentConfigurePageViewModel : ObservableObject
         // HasAvatar binding stays live after the popup applies.
         AgentPopUpVM = ChatLayout.AgentPopUpVM;
 
+        // The popup writes its Apply result into AgentPopUpVM.AgentAvatar;
+        // mirror that onto AgentVM.AgentAvatar so the form's Create flow
+        // (and the configure/preview avatar circle) see the customized logo.
+        AgentPopUpVM.PropertyChanged += (s, e) =>
+        {
+            if (e.PropertyName == nameof(AgentLogoPopupViewModel.AgentAvatar))
+            {
+                AgentVM.AgentAvatar = AgentPopUpVM.AgentAvatar;
+            }
+        };
+
         // Forward agent-form property changes so IsCreateEnabled stays live
         // on this VM too (the Create Agent button binds here).
         AgentVM.PropertyChanged += (s, e) =>

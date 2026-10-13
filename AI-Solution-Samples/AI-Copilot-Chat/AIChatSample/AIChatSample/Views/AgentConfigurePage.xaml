@@ -168,7 +168,7 @@
                                 <VerticalStackLayout Spacing="0" IsVisible="{Binding IsConfigureMode}">
                                 <Grid ColumnDefinitions="Auto,*" ColumnSpacing="16" Margin="0,8,0,24">
                                     <Border Grid.Column="0" WidthRequest="70" HeightRequest="70"
-                                            BackgroundColor="{Binding AgentPopUpVM.SelectedColor.ColorHex, FallbackValue=#F4F4F4}" StrokeThickness="1" StrokeDashArray="4,3"
+                                            BackgroundColor="{Binding AgentPopUpVM.AgentColor, FallbackValue=#F4F4F4}" StrokeThickness="1" StrokeDashArray="4,3"
                                             StrokeDashOffset="0" Stroke="#E2E2E5">
                                         <Border.StrokeShape>
                                             <RoundRectangle CornerRadius="35" />
@@ -176,16 +176,16 @@
                                         <Border.GestureRecognizers>
                                             <TapGestureRecognizer Tapped="OnAgentAvatarTapped" />
                                         </Border.GestureRecognizers>
-                                        <Grid>
+                                        <Grid HorizontalOptions="Fill" VerticalOptions="Fill">
                                             <Image Source="container.png" WidthRequest="28" HeightRequest="28"
                                                 HorizontalOptions="Center" VerticalOptions="Center"
                                                 IsVisible="{Binding AgentPopUpVM.HasAvatar, Converter={StaticResource InverseBoolean}}" />
                                             <Image Source="{Binding AgentPopUpVM.SelectedImage, Converter={StaticResource StringToImageSource}}"
                                                    Aspect="AspectFill" IsVisible="{Binding AgentPopUpVM.IsImageAvatar}" />
-                                            <Image Source="{Binding AgentPopUpVM.LiveIconAvatar}"
+                                            <Image Source="{Binding AgentPopUpVM.IconAvatar}"
                                                    WidthRequest="32" HeightRequest="32"
                                                    HorizontalOptions="Center" VerticalOptions="Center"
-                                                   IsVisible="{Binding AgentPopUpVM.LiveIsIconAvatar}" />
+                                                   IsVisible="{Binding AgentPopUpVM.IsIconAvatar}" />
                                         </Grid>
                                     </Border>
 
@@ -307,17 +307,17 @@
                                 <HorizontalStackLayout Spacing="16" HorizontalOptions="Center" Margin="0,16,0,8">
                                     <Border WidthRequest="84" HeightRequest="84" StrokeThickness="0"
                                             StrokeShape="RoundRectangle 16"
-                                            BackgroundColor="{Binding AgentPopUpVM.SelectedColor.ColorHex, FallbackValue=#EBDCFF}">
-                                        <Grid>
+                                            BackgroundColor="{Binding AgentPopUpVM.AgentColor, FallbackValue=#EBDCFF}">
+                                        <Grid HorizontalOptions="Fill" VerticalOptions="Fill">
                                             <Image Source="container.png" WidthRequest="32" HeightRequest="32"
                                                 HorizontalOptions="Center" VerticalOptions="Center"
                                                 IsVisible="{Binding AgentPopUpVM.HasAvatar, Converter={StaticResource InverseBoolean}}" />
-                                            <Image Source="{Binding AgentPopUpVM.SelectedImage, Converter={StaticResource StringToImageSource}}"
+                                            <Image Source="{Binding AgentPopUpVM.AgentAvatar, Converter={StaticResource StringToImageSource}}"
                                                    Aspect="AspectFill" IsVisible="{Binding AgentPopUpVM.IsImageAvatar}" />
-                                            <Image Source="{Binding AgentPopUpVM.LiveIconAvatar}"
+                                            <Image Source="{Binding AgentPopUpVM.IconAvatar}"
                                                     WidthRequest="48" HeightRequest="48"
                                                     HorizontalOptions="Center" VerticalOptions="Center"
-                                                    IsVisible="{Binding AgentPopUpVM.LiveIsIconAvatar}" />
+                                                    IsVisible="{Binding AgentPopUpVM.IsIconAvatar}" />
                                         </Grid>
                                     </Border>
                                 </HorizontalStackLayout>
