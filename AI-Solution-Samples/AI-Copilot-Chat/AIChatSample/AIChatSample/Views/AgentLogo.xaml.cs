@@ -14,59 +14,52 @@ namespace AIChatSample.Views.AIChat
             _vm = new AgentLogoPopupViewModel();
             BindingContext = _vm;
             _vm.RequestClose += OnRequestClose;
-            _vm.AvailableIcons.CollectionChanged += (_, __) => SyncIconItemsSource();
-            _vm.AvailableColors.CollectionChanged += (_, __) => SyncColorItemsSource();
-            SyncIconItemsSource();
-            SyncColorItemsSource();
             _vm.ResetForOpen();
+            // The visible CollectionViews inside the popup body already keep
+            // SelectedIcon / SelectedColor in sync via TwoWay binding. The
+            // hidden addressable list views below are kept in lock-step so
+            // external code (tests, future triggers) can read selection state
+            // from a stable namescope.
+            _vm.PropertyChanged += OnVmPropertyChanged;
+        }
+
+        private void OnVmPropertyChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
+        {
+            if (e.PropertyName == nameof(AgentLogoPopupViewModel.SelectedIcon))
+            {
+                IconsList.SelectedItem = _vm.SelectedIcon;
+            }
+            else if (e.PropertyName == nameof(AgentLogoPopupViewModel.SelectedColor))
+            {
+                ColorsList.SelectedItem = _vm.SelectedColor;
+            }
         }
 
         private void OnRequestClose(object? sender, EventArgs e)
         {
+            LogoPopup.IsOpen = false;
             if (Navigation?.ModalStack.Contains(this) == true)
             {
                 Navigation.PopModalAsync(animated: true);
             }
         }
 
-        private void SyncIconItemsSource()
-        {
-            IconsList.ItemsSource = _vm.AvailableIcons;
-        }
-
-        private void SyncColorItemsSource()
-        {
-            ColorsList.ItemsSource = _vm.AvailableColors;
-        }
-
         private void IconsList_SelectionChanged(object? sender, ItemSelectionChangedEventArgs e)
         {
-            if (IconsList.SelectedItem is LogoIconModel icon && _vm.SelectIconCommand.CanExecute(icon))
+            if (sender is SfListView list && list.SelectedItem is LogoIconModel icon &&
+                _vm.SelectIconCommand.CanExecute(icon))
+            {
                 _vm.SelectIconCommand.Execute(icon);
+            }
         }
 
         private void ColorsList_SelectionChanged(object? sender, ItemSelectionChangedEventArgs e)
         {
-            if (ColorsList.SelectedItem is LogoColorModel color && _vm.SelectColorCommand.CanExecute(color))
+            if (sender is SfListView list && list.SelectedItem is LogoColorModel color &&
+                _vm.SelectColorCommand.CanExecute(color))
+            {
                 _vm.SelectColorCommand.Execute(color);
-        }
-
-        // The visible mirror CollectionViews live inside the popup's
-        // DataTemplate, so they cannot be reached via x:Name. We instead
-        // receive their SelectionChanged through routed events on the
-        // popup's host element. Because the mirrors bind to the same
-        // collections, we just forward the change into the VM via the
-        // same selection logic.
-        private void ColorsMirror_SelectionChanged(object? sender, ItemSelectionChangedEventArgs e)
-        {
-            if (e.AddedItems.FirstOrDefault() is LogoColorModel color && _vm.SelectColorCommand.CanExecute(color))
-                _vm.SelectColorCommand.Execute(color);
-        }
-
-        private void IconsMirror_SelectionChanged(object sender, ItemSelectionChangedEventArgs e)
-        {
-            if (e.AddedItems.FirstOrDefault() is LogoIconModel icon && _vm.SelectIconCommand.CanExecute(icon))
-                _vm.SelectIconCommand.Execute(icon);
+            }
         }
     }
 }

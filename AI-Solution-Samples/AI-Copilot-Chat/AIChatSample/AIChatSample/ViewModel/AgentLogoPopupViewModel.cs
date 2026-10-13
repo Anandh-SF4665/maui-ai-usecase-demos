@@ -167,6 +167,7 @@ namespace AIChatSample.ViewModel
         {
             IsApplyEnabled = IsCreateMode || HasSelectedImage;
             (ApplyCommand as Command)?.ChangeCanExecute();
+            OnPropertyChanged(nameof(IsApplyEnabled));
         }
 
         private void OnSelectIcon(LogoIconModel? icon)
