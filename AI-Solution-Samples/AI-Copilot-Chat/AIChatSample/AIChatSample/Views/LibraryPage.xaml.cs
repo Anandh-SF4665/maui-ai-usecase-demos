@@ -56,5 +56,3 @@ public partial class LibraryPage : ContentPage
 #endif
     }
 }
-    }
-}

@@ -14,7 +14,7 @@ namespace AIChatSample
         {
             // Initial route: NewChat wrapped in a NavigationPage so Profile,
             // Library, CreateAgent, etc. can be pushed onto the stack.
-            return new Window(new NavigationPage(new NewChat()));
+            return new Window(new AppShell());
         }
     }
 }

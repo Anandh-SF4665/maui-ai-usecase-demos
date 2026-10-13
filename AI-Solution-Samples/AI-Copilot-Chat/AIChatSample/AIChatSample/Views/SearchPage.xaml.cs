@@ -1,3 +1,4 @@
+using AIChatSample.Controls;
 using AIChatSample.Models;
 using AIChatSample.Services;
 using AIChatSample.ViewModel;
@@ -64,7 +65,7 @@ public partial class SearchPage : ContentPage
 #endif
     }
 
-    private void RecentChatItemTapped(object sender, ItemTappedEventArgs e)
+    private void RecentChatItemTapped(object sender, Syncfusion.Maui.ListView.ItemTappedEventArgs e)
     {
         if (e.DataItem is RecentChatItem item)
         {

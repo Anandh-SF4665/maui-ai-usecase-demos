@@ -51,8 +51,8 @@
                         <Border Style="{StaticResource AC_SectionCard}">
                             <VerticalStackLayout Spacing="16">
                                 <HorizontalStackLayout Spacing="16">
-                                    <Border WidthRequest="88" HeightRequest="88" BackgroundColor="{Binding UserProfile.Color}" StrokeThickness="0" StrokeShape="RoundRectangle 44">
-                                        <Label Text="{Binding UserProfile.Initial}" FontFamily="Roboto-Medium" FontSize="28" TextColor="White" HorizontalOptions="Center" VerticalOptions="Center" />
+                                    <Border WidthRequest="88" HeightRequest="88" StrokeThickness="0" StrokeShape="RoundRectangle 44">
+                                        <Image Source="userprofile.png" HorizontalOptions="Center" VerticalOptions="Center" Aspect="AspectFit" />
                                     </Border>
                                     <VerticalStackLayout Spacing="6" VerticalOptions="Center">
                                         <Label Text="{Binding UserProfile.Name}" FontFamily="Roboto-Medium" FontSize="20" TextColor="{AppThemeBinding Light=#313032, Dark=#FFFFFF}" />
