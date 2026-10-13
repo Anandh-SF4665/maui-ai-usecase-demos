@@ -27,6 +27,6 @@ public class StringToImageSourceConverter : IValueConverter
 
     public object? ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture)
     {
-        return BindingValue.UnsetValue;
+        return null;
     }
 }
