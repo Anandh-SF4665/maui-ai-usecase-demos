@@ -8,6 +8,7 @@ using System.Runtime.CompilerServices;
 using System.Windows.Input;
 using CommunityToolkit.Mvvm.ComponentModel;
 using Microsoft.Maui.Graphics;
+using System;
 
 namespace AIChatSample.ViewModel
 {
@@ -359,7 +360,17 @@ namespace AIChatSample.ViewModel
         public event EventHandler<ChatSession>? ChatSessionReplaced;
 
         /// <summary>Currently open chat session, or null when the host should display the welcome header (FR-0.4).</summary>
-        public ChatSession? CurrentSession { get; private set; }
+        public ChatSession? CurrentSession
+        {
+            get => _currentSession;
+            private set
+            {
+                if (ReferenceEquals(_currentSession, value)) return;
+                _currentSession = value;
+                OnPropertyChanged();
+            }
+        }
+        private ChatSession? _currentSession;
 
         /// <summary>Opens the search panel.</summary>
         public ICommand SearchCommand =>
@@ -442,6 +453,35 @@ namespace AIChatSample.ViewModel
             _chatDataService.TouchSession(session);
             CurrentSession = session;
             ChatSessionReplaced?.Invoke(this, session);
+        }
+
+        /// <summary>Open the chat carried by the supplied recent item.</summary>
+        public void OpenRecentChat(RecentChatItem? item) => OnOpenChatClicked(item);
+
+        /// <summary>Delete the chat carried by the supplied recent item.</summary>
+        public void DeleteRecentChat(RecentChatItem? item)
+        {
+            if (item is null || _chatDataService is null) return;
+            var session = item.Tag as ChatSession
+                ?? _chatDataService.ChatSessions.FirstOrDefault(s => s.Id == item.Tag as string);
+            if (session is null) return;
+
+            if (ReferenceEquals(CurrentSession, session))
+            {
+                CurrentSession = null;
+            }
+            _chatDataService.DeleteSession(session);
+            ChatSessionReplaced?.Invoke(this, CurrentSession);
+        }
+
+        /// <summary>Build a shareable deep link / display string for a chat.</summary>
+        public string BuildShareLink(RecentChatItem? item)
+        {
+            if (item is null) return string.Empty;
+            var session = item.Tag as ChatSession
+                ?? _chatDataService?.ChatSessions.FirstOrDefault(s => s.Id == item.Tag as string);
+            var title = session?.Title ?? item.Title ?? "chat";
+            return $"aichat://chat/{session?.Id ?? item.Title}/{Uri.EscapeDataString(title)}";
         }
 
         private void OnOpenAgentChatClicked(AgentItem? item)
@@ -670,10 +710,11 @@ namespace AIChatSample.ViewModel
 
         private void ApplySearchFilter()
         {
-            // FR-4.1: filter the Recent chats list by Title containing
-            // SearchText. The list stays empty until the user has typed
-            // something — opening the Search page should not surface
-            // every chat that's been opened elsewhere.
+            // FR-4.1: the Search page lists all chats by default; the query
+            // narrows the list. Opening the page should not show an empty
+            // list — that's the "haven't searched yet" feel the user
+            // complained about. We still skip empty sessions so demo
+            // "New chat" stubs don't clutter the results.
             if (FilteredRecentChats is null)
             {
                 FilteredRecentChats = new ObservableCollection<RecentChatItem>();
@@ -681,15 +722,11 @@ namespace AIChatSample.ViewModel
 
             FilteredRecentChats.Clear();
             var query = (SearchText ?? string.Empty).Trim();
-            if (query.Length == 0)
-            {
-                OnPropertyChanged(nameof(FilteredRecentChats));
-                return;
-            }
 
             foreach (var item in RecentChats)
             {
-                if (item.Title?.Contains(query, StringComparison.OrdinalIgnoreCase) ?? false)
+                if (query.Length == 0 ||
+                    (item.Title?.Contains(query, StringComparison.OrdinalIgnoreCase) ?? false))
                 {
                     FilteredRecentChats.Add(item);
                 }

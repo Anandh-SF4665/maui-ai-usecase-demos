@@ -2,17 +2,19 @@ using AIChatSample.Models;
 using AIChatSample.Services;
 using AIChatSample.ViewModel;
 using Syncfusion.Maui.ListView;
+using Syncfusion.Maui.Toolkit.Popup;
 
 namespace AIChatSample.Views.AIChat;
 
 public partial class SearchPage : ContentPage
 {
+    private AIMainLayoutViewModel? _layoutVm;
+    private RecentChatItem? _shareItem;
+    private RecentChatItem? _moreItem;
+
     public SearchPage()
     {
         InitializeComponent();
-        // Bind to the shared app shell view-model so Search, Library
-        // and Recent chats reflect the same in-memory state (FR-0.1,
-        // FR-4.1).
         this.BindingContext = ServiceHelper.GetService<AIMainLayoutViewModel>() ?? new AIMainLayoutViewModel();
     }
 
@@ -31,6 +33,8 @@ public partial class SearchPage : ContentPage
             AIChatNavigationPanel.NavigationRequested += OnNavigationRequested;
             AIChatToolbar.BackRequested -= OnBackRequested;
             AIChatToolbar.BackRequested += OnBackRequested;
+
+            _layoutVm = ServiceHelper.GetService<AIMainLayoutViewModel>();
         }
     }
 
@@ -60,16 +64,83 @@ public partial class SearchPage : ContentPage
 #endif
     }
 
-    /// <summary>
-    /// Opens the tapped recent chat by routing through the chat
-    /// navigation service (FR-4.1 + FR-0.4). Equivalent to tapping the
-    /// same row in the left-nav drawer.
-    /// </summary>
-    private void RecentChatItemTapped(object sender, Syncfusion.Maui.ListView.ItemTappedEventArgs e)
+    private void RecentChatItemTapped(object sender, ItemTappedEventArgs e)
     {
         if (e.DataItem is RecentChatItem item)
         {
             ChatNavigationService.Handle(this, "OpenChat", item);
         }
+    }
+
+    private void OnShareTapped(object? sender, TappedEventArgs e)
+    {
+        if (e.Parameter is RecentChatItem item)
+        {
+            _shareItem = item;
+            var link = _layoutVm?.BuildShareLink(item) ?? string.Empty;
+            // Set the popup's BindingContext so the inner label can render
+            // the link. The ContentTemplate uses {Binding} which
+            // resolves to the popup's BindingContext.
+            SharePopup.BindingContext = link;
+            SharePopup.IsOpen = true;
+        }
+    }
+
+    private void OnShareCopyClicked(object? sender, EventArgs e)
+    {
+        var link = SharePopup.BindingContext as string ?? string.Empty;
+        if (!string.IsNullOrEmpty(link))
+        {
+            try
+            {
+                Clipboard.SetTextAsync(link);
+            }
+            catch
+            {
+                // Clipboard can fail on some platforms; swallow so the
+                // popup still closes.
+            }
+        }
+        SharePopup.IsOpen = false;
+    }
+
+    private void OnShareCancelClicked(object? sender, EventArgs e)
+    {
+        SharePopup.IsOpen = false;
+    }
+
+    private void OnMoreTapped(object? sender, TappedEventArgs e)
+    {
+        if (e.Parameter is RecentChatItem item)
+        {
+            _moreItem = item;
+            MorePopup.BindingContext = item;
+            MorePopup.IsOpen = true;
+        }
+    }
+
+    private void OnMoreOpenClicked(object? sender, EventArgs e)
+    {
+        MorePopup.IsOpen = false;
+        if (_moreItem is not null)
+        {
+            ChatNavigationService.Handle(this, "OpenChat", _moreItem);
+            _moreItem = null;
+        }
+    }
+
+    private async void OnMoreDeleteClicked(object? sender, EventArgs e)
+    {
+        MorePopup.IsOpen = false;
+        var item = _moreItem;
+        _moreItem = null;
+        if (item is null || _layoutVm is null) return;
+
+        var confirmed = await DisplayAlert("Delete chat",
+            $"Delete \"{item.Title}\"? This cannot be undone.",
+            "Delete", "Cancel");
+        if (!confirmed) return;
+
+        _layoutVm.DeleteRecentChat(item);
     }
 }

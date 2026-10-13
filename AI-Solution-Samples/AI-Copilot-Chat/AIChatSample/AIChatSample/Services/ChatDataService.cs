@@ -34,6 +34,9 @@ public interface IChatDataService
 
     /// <summary>Touches the session's <c>LastActiveDate</c> so the Recent list re-sorts (FR-0.4).</summary>
     void TouchSession(ChatSession session);
+
+    /// <summary>Removes the session from the in-memory store. No-op if the session is null or already gone.</summary>
+    void DeleteSession(ChatSession session);
 }
 
 public sealed class ChatDataService : IChatDataService
@@ -87,6 +90,15 @@ public sealed class ChatDataService : IChatDataService
             {
                 _sessions.Move(currentIndex, i);
             }
+        }
+    }
+
+    public void DeleteSession(ChatSession session)
+    {
+        if (session is null) return;
+        if (_sessions.Remove(session))
+        {
+            ChatSessionAdded?.Invoke(this, session); // reuse the same event for now; future: dedicated removed event
         }
     }
 }
