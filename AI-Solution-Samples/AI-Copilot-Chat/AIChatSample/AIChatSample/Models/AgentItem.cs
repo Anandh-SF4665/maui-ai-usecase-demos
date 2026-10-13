@@ -9,7 +9,7 @@ namespace AIChatSample.Models
     {
         private bool isSelected;
         private string? initial;
-        private string? color;
+        private Color? color;
         private string? id;
         private string? avatarSource;
         private string? avatarGlyph;
@@ -42,7 +42,7 @@ namespace AIChatSample.Models
         }
 
         /// <summary>Avatar background color (hex) lifted from <see cref="Models.AgentConfiguration.Color"/> (FR-1.3).</summary>
-        public string? Color
+        public Color? Color
         {
             get => this.color;
             set

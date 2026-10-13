@@ -6,6 +6,7 @@ using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using System.Windows.Input;
 using CommunityToolkit.Mvvm.ComponentModel;
+using Microsoft.Maui.Graphics;
 
 namespace AIChatSample.ViewModel
 {
@@ -126,7 +127,7 @@ namespace AIChatSample.ViewModel
                     {
                         Glyph = "\ue715",
                         FontFamily = "MaterialAssets",
-                        Color = Application.Current?.RequestedTheme == AppTheme.Dark ? Color.FromArgb("#C9C6C8") : Color.FromArgb("#474648"),
+                        Color = Application.Current?.RequestedTheme == AppTheme.Dark ? Microsoft.Maui.Graphics.Color.FromArgb("#C9C6C8") : Microsoft.Maui.Graphics.Color.FromArgb("#474648"),
                         Size = 18
                     }
                 }
@@ -139,7 +140,7 @@ namespace AIChatSample.ViewModel
                     Id = DefaultAgentIds.CodeReviewer,
                     Name = "Code Reviewer",
                     Initial = "C",
-                    Color = "#7633DA",
+                    Color = Microsoft.Maui.Graphics.Color.FromArgb("#7633DA"),
                     AvatarGlyph = "UIKitIcons;\ue72b;#FFFFFF",
                 },
                 new()
@@ -147,7 +148,7 @@ namespace AIChatSample.ViewModel
                     Id = DefaultAgentIds.SocialMediaWriter,
                     Name = "Social Media Writer",
                     Initial = "S",
-                    Color = "#D55E2C",
+                    Color = Microsoft.Maui.Graphics.Color.FromArgb("#D55E2C"),
                     AvatarGlyph = "UIKitIcons;\ue733;#FFFFFF",
                 },
             };
@@ -542,11 +543,6 @@ namespace AIChatSample.ViewModel
                 return;
             }
 
-            // Skip duplicates seeded at design time (e.g. "Code
-            // Reviewer") when the user happens to create one with the
-            // same name; the unique-name guarantee in IAgentStore.Add
-            // means we never have to deal with two rows for the same
-            // persisted record.
             foreach (var existing in Agents)
             {
                 if (!string.IsNullOrEmpty(existing.Id) && existing.Id == agent.Id)
@@ -560,12 +556,54 @@ namespace AIChatSample.ViewModel
                 }
             }
 
+            // Convert stored/derived string color into Microsoft.Maui.Graphics.Color
+            Color? parsedColor = null;
+            if (!string.IsNullOrWhiteSpace(agent.Color))
+            {
+                if (Color.TryParse(agent.Color, out var c))
+                {
+                    parsedColor = c;
+                }
+                else
+                {
+                    // Fallback: try FromArgb (throws on invalid input) inside try/catch
+                    try
+                    {
+                        parsedColor = Color.FromArgb(agent.Color);
+                    }
+                    catch
+                    {
+                        parsedColor = null;
+                    }
+                }
+            }
+
+            if (parsedColor is null)
+            {
+                var derived = Models.AgentConfiguration.DeriveColor(agent.AgentName);
+                if (!string.IsNullOrWhiteSpace(derived) && Color.TryParse(derived, out var c2))
+                {
+                    parsedColor = c2;
+                }
+                else if (!string.IsNullOrWhiteSpace(derived))
+                {
+                    try
+                    {
+                        parsedColor = Color.FromArgb(derived);
+                    }
+                    catch
+                    {
+                        parsedColor = null;
+                    }
+                }
+            }
+
             Agents.Insert(0, new AgentItem
             {
                 Id = agent.Id,
                 Name = agent.AgentName,
                 Initial = agent.Initial ?? Models.AgentConfiguration.DeriveInitial(agent.AgentName),
-                Color = agent.Color ?? Models.AgentConfiguration.DeriveColor(agent.AgentName),
+                Color = parsedColor,
                 AvatarSource = agent.AvatarSource,
                 AvatarGlyph = agent.AvatarGlyph,
             });
