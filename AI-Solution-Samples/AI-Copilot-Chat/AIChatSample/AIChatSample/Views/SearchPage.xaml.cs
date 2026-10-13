@@ -1,19 +1,24 @@
-using AIChatSample.Controls;
 using AIChatSample.Models;
 using AIChatSample.Services;
 using AIChatSample.ViewModel;
+using Syncfusion.Maui.ListView;
 
 namespace AIChatSample.Views.AIChat;
 
 public partial class SearchPage : ContentPage
 {
-	public SearchPage()
-	{
-		InitializeComponent();
-            // Bind to the shared app shell view-model so Search, Library
-            // and Recent chats reflect the same in-memory state (FR-0.1,
-            // FR-4.1).
-            this.BindingContext = ServiceHelper.GetService<AIMainLayoutViewModel>() ?? new AIMainLayoutViewModel();
+    public SearchPage()
+    {
+        InitializeComponent();
+        // Bind to the shared app shell view-model so Search, Library
+        // and Recent chats reflect the same in-memory state (FR-0.1,
+        // FR-4.1).
+        this.BindingContext = ServiceHelper.GetService<AIMainLayoutViewModel>() ?? new AIMainLayoutViewModel();
+    }
+
+    protected override void OnHandlerChanged()
+    {
+        base.OnHandlerChanged();
 
         if (Handler is null)
         {

@@ -54,6 +54,34 @@ public partial class AIChatInputEditor : ContentView
         set => SetValue(SendCommandProperty, value);
     }
 
+    // Attach (+ file) command: invoked when the user taps the plus icon.
+    public static readonly BindableProperty AttachCommandProperty =
+        BindableProperty.Create(
+            nameof(AttachCommand),
+            typeof(ICommand),
+            typeof(AIChatInputEditor),
+            default(ICommand));
+
+    public ICommand AttachCommand
+    {
+        get => (ICommand)GetValue(AttachCommandProperty);
+        set => SetValue(AttachCommandProperty, value);
+    }
+
+    // Mic command: invoked when the user taps the microphone icon.
+    public static readonly BindableProperty MicCommandProperty =
+        BindableProperty.Create(
+            nameof(MicCommand),
+            typeof(ICommand),
+            typeof(AIChatInputEditor),
+            default(ICommand));
+
+    public ICommand MicCommand
+    {
+        get => (ICommand)GetValue(MicCommandProperty);
+        set => SetValue(MicCommandProperty, value);
+    }
+
     // IsSendEnabled (read-only) - true when text is non-empty AND command can execute
     public static readonly BindableProperty IsSendEnabledProperty =
         BindableProperty.Create(
@@ -116,6 +144,33 @@ public partial class AIChatInputEditor : ContentView
             return;
         }
 
+        if (command.CanExecute(this.Text))
+        {
+            command.Execute(this.Text);
+        }
+    }
+
+    private void OnAttachTapped(object? sender, TappedEventArgs e)
+    {
+        // The + button on the editor is a thin wrapper around whichever
+        // command the host page supplies. The default editor doesn't know
+        // what attachments mean in any particular screen, so the
+        // execution is forwarded to the bound AttachCommand (falling
+        // back to no-op when none is provided).
+        var command = this.AttachCommand;
+        if (command is null) return;
+        if (command.CanExecute(this.Text))
+        {
+            command.Execute(this.Text);
+        }
+    }
+
+    private void OnMicTapped(object? sender, TappedEventArgs e)
+    {
+        // The mic icon is just a button — any voice-input flow is owned
+        // by the host page. Forward the tap to the bound MicCommand.
+        var command = this.MicCommand;
+        if (command is null) return;
         if (command.CanExecute(this.Text))
         {
             command.Execute(this.Text);

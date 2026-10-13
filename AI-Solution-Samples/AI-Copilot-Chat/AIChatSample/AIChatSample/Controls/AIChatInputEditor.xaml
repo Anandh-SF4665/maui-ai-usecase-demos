@@ -17,32 +17,37 @@
 
         <Grid ColumnDefinitions="Auto,*,Auto,Auto" ColumnSpacing="0">
 
-            <!-- Attachment icon -->
+            <!-- Attachment (plus) icon: invokes AttachCommand when tapped -->
             <Border Grid.Column="0" StrokeThickness="0" BackgroundColor="Transparent" StrokeShape="RoundRectangle 16"
                 WidthRequest="36" HeightRequest="36">
 
                 <Border.GestureRecognizers>
                     <PointerGestureRecognizer PointerEntered="Icon_PointerEntered" PointerExited="Icon_PointerExited" />
+                    <TapGestureRecognizer Tapped="OnAttachTapped" />
                 </Border.GestureRecognizers>
                 <Label Text="&#xe70d;" FontFamily="MaterialAssets" FontSize="20" WidthRequest="32" HeightRequest="32"
                     TextColor="{AppThemeBinding Light={DynamicResource ContentTextColorLight}, Dark={DynamicResource ContentTextColorDark}}"
                     BackgroundColor="Transparent" VerticalTextAlignment="Center" HorizontalTextAlignment="Center" />
             </Border>
-            <!-- Editable message input -->
+            <!-- Editable message input: Enter sends via SendCommand -->
             <controls:BorderlessEntry Grid.Column="1" x:Name="MessageEntry"
                 Placeholder="{Binding Placeholder, Source={x:Reference this}}"
                 PlaceholderColor="{AppThemeBinding Light={DynamicResource PlaceholderTextColorLight}, Dark={DynamicResource PlaceholderTextColorDark}}"
                 Text="{Binding Text, Source={x:Reference this}, Mode=TwoWay}" BackgroundColor="Transparent"
                 TextColor="{AppThemeBinding Light=#313032, Dark=#FFFFFF}" FontSize="14"
                 TextChanged="InputEditor_PropertyChanged" FontFamily="Roboto-Regular" VerticalOptions="Center"
+                ReturnType="Send"
+                ReturnCommand="{Binding SendCommand, Source={x:Reference this}}"
+                ReturnCommandParameter="{Binding Text, Source={x:Reference this}}"
                 HorizontalOptions="Fill" HeightRequest="40" />
 
-            <!-- Mic icon -->
+            <!-- Mic icon: invokes MicCommand when tapped -->
             <Border Grid.Column="2" StrokeThickness="0" BackgroundColor="Transparent" StrokeShape="RoundRectangle 16"
                 WidthRequest="36" HeightRequest="36">
 
                 <Border.GestureRecognizers>
                     <PointerGestureRecognizer PointerEntered="Icon_PointerEntered" PointerExited="Icon_PointerExited" />
+                    <TapGestureRecognizer Tapped="OnMicTapped" />
                 </Border.GestureRecognizers>
                 <Label Grid.Column="2" Text="&#xe7ec;" FontFamily="MaterialAssets" FontSize="20" WidthRequest="32"
                     HeightRequest="32"

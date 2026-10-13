@@ -100,11 +100,13 @@
                                                             MaximumWidthRequest="710" Margin="{OnPlatform Android='0', Default='0,0,0,8'}"
                                                             Placeholder="Type Message..."
                                                             Text="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.InputText, Mode=TwoWay}"
-                                                            SendCommand="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.SendCommand}" />
+                                                            SendCommand="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.SendCommand}"
+                                                            AttachCommand="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.AttachCommand}"
+                                                            MicCommand="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.MicCommand}" />
 
                                 <Label Text="Suggested for you" FontSize="16" FontFamily="Roboto-Regular"
                                     LineHeight="2.4" CharacterSpacing="0.5"
-                                    IsVisible="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.IsAgentSession, Converter={StaticResource InvertedBoolConverter}}"
+                                    IsVisible="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.ShowWelcomeSuggestions}"
                                     TextColor="{AppThemeBinding Light={DynamicResource ContentTextColorLight}, Dark={DynamicResource ContentTextColorDark}}"
                                     Margin="{OnPlatform Android='0,0,0,12', Default='0,0,0,8'}"
                                     HorizontalOptions="Center" VerticalTextAlignment="Center"
@@ -112,7 +114,7 @@
 
                                 <CollectionView x:Name="SuggestionsLayout" ItemsSource="{Binding Suggestions}"
                                     HorizontalOptions="Fill" MaximumWidthRequest="600" SelectionMode="None"
-                                    IsVisible="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.IsAgentSession, Converter={StaticResource InvertedBoolConverter}}"
+                                    IsVisible="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.ShowWelcomeSuggestions}"
                                     SizeChanged="SuggestionsLayoutSizeChanged">
                                     <CollectionView.ItemsLayout>
                                         <GridItemsLayout Orientation="Vertical" Span="2" HorizontalItemSpacing="12"

@@ -9,7 +9,12 @@ public partial class LibraryPage : ContentPage
 	public LibraryPage()
 	{
 		InitializeComponent();
-            this.BindingContext = ServiceHelper.GetService<AIMainLayoutViewModel>() ?? new AIMainLayoutViewModel();
+        this.BindingContext = ServiceHelper.GetService<AIMainLayoutViewModel>() ?? new AIMainLayoutViewModel();
+    }
+
+    protected override void OnHandlerChanged()
+    {
+        base.OnHandlerChanged();
 
         if (Handler is null)
         {
@@ -49,5 +54,7 @@ public partial class LibraryPage : ContentPage
 #if ANDROID
         AIChatNavigationPanel.ToggleCompact();
 #endif
+    }
+}
     }
 }

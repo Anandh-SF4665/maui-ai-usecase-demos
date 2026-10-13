@@ -108,6 +108,12 @@ public class AIChatSuggestionViewModel : INotifyPropertyChanged
         this.SendCommand = new Command(this.OnSendRequested, this.CanSend);
         this.SuggestionTappedCommand = new Command<ISuggestion>(this.OnSuggestionTapped);
         this.CancelRequestCommand = new Command(this.CancelActiveRequest, () => this._isBusy);
+        // The + and mic icons are visual placeholders today; forward taps
+        // through commands so the editor's gesture handlers have a stable
+        // target. Hooks can be replaced later with file / voice-input flows
+        // without changing the editor.
+        this.AttachCommand = new Command(() => { /* file-attachment hook */ });
+        this.MicCommand = new Command(() => { /* voice-input hook */ });
     }
 
     private readonly IAgentStore? _agentStore;
@@ -207,6 +213,7 @@ public class AIChatSuggestionViewModel : INotifyPropertyChanged
             this._assistItems.CollectionChanged += OnAssistItemsChanged;
             this.RaisePropertyChanged(nameof(AssistItems));
             this.RaisePropertyChanged(nameof(HasMessages));
+            this.RaisePropertyChanged(nameof(ShowWelcomeSuggestions));
         }
     }
 
@@ -220,6 +227,14 @@ public class AIChatSuggestionViewModel : INotifyPropertyChanged
     /// the input box.
     /// </summary>
     public bool IsAgentSession => this.CurrentSession?.Agent is not null;
+
+    /// <summary>
+    /// Welcome-time "Suggested for you" strip. Visible only on the first
+    /// load of a New chat (no messages yet, no agent session) so the
+    /// suggestions don't reappear once the user has actually started
+    /// a conversation.
+    /// </summary>
+    public bool ShowWelcomeSuggestions => !HasMessages && !IsAgentSession;
 
     /// <summary>Header title shown in the welcome state. Falls back to a generic prompt when no agent is active.</summary>
     public string HeaderTitle => this.CurrentSession?.Agent?.AgentName ?? "How can I help you today?";
@@ -235,6 +250,7 @@ public class AIChatSuggestionViewModel : INotifyPropertyChanged
         this.RaisePropertyChanged(nameof(IsAgentSession));
         this.RaisePropertyChanged(nameof(HeaderTitle));
         this.RaisePropertyChanged(nameof(HeaderSubtitle));
+        this.RaisePropertyChanged(nameof(ShowWelcomeSuggestions));
     }
 
     public string InputText
@@ -269,6 +285,12 @@ public class AIChatSuggestionViewModel : INotifyPropertyChanged
     public ICommand SuggestionTappedCommand { get; }
 
     public ICommand CancelRequestCommand { get; }
+
+    /// <summary>Bound to the editor's "+" / attachment icon. Hook for future file-attachment flows.</summary>
+    public ICommand AttachCommand { get; }
+
+    /// <summary>Bound to the editor's microphone icon. Hook for future voice-input flows.</summary>
+    public ICommand MicCommand { get; }
 
     /// <summary>Currently bound <see cref="ChatSession"/>, or <c>null</c> when showing the welcome state (FR-0.4).</summary>
     public ChatSession? CurrentSession
@@ -561,6 +583,7 @@ public class AIChatSuggestionViewModel : INotifyPropertyChanged
     private void OnAssistItemsChanged(object? sender, NotifyCollectionChangedEventArgs e)
     {
         this.RaisePropertyChanged(nameof(HasMessages));
+        this.RaisePropertyChanged(nameof(ShowWelcomeSuggestions));
     }
 
     /// <summary>
