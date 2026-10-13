@@ -26,6 +26,7 @@ namespace AIChatSample.Views.AIChat
             // Instructions, SelectedTab, ...) but the navigation panel
             // still needs the AIMainLayoutViewModel for sidebar state.
             BindingContext = Vm;
+            Vm.AgentPopUpVM.RequestClose += OnAgentLogoPopupRequestClose;
         }
 
         protected override void OnHandlerChanged()
@@ -44,6 +45,12 @@ namespace AIChatSample.Views.AIChat
                 AIChatToolbar.BackRequested -= OnBackRequested;
                 AIChatToolbar.BackRequested += OnBackRequested;
             }
+        }
+
+        protected override void OnDisappearing()
+        {
+            Vm.AgentPopUpVM.RequestClose -= OnAgentLogoPopupRequestClose;
+            base.OnDisappearing();
         }
 
         protected override void OnAppearing()
@@ -97,7 +104,7 @@ namespace AIChatSample.Views.AIChat
         {
             if (BindingContext is AgentConfigurePageViewModel vm && e.AddedItem is string label)
             {
-               // vm.SelectedChipText = label;
+                vm.SelectedChipText = label;
             }
         }
 
@@ -115,11 +122,19 @@ namespace AIChatSample.Views.AIChat
                 return;
             }
 
-            var popup = new AgentLogoPage { BindingContext = vm.AgentPopUpVM };
-            // Seed the popup with whatever the form is currently showing
-            // so reopening doesn't reset the icon/color selection.
             vm.AgentPopUpVM.AgentAvatar = vm.AgentAvatar;
+            vm.AgentPopUpVM.ResetForOpen();
+
+            var popup = new AgentLogoPage { BindingContext = vm.AgentPopUpVM };
             await Navigation.PushModalAsync(popup, animated: true);
+        }
+
+        private async void OnAgentLogoPopupRequestClose(object? sender, EventArgs e)
+        {
+            if (Navigation?.ModalStack.Count > 0)
+            {
+                await Navigation.PopModalAsync(animated: true);
+            }
         }
 
         /// <summary>
