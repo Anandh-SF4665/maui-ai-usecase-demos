@@ -6,21 +6,37 @@ namespace AIChatSample.Views.AIChat
 {
     public partial class AgentLogoPage : ContentPage
     {
-        private readonly AgentLogoPopupViewModel _vm;
+        private AgentLogoPopupViewModel _vm;
 
-        public AgentLogoPage()
+        public AgentLogoPage() : this(null) { }
+
+        public AgentLogoPage(AgentLogoPopupViewModel? viewModel)
         {
             InitializeComponent();
-            _vm = new AgentLogoPopupViewModel();
-            BindingContext = _vm;
+            _vm = viewModel ?? new AgentLogoPopupViewModel();
+            if (BindingContext is null) BindingContext = _vm;
             _vm.RequestClose += OnRequestClose;
             _vm.ResetForOpen();
-            // The visible CollectionViews inside the popup body already keep
+            // The visible CollectionViews inside the popup body keep
             // SelectedIcon / SelectedColor in sync via TwoWay binding. The
-            // hidden addressable list views below are kept in lock-step so
+            // hidden addressable list views are kept in lock-step so
             // external code (tests, future triggers) can read selection state
             // from a stable namescope.
             _vm.PropertyChanged += OnVmPropertyChanged;
+        }
+
+        protected override void OnBindingContextChanged()
+        {
+            base.OnBindingContextChanged();
+            if (BindingContext is AgentLogoPopupViewModel incoming && incoming != _vm)
+            {
+                _vm.RequestClose -= OnRequestClose;
+                _vm.PropertyChanged -= OnVmPropertyChanged;
+                _vm = incoming;
+                _vm.RequestClose += OnRequestClose;
+                _vm.PropertyChanged += OnVmPropertyChanged;
+                _vm.ResetForOpen();
+            }
         }
 
         private void OnVmPropertyChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)

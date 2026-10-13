@@ -6,6 +6,7 @@
     xmlns:popup="clr-namespace:Syncfusion.Maui.Toolkit.Popup;assembly=Syncfusion.Maui.Toolkit"
     xmlns:viewModel="clr-namespace:AIChatSample.ViewModel"
     xmlns:model="clr-namespace:AIChatSample.Models"
+    xmlns:convertor="clr-namespace:AIChatSample.Converters"
     x:Class="AIChatSample.Views.AIChat.AgentLogoPage"
     x:DataType="viewModel:AgentLogoPopupViewModel"
     x:Name="root"
@@ -14,6 +15,7 @@
     <ContentPage.Resources>
         <ResourceDictionary>
             <Color x:Key="AL_Border">#E5E5E5</Color>
+            <convertor:StringToImageSourceConverter x:Key="StringToImageSource" />
 
             <Style x:Key="AL_CloseButton" TargetType="buttons:SfButton">
                 <Setter Property="Background" Value="Transparent" />
@@ -227,7 +229,7 @@
                                         StrokeShape="RoundRectangle 15" BackgroundColor="Transparent" HorizontalOptions="Center"
                                         Margin="0,0,0,8">
                                         <Grid>
-                                            <Image Source="{Binding SelectedImage}"
+                                            <Image Source="{Binding SelectedImage, Converter={StaticResource StringToImageSource}}"
                                                 Aspect="AspectFill"
                                                 IsVisible="{Binding HasSelectedImage}" />
                                             <Image Source="{AppThemeBinding Light=photolight.png, Dark=photodark.png}"
@@ -266,7 +268,7 @@
                             <buttons:SfButton Style="{StaticResource AL_CancelButton}" Text="Cancel"
                                 Command="{Binding CancelCommand}" />
                             <buttons:SfButton Style="{StaticResource AL_ApplyButton}" Text="Apply"
-                                Command="{Binding ApplyCommand}" />
+                                Command="{Binding ApplyCommand}" IsEnabled="{Binding IsApplyEnabled}" />
                         </HorizontalStackLayout>
                     </Grid>
                 </Border>

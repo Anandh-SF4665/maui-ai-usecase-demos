@@ -22,9 +22,7 @@ namespace AIChatSample.ViewModel
         [ObservableProperty] private LogoIconModel? selectedIcon;
         [ObservableProperty] private LogoColorModel? selectedColor;
         [ObservableProperty] private string? selectedImage;
-        [ObservableProperty]
-        [NotifyPropertyChangedFor(nameof(SelectedImageSource))]
-        private string? _imagePath;
+        [ObservableProperty] private AgentConfiguration? targetAgent;
 
         #endregion
 
@@ -137,7 +135,7 @@ namespace AIChatSample.ViewModel
             SelectColorCommand = new Command<LogoColorModel?>(OnSelectColor);
             SelectImageCommand = new Command(OnSelectImage);
             RemoveImageCommand = new Command(OnRemoveImage);
-            ApplyCommand = new Command(OnApply, () => IsApplyEnabled);
+            ApplyCommand = new Command(OnApply, () => IsApplyEnabled || IsCreateMode || HasSelectedImage);
             CancelCommand = new Command(OnCancel);
             ClosePopupCommand = new Command(OnClose);
 
@@ -229,7 +227,7 @@ namespace AIChatSample.ViewModel
                     TargetAgent.Color = SelectedColor?.ColorHex ?? TargetAgent.Color;
                 }
             }
-            else if (SelectedIcon is { } icon)
+            else if (IsCreateMode && SelectedIcon is { } icon)
             {
                 AgentAvatar = $"{icon.IconFontFamily};{icon.IconGlyph};{SelectedColor?.ColorHex ?? "#8B5AE0"}";
                 if (TargetAgent is not null)

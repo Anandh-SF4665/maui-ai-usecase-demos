@@ -125,7 +125,7 @@ namespace AIChatSample.Views.AIChat
             vm.AgentPopUpVM.AgentAvatar = vm.AgentAvatar;
             vm.AgentPopUpVM.ResetForOpen();
 
-            var popup = new AgentLogoPage { BindingContext = vm.AgentPopUpVM };
+            var popup = new AgentLogoPage(vm.AgentPopUpVM);
             await Navigation.PushModalAsync(popup, animated: true);
         }
 
