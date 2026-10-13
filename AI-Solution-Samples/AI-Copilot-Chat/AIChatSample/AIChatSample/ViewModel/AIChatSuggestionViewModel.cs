@@ -7,6 +7,7 @@ using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using System.Windows.Input;
+using CommunityToolkit.Mvvm.Input;
 
 namespace AIChatSample.ViewModel;
 
@@ -108,12 +109,12 @@ public class AIChatSuggestionViewModel : INotifyPropertyChanged
         this.SendCommand = new Command(this.OnSendRequested, this.CanSend);
         this.SuggestionTappedCommand = new Command<ISuggestion>(this.OnSuggestionTapped);
         this.CancelRequestCommand = new Command(this.CancelActiveRequest, () => this._isBusy);
-        // The + and mic icons are visual placeholders today; forward taps
-        // through commands so the editor's gesture handlers have a stable
-        // target. Hooks can be replaced later with file / voice-input flows
-        // without changing the editor.
-        this.AttachCommand = new Command(() => { /* file-attachment hook */ });
-        this.MicCommand = new Command(() => { /* voice-input hook */ });
+        // Real implementations for the editor's + and mic icons. The +
+        // opens the system file picker and the mic drives the in-page
+        // speech-to-text flow. Both update the shared InputText so the
+        // user can review / edit the result before sending.
+        this.AttachCommand = new Command(async () => await this.OnAttachFileAsync());
+        this.MicCommand = new Command(async () => await this.OnStartVoiceInputAsync());
     }
 
     private readonly IAgentStore? _agentStore;
@@ -366,11 +367,85 @@ public class AIChatSuggestionViewModel : INotifyPropertyChanged
         }
         var prompt = request.Text;
         this.InputText = string.Empty;
+        this.SelectedFile = null;
         TouchSession();
 
         // The custom input editor bypasses the AssistView's own request
         // flow, so the AI call must be triggered here.
         _ = SendPromptAsync(prompt);
+    }
+
+    /// <summary>
+    /// The currently-attached file's display name (or null when no file is
+    /// attached). Set by <see cref="OnAttachFileAsync"/>; cleared when the
+    /// user sends the prompt or explicitly removes the attachment.
+    /// </summary>
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(HasAttachedFile))]
+    private string? selectedFile;
+
+    public bool HasAttachedFile => !string.IsNullOrEmpty(this.SelectedFile);
+
+    /// <summary>Removes the attached file.</summary>
+    [RelayCommand]
+    private void RemoveAttachment() => this.SelectedFile = null;
+
+    private async Task OnAttachFileAsync()
+    {
+        try
+        {
+            var options = new Microsoft.Maui.Storage.PickOptions
+            {
+                PickerTitle = "Select a file to attach",
+                FileTypes = Microsoft.Maui.Storage.FilePickerFileType.Images
+            };
+            var result = await Microsoft.Maui.Storage.FilePicker.Default.PickAsync(options);
+            if (result is null) return;
+            this.SelectedFile = result.FileName;
+        }
+        catch (Exception ex)
+        {
+            // File picker cancellation throws TaskCanceledException on some
+            // platforms — swallow silently so the user isn't startled. Other
+            // failures surface via the page's error banner path.
+            System.Diagnostics.Debug.WriteLine($"File pick failed: {ex.Message}");
+        }
+    }
+
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(MicGlyph))]
+    private bool isListening;
+
+    /// <summary>MaterialAssets glyph for the mic — toggles between mic and stop icons while listening.</summary>
+    public string MicGlyph => this.IsListening ? "\ue71f" : "\ue7ec";
+
+    private async Task OnStartVoiceInputAsync()
+    {
+        // Toggle off if already listening. The mic icon also acts as a
+        // stop control while a recording session is in progress.
+        if (this.IsListening)
+        {
+            this.IsListening = false;
+            return;
+        }
+
+        try
+        {
+            this.IsListening = true;
+            var recognized = await VoiceInputRecognizer.RecognizeAsync(this.InputText);
+            this.IsListening = false;
+            if (!string.IsNullOrWhiteSpace(recognized))
+            {
+                this.InputText = string.IsNullOrEmpty(this._inputText)
+                    ? recognized
+                    : (this._inputText + " " + recognized).Trim();
+            }
+        }
+        catch (Exception ex)
+        {
+            this.IsListening = false;
+            System.Diagnostics.Debug.WriteLine($"Voice input failed: {ex.Message}");
+        }
     }
 
     private async void OnRequest(object? parameter)

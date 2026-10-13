@@ -102,7 +102,10 @@
                                                             Text="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.InputText, Mode=TwoWay}"
                                                             SendCommand="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.SendCommand}"
                                                             AttachCommand="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.AttachCommand}"
-                                                            MicCommand="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.MicCommand}" />
+                                                            MicCommand="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.MicCommand}"
+                                                            RemoveAttachmentCommand="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.RemoveAttachmentCommand}"
+                                                            AttachedFile="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.SelectedFile, Mode=OneWay}"
+                                                            IsListening="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.IsListening, Mode=OneWay}" />
 
                                 <Label Text="Suggested for you" FontSize="16" FontFamily="Roboto-Regular"
                                     LineHeight="2.4" CharacterSpacing="0.5"

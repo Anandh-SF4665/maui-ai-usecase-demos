@@ -82,6 +82,69 @@ public partial class AIChatInputEditor : ContentView
         set => SetValue(MicCommandProperty, value);
     }
 
+    // AttachCommand binding for the host page to bind to a "remove" action.
+    public static readonly BindableProperty RemoveAttachmentCommandProperty =
+        BindableProperty.Create(
+            nameof(RemoveAttachmentCommand),
+            typeof(ICommand),
+            typeof(AIChatInputEditor),
+            default(ICommand));
+
+    public ICommand RemoveAttachmentCommand
+    {
+        get => (ICommand)GetValue(RemoveAttachmentCommandProperty);
+        set => SetValue(RemoveAttachmentCommandProperty, value);
+    }
+
+    // Currently-attached file name (display only). Toggles the chip above the editor.
+    public static readonly BindableProperty AttachedFileProperty =
+        BindableProperty.Create(
+            nameof(AttachedFile),
+            typeof(string),
+            typeof(AIChatInputEditor),
+            default(string?),
+            propertyChanged: (b, _, _) => ((AIChatInputEditor)b).OnAttachedFileChanged());
+
+    public string? AttachedFile
+    {
+        get => (string?)GetValue(AttachedFileProperty);
+        set => SetValue(AttachedFileProperty, value);
+    }
+
+    public bool HasAttachedFile => !string.IsNullOrEmpty(this.AttachedFile);
+
+    // True while the mic is actively capturing. Drives the mic-icon tint and glyph.
+    public static readonly BindableProperty IsListeningProperty =
+        BindableProperty.Create(
+            nameof(IsListening),
+            typeof(bool),
+            typeof(AIChatInputEditor),
+            false,
+            propertyChanged: (b, _, _) => ((AIChatInputEditor)b).OnIsListeningChanged());
+
+    public bool IsListening
+    {
+        get => (bool)GetValue(IsListeningProperty);
+        set => SetValue(IsListeningProperty, value);
+    }
+
+    public string MicGlyph => this.IsListening ? "\ue71f" /* stop */ : "\ue7ec" /* mic */;
+
+    public Color MicTint => this.IsListening
+        ? Color.FromArgb("#D93025")
+        : Color.FromArgb(Application.Current?.RequestedTheme == AppTheme.Dark ? "#C9C6C8" : "#474648");
+
+    private void OnAttachedFileChanged()
+    {
+        this.OnPropertyChanged(nameof(HasAttachedFile));
+    }
+
+    private void OnIsListeningChanged()
+    {
+        this.OnPropertyChanged(nameof(MicGlyph));
+        this.OnPropertyChanged(nameof(MicTint));
+    }
+
     // IsSendEnabled (read-only) - true when text is non-empty AND command can execute
     public static readonly BindableProperty IsSendEnabledProperty =
         BindableProperty.Create(
@@ -175,6 +238,20 @@ public partial class AIChatInputEditor : ContentView
         {
             command.Execute(this.Text);
         }
+    }
+
+    private void OnRemoveAttachmentTapped(object? sender, TappedEventArgs e)
+    {
+        // The host page owns the SelectedFile state; we just forward the
+        // tap so the VM can clear it. Fall back to clearing the bindable
+        // property when no command is bound.
+        var command = this.RemoveAttachmentCommand;
+        if (command is not null && command.CanExecute(this.AttachedFile))
+        {
+            command.Execute(this.AttachedFile);
+            return;
+        }
+        this.AttachedFile = null;
     }
 
     private void SendIcon_PointerEntered(object sender, PointerEventArgs e)
