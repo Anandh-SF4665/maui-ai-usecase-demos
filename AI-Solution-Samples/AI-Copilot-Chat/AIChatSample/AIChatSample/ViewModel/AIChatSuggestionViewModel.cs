@@ -366,6 +366,13 @@ public class AIChatSuggestionViewModel : INotifyPropertyChanged
             PromoteFirstPromptToTitle(_session, request.Text);
         }
         var prompt = request.Text;
+        // If a file is attached, surface its name in the prompt so the
+        // assistant has context. Hookups for actual file content delivery
+        // live behind the AI service layer and are out of scope here.
+        if (!string.IsNullOrEmpty(this.SelectedFile))
+        {
+            prompt = $"[Attached: {this.SelectedFile}]\n{prompt}";
+        }
         this.InputText = string.Empty;
         this.SelectedFile = null;
         TouchSession();
