@@ -14,5 +14,5 @@ public interface IAzureAIService
     /// <returns>
     /// A task that represents the asynchronous operation. The task result contains a <see cref="ContextSuggestionResponse"/> object with the AI-generated answer and related follow-up suggestions, or <see langword="null"/> if no response is returned.
     /// </returns>
-    Task<ContextSuggestionResponse?> GetResponseAsync(string prompt);
+    Task<ContextSuggestionResponse?> GetResultsFromAI(string prompt);
 }

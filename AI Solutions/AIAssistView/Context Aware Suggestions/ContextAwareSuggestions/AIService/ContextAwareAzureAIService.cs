@@ -45,7 +45,7 @@ Suggestions must:
     /// <returns>
     /// A task that represents the asynchronous operation. The task result contains a <see cref="ContextSuggestionResponse"/> with the generated answer and contextual suggestions, or an error response if the request fails.
     /// </returns>
-    public async Task<ContextSuggestionResponse?>GetResponseAsync(string prompt)
+    public async Task<ContextSuggestionResponse?>GetResultsFromAI(string prompt)
     {
         try
         {

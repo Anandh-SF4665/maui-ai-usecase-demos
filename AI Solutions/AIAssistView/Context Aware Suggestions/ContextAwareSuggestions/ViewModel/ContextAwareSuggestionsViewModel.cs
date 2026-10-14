@@ -192,7 +192,7 @@ public partial class ContextAwareSuggestionsViewModel : ObservableObject
 
         try
         {
-            var response = await aiService.GetResponseAsync(prompt);
+            var response = await aiService.GetResultsFromAI(prompt);
 
             if (response == null)
             {
