@@ -1,4 +1,4 @@
-﻿using System.Diagnostics;
+using System.Diagnostics;
 using System.Text;
 using System.Text.Json;
 
@@ -11,8 +11,12 @@ namespace SmartAITags;
 /// HttpClient POST to the Azure AI Foundry OpenAI-compatible endpoint
 /// ({BaseEndpoint}/chat/completions), authenticated via the "api-key" header.
 /// No SemanticKernel, no AzureOpenAIClient SDK, no Gemini.
+///
+/// Errors are surfaced as exceptions (the caller wraps in try/catch and
+/// publishes to its bound ErrorMessage); the service never returns a
+/// magic-prefixed error string.
 /// </summary>
-public sealed class AzureOpenAITagService
+public sealed class AzureOpenAITagService : IAzureTagService
 {
     // ── Same endpoint + deployment + key as the working SmartAIDatePicker sample.
     private const string BaseEndpoint =
@@ -91,86 +95,80 @@ public sealed class AzureOpenAITagService
         Timeout = TimeSpan.FromSeconds(60)
     };
 
-    public string? LastError { get; private set; }
-    public string LastRawResponse { get; private set; } = string.Empty;
-
-    public async Task<string> GetCompletion(
+    /// <summary>
+    /// Sends the user prompt to the chat-completions endpoint and returns the
+    /// raw completion text. Throws on transport / HTTP / parse failures so the
+    /// caller can surface them through its own error channel.
+    /// </summary>
+    public async Task<string> GetCompletionAsync(
         string prompt,
         CancellationToken cancellationToken = default)
     {
-        LastError = null;
-        LastRawResponse = string.Empty;
-
-        try
+        // ── Build the OpenAI chat completions request ──
+        // IMPORTANT: gpt-5-mini is a reasoning model. Reasoning models
+        // reject the 'temperature' parameter with HTTP 400
+        // ("'temperature' is not supported with this model"). Mirror the
+        // working SmartAIDatePicker.AzureOpenAIService exactly: send only
+        // model + messages + max_completion_tokens + reasoning_effort.
+        var requestBody = new
         {
-            // ── Build the OpenAI chat completions request ──
-            // IMPORTANT: gpt-5-mini is a reasoning model. Reasoning models
-            // reject the 'temperature' parameter with HTTP 400
-            // ("'temperature' is not supported with this model"). Mirror the
-            // working SmartAIDatePicker.AzureOpenAIService exactly: send only
-            // model + messages + max_completion_tokens + reasoning_effort.
-            var requestBody = new
+            model = DeploymentName,
+            messages = new object[]
             {
-                model = DeploymentName,
-                messages = new object[]
-                {
-                    new { role = "system", content = SystemPrompt },
-                    new { role = "user",   content = prompt }
-                },
-                max_completion_tokens = 1024,
-                reasoning_effort = "minimal"
-            };
+                new { role = "system", content = SystemPrompt },
+                new { role = "user",   content = prompt }
+            },
+            max_completion_tokens = 1024,
+            reasoning_effort = "minimal"
+        };
 
-            var url = $"{BaseEndpoint}/chat/completions";
+        var url = $"{BaseEndpoint}/chat/completions";
 
-            using var request = new HttpRequestMessage(HttpMethod.Post, url);
-            request.Headers.Add("api-key", ApiKey);
-            request.Content = new StringContent(
-                JsonSerializer.Serialize(requestBody),
-                Encoding.UTF8,
-                "application/json");
+        using var request = new HttpRequestMessage(HttpMethod.Post, url);
+        request.Headers.Add("api-key", ApiKey);
+        request.Content = new StringContent(
+            JsonSerializer.Serialize(requestBody),
+            Encoding.UTF8,
+            "application/json");
 
-            using var response = await Http.SendAsync(request, cancellationToken);
+        using var response = await Http.SendAsync(request, cancellationToken);
 
-            var raw = await response.Content.ReadAsStringAsync(cancellationToken);
-            LastRawResponse = raw;
+        var raw = await response.Content.ReadAsStringAsync(cancellationToken);
 
-            Debug.WriteLine($"[AzureAI] Status: {(int)response.StatusCode}");
-            Debug.WriteLine($"[AzureAI] Raw Response: {raw}");
+        Debug.WriteLine($"[AzureAI] Status: {(int)response.StatusCode}");
+        Debug.WriteLine($"[AzureAI] Raw Response: {raw}");
 
-            if (!response.IsSuccessStatusCode)
-            {
-                LastError = $"HTTP {(int)response.StatusCode} {response.StatusCode}\n\n{raw}";
-                return LastError;
-            }
-
-            using var document = JsonDocument.Parse(raw);
-
-            if (!document.RootElement.TryGetProperty("choices", out var choices)
-                || choices.GetArrayLength() == 0)
-            {
-                LastError = $"No 'choices' found.\n\nRaw response:\n{raw}";
-                return LastError;
-            }
-
-            var content = choices[0]
-                .GetProperty("message")
-                .GetProperty("content")
-                .GetString();
-
-            if (string.IsNullOrWhiteSpace(content))
-            {
-                LastError = $"Azure returned empty content.\n\nRaw response:\n{raw}";
-                return LastError;
-            }
-
-            return content.Trim();
-        }
-        catch (Exception ex)
+        if (!response.IsSuccessStatusCode)
         {
-            LastError = $"Exception:\n{ex}";
-            Debug.WriteLine($"[AzureAI] Exception: {ex}");
-            return LastError;
+            throw new HttpRequestException(
+                $"Azure OpenAI request failed with HTTP {(int)response.StatusCode} {response.StatusCode}.",
+                inner: null,
+                statusCode: response.StatusCode);
         }
+
+        using var document = JsonDocument.Parse(raw);
+
+        if (!document.RootElement.TryGetProperty("choices", out var choices)
+            || choices.GetArrayLength() == 0)
+        {
+            throw new InvalidOperationException(
+                $"Azure OpenAI response did not contain a 'choices' array. Raw response: {Truncate(raw, 4000)}");
+        }
+
+        var content = choices[0]
+            .GetProperty("message")
+            .GetProperty("content")
+            .GetString();
+
+        if (string.IsNullOrWhiteSpace(content))
+        {
+            throw new InvalidOperationException(
+                $"Azure OpenAI returned empty content. Raw response: {Truncate(raw, 4000)}");
+        }
+
+        return content.Trim();
     }
+
+    private static string Truncate(string value, int max) =>
+        value.Length <= max ? value : value[..max] + "…";
 }

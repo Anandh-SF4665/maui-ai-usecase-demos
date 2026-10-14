@@ -3,13 +3,21 @@ namespace SmartAITags;
 /// <summary>
 /// Tag generator page. Wires the Entry clear icon, the Generate Tags button,
 /// the four-state result panel (empty / loading / chips / error) and the
-/// staggered chip-appearance animation.
+/// chip-stagger animation. The View never reaches into
+/// <see cref="Application.Current"/> or mutates the VM's collections
+/// directly — it only calls <see cref="TagViewModel.AppendTag"/> between
+/// visual delays.
 /// </summary>
 public partial class TagGeneratorPage : ContentPage
 {
-    public TagGeneratorPage()
+    private readonly TagViewModel _viewModel;
+    private CancellationTokenSource? _staggerCts;
+
+    public TagGeneratorPage(TagViewModel viewModel)
     {
         InitializeComponent();
+        _viewModel = viewModel;
+        BindingContext = viewModel;
     }
 
     protected override void OnBindingContextChanged()
@@ -17,11 +25,12 @@ public partial class TagGeneratorPage : ContentPage
         base.OnBindingContextChanged();
         if (BindingContext is TagViewModel vm)
         {
-            vm.TagsReceived -= OnTagsReceived;
-            vm.TagsReceived += OnTagsReceived;
+            vm.TagsReady -= OnTagsReady;
+            vm.TagsReady += OnTagsReady;
         }
     }
 
+    /// <summary>Hides the query-hint once the user starts typing.</summary>
     private void OnQueryTextChanged(object? sender, TextChangedEventArgs e)
     {
         var text = e.NewTextValue ?? string.Empty;
@@ -31,54 +40,58 @@ public partial class TagGeneratorPage : ContentPage
     /// <summary>Enter / Return while editing → fire Generate.</summary>
     private void OnQueryCompleted(object? sender, EventArgs e) => RunAISearch();
 
-    /// <summary>Clear (×) icon tapped → reset input + chips.</summary>
+    /// <summary>Clear (×) icon tapped → reset everything via the VM.</summary>
     private void OnClearClicked(object? sender, EventArgs e)
     {
-        if (BindingContext is not TagViewModel vm)
-            return;
-
-        vm.Clear();                              // clears Tags + HasSearched.
-        queryInputLayout.ShowHint = true;
-        queryEditor.Text = string.Empty;         // re-fires TextChanged → hides Clear icon.
+        // Cancel any in-flight stagger so a previous run can't keep appending
+        // chips after the user cleared.
+        _staggerCts?.Cancel();
+        _viewModel.Clear();
+        // UserQuery is now null and Entry two-way bound → queryEditor.Text
+        // becomes empty automatically. ShowHint follows TextChanged.
     }
 
-    /// <summary>"Try again" button on the error state.</summary>
+    /// <summary>"Try again" affordance on the error banner.</summary>
     private void OnRetryClicked(object? sender, EventArgs e) => RunAISearch();
+
+    /// <summary>Close icon on the error banner.</summary>
+    private void OnDismissErrorClicked(object? sender, EventArgs e)
+        => _viewModel.DismissErrorCommand.Execute(null);
 
     private void RunAISearch()
     {
-        if (BindingContext is not TagViewModel vm || vm.IsBusy)
-            return;
-
-        string query = queryEditor.Text ?? string.Empty;
+        if (_viewModel.IsBusy) return;
+        var query = queryEditor.Text ?? string.Empty;
         if (string.IsNullOrWhiteSpace(query)) return;
-
-        _ = vm.GenerateTagsAsync(query);
+        _ = _viewModel.GenerateTagsAsync(query);
     }
 
     /// <summary>
-    /// Adds the AI-returned tags one-by-one with a 120 ms stagger so each chip
-    /// visibly appears. <c>IsBusy</c> is already false by the time this fires,
-    /// so the loading indicator is gone and the chip panel is ready.
+    /// Adds the AI-returned tags one-by-one with a 120 ms stagger so each
+    /// chip visibly appears. <see cref="TagViewModel.IsBusy"/> is already
+    /// false by the time this fires (the VM finished its HTTP call), so the
+    /// loading indicator is gone and the chip panel is ready.
     /// </summary>
-    private void OnTagsReceived(object? sender, IEnumerable<string> tags)
+    private async void OnTagsReady(object? sender, IReadOnlyList<string> tags)
     {
-        if (BindingContext is not TagViewModel vm)
-            return;
+        // A newer search may have started; cancel any in-flight stagger so
+        // stale chips don't trickle in after the user moved on.
+        _staggerCts?.Cancel();
+        _staggerCts = new CancellationTokenSource();
+        var token = _staggerCts.Token;
 
-        var clean = tags
-            .Select(t => t.Trim())
-            .Where(t => !string.IsNullOrWhiteSpace(t))
-            .Distinct(StringComparer.OrdinalIgnoreCase)
-            .ToList();
-
-        MainThread.BeginInvokeOnMainThread(async () =>
+        try
         {
-            foreach (var t in clean)
+            foreach (var tag in tags)
             {
-                vm.Tags.Add(new TagModel { Name = t });
-                await Task.Delay(120); // stagger chip appearance.
+                token.ThrowIfCancellationRequested();
+                _viewModel.AppendTag(tag);
+                await Task.Delay(120, token);
             }
-        });
+        }
+        catch (OperationCanceledException)
+        {
+            // Newer search superseded this stagger — silent no-op.
+        }
     }
 }

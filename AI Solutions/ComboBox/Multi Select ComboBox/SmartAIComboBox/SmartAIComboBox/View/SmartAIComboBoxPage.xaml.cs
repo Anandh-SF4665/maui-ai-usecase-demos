@@ -1,125 +1,83 @@
-using System.Globalization;
-using Syncfusion.Maui.Inputs;
-
 namespace SmartAIComboBox;
 
-/// <summary>Inverts a bool for IsEnabled bindings during AI calls.</summary>
-public class InverseBoolConverter : IValueConverter
-{
-    public object Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
-        => value is bool b ? !b : false;
-    public object ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture)
-        => value is bool b ? !b : false;
-}
-
+/// <summary>
+/// AI MultiSelect ComboBox page. Wires the search affordance, the search
+/// trigger (magnifier tap / Enter key), the clear icon and the dropdown's
+/// checkbox state to <see cref="FruitSelectionViewModel"/>. The View never
+/// reaches into <see cref="Application.Current"/> or mutates the VM's
+/// collections directly.
+/// </summary>
 public partial class SmartAIComboBoxPage : ContentPage
 {
-    public SmartAIComboBoxPage()
+    private readonly FruitSelectionViewModel _viewModel;
+
+    public SmartAIComboBoxPage(FruitSelectionViewModel viewModel)
     {
         InitializeComponent();
+        _viewModel = viewModel;
+        BindingContext = viewModel;
     }
 
     protected override void OnBindingContextChanged()
     {
         base.OnBindingContextChanged();
-        if (BindingContext is FoodViewModel vm)
+        if (BindingContext is FruitSelectionViewModel vm)
         {
-            vm.AISelectionReceived -= OnAISelectionReceived;
-            vm.AISelectionReceived += OnAISelectionReceived;
+            vm.AISelectionApplied -= OnAISelectionApplied;
+            vm.AISelectionApplied += OnAISelectionApplied;
         }
     }
 
-    /// <summary>Hides the query-hint once the user starts typing (Entry has TextChanged).</summary>
+    /// <summary>Hides the query-hint once the user starts typing.</summary>
     private void OnQueryTextChanged(object? sender, TextChangedEventArgs e)
     {
         var text = e.NewTextValue ?? string.Empty;
         queryInputLayout.ShowHint = string.IsNullOrEmpty(text);
     }
 
-    /// <summary>Enter key while editing the query Entry → fire search.</summary>
+    /// <summary>Enter key while editing the query → fire search.</summary>
     private void OnQueryCompleted(object? sender, EventArgs e) => RunAISearch();
 
-    /// <summary>Search 🔍 button tapped → fire search.</summary>
+    /// <summary>Search magnifier icon tapped → fire search.</summary>
     private void OnSearchClicked(object? sender, EventArgs e) => RunAISearch();
 
-    /// <summary>Clear ✕ button tapped → reset input + combo selections.</summary>
+    /// <summary>Clear (×) button tapped → reset input + combo selections.</summary>
     private void OnClearClicked(object? sender, EventArgs e)
     {
-        if (BindingContext is not FoodViewModel vm)
-            return;
-
-        vm.Clear(); // clears UserQuery, unchecks all, empties SelectedItems, HasSearched=false
-
-        queryInputLayout.ShowHint = true;
-        queryEntry.Text = string.Empty;
+        _viewModel.Clear();
+        // UserQuery is now null and Entry two-way bound → queryEntry.Text
+        // becomes empty automatically. ShowHint follows TextChanged.
         comboBox.IsDropDownOpen = false;
     }
 
+    /// <summary>Close icon on the error banner.</summary>
+    private void OnDismissErrorClicked(object? sender, EventArgs e)
+        => _viewModel.DismissErrorCommand.Execute(null);
+
     private void RunAISearch()
     {
-        if (BindingContext is not FoodViewModel vm || vm.IsBusy)
-            return;
-
-        string query = queryEntry.Text ?? string.Empty;
+        if (_viewModel.IsBusy) return;
+        var query = queryEntry.Text ?? string.Empty;
         if (string.IsNullOrWhiteSpace(query)) return;
-
-        _ = vm.AskAIAsync(query);
-    }
-
-    private void OnAISelectionReceived(object? sender, IEnumerable<string> matchedNames)
-    {
-        if (BindingContext is not FoodViewModel vm)
-            return;
-
-        var nameSet = matchedNames
-            .Select(n => n.Trim())
-            .Where(n => !string.IsNullOrWhiteSpace(n))
-            .ToHashSet(StringComparer.OrdinalIgnoreCase);
-
-        var toSelect = vm.Foods
-            .Where(f => f.Name != null && nameSet.Contains(f.Name))
-            .ToList();
-
-        MainThread.BeginInvokeOnMainThread(() =>
-        {
-            // Reset every checkbox first so a previous run doesn't carry over.
-            foreach (var f in vm.Foods) f.IsSelected = false;
-            vm.SelectedItems.Clear();
-
-            // Check + add only the AI matches.
-            foreach (var item in toSelect)
-            {
-                item.IsSelected = true;
-                vm.SelectedItems.Add(item);
-            }
-
-            // Open the dropdown so the (checkbox) ItemTemplate is visible.
-            comboBox.IsDropDownOpen = true;
-        });
+        _ = _viewModel.AskAIAsync(query);
     }
 
     /// <summary>
-    /// Fires when the user manually toggles a CheckBox rendered inside a dropdown row.
-    /// Keeps <see cref="SfComboBox.SelectedItems"/> in sync with the checkbox state so
-    /// the token display updates in real time.
+    /// Opens the dropdown so the (checkbox) ItemTemplate becomes visible
+    /// after the VM applied the AI selection. All selection state lives on
+    /// the VM.
+    /// </summary>
+    private void OnAISelectionApplied(object? sender, EventArgs e)
+        => comboBox.IsDropDownOpen = true;
+
+    /// <summary>
+    /// Fires when the user manually toggles a CheckBox rendered inside a
+    /// dropdown row. Delegates the selection update to the VM so the
+    /// token display stays in sync.
     /// </summary>
     private void OnDropDownItemCheckBoxChanged(object? sender, CheckedChangedEventArgs e)
     {
-        if (BindingContext is not FoodViewModel vm)
-            return;
-
-        if (sender is CheckBox cb && cb.BindingContext is FoodModel item)
-        {
-            if (e.Value)
-            {
-                if (!vm.SelectedItems.Contains(item))
-                    vm.SelectedItems.Add(item);
-            }
-            else
-            {
-                if (vm.SelectedItems.Contains(item))
-                    vm.SelectedItems.Remove(item);
-            }
-        }
+        if (sender is CheckBox cb && cb.BindingContext is FruitModel item)
+            _viewModel.ToggleSelection(item);
     }
 }
