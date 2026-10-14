@@ -176,9 +176,9 @@ namespace AIChatSample.ViewModel
             {
                 this.RecentChats = new ObservableCollection<RecentChatItem>
                 {
-                    new() { Title = "Provide a prompt to create the",   Time = "2m", Glyph = "\ue705" },
-                    new() { Title = "What is API driven annotation for",   Time = "2m", Glyph = "\ue705" },
-                    new() { Title = "What is API driven annotation for", Time = "1h", Glyph = "\ue705" },
+                    new() { Title = "Provide a prompt to create the",   Time = "2m", Glyph = "\ue711" },
+                    new() { Title = "What is API driven annotation for",   Time = "2m", Glyph = "\ue711" },
+                    new() { Title = "What is API driven annotation for", Time = "1h", Glyph = "\ue711" },
                 };
             }
 
@@ -748,7 +748,7 @@ namespace AIChatSample.ViewModel
                 {
                     Title = ResolveChatTitle(session),
                     Time = FormatRelative(session.LastActiveDate),
-                    Glyph = "\ue705",
+                    Glyph = "\ue711",
                     Tag = session,
                 };
             }

@@ -70,7 +70,7 @@
                                 <Border Stroke="Transparent" StrokeShape="RoundRectangle 8" Padding="12"
                                         HeightRequest="64" BackgroundColor="Transparent">
                                     <Grid ColumnDefinitions="Auto,*,Auto,Auto" ColumnSpacing="12"
-                                        VerticalOptions="Center">
+                                          VerticalOptions="Center">
 
                                         <!-- LEFT ICON -->
                                         <Label Grid.Column="0" Text="{Binding Glyph}" FontFamily="MaterialAssets"
@@ -95,7 +95,7 @@
                                                     <TapGestureRecognizer Tapped="OnShareTapped"
                                                         CommandParameter="{Binding}" />
                                                 </Border.GestureRecognizers>
-                                                <Label Text="&#xe80d;" FontFamily="MaterialAssets" FontSize="16"
+                                                <Label Text="&#xe704;" FontFamily="FontIcons" FontSize="16"
                                                     WidthRequest="28" HeightRequest="28"
                                                     TextColor="{AppThemeBinding Light=#5F5E60, Dark=#C9C6C8}"
                                                     BackgroundColor="Transparent"
@@ -107,11 +107,11 @@
                                                     <TapGestureRecognizer Tapped="OnMoreTapped"
                                                         CommandParameter="{Binding}" />
                                                 </Border.GestureRecognizers>
-                                                <Label Text="&#xe712;" FontFamily="MaterialAssets" FontSize="16"
-                                                    WidthRequest="28" HeightRequest="28"
-                                                    TextColor="{AppThemeBinding Light=#5F5E60, Dark=#C9C6C8}"
-                                                    BackgroundColor="Transparent"
-                                                    VerticalTextAlignment="Center" HorizontalTextAlignment="Center" />
+                                                <Label Text="&#xe725;" FontFamily="MaterialAssets" FontSize="16"
+                                                        WidthRequest="28" HeightRequest="28"
+                                                        TextColor="{AppThemeBinding Light=#5F5E60, Dark=#C9C6C8}"
+                                                        BackgroundColor="Transparent"
+                                                        VerticalTextAlignment="Center" HorizontalTextAlignment="Center" />
                                             </Border>
                                         </HorizontalStackLayout>
                                     </Grid>
@@ -129,20 +129,25 @@
             InitialSelectedItem="NewChat" ZIndex="2" />
 
         <!-- Share / Copy popup -->
-        <popup:SfPopup x:Name="SharePopup" IsOpen="False" ShowHeader="True" ShowFooter="False" ShowCloseButton="True"
-            OverlayMode="Blur" StaysOpen="True" AutoSizeMode="Both" BackgroundColor="Transparent">
-            <popup:SfPopup.HeaderTemplate>
+        <popup:SfPopup x:Name="SharePopup" IsOpen="False" ShowHeader="False" ShowFooter="False" ShowCloseButton="False"
+                       HeightRequest="100" WidthRequest="120" 
+                       ShowOverlayAlways="False" BackgroundColor="Transparent">
+            <popup:SfPopup.PopupStyle>
+                <popup:PopupStyle CornerRadius="4" PopupBackground="White" HasShadow="True"/>
+            </popup:SfPopup.PopupStyle>
+            <!--<popup:SfPopup.HeaderTemplate>
                 <DataTemplate>
                     <Label Text="Share" FontSize="18" FontFamily="Roboto-Medium" Margin="20,16,20,8"
                         TextColor="{AppThemeBinding Light=#313032, Dark=#FFFFFF}" />
                 </DataTemplate>
-            </popup:SfPopup.HeaderTemplate>
+            </popup:SfPopup.HeaderTemplate>-->
             <popup:SfPopup.ContentTemplate>
                 <DataTemplate>
-                    <Border Padding="20,8,20,20" StrokeShape="RoundRectangle 12" StrokeThickness="0"
-                        BackgroundColor="Transparent" MinimumWidthRequest="320">
-                        <VerticalStackLayout Spacing="10">
-                            <Label Text="Copy this link to share the chat."
+                    <Border Padding="4" StrokeShape="RoundRectangle 12" StrokeThickness="0"
+                            VerticalOptions="Center"
+                            BackgroundColor="Transparent">
+                        <VerticalStackLayout Spacing="6">
+                            <!--<Label Text="Copy this link to share the chat."
                                 TextColor="{AppThemeBinding Light=#5F5E60, Dark=#C9C6C8}" FontSize="12"
                                 FontFamily="Roboto-Regular" />
                             <Border x:Name="ShareLinkBorder" StrokeThickness="1" Padding="12,10"
@@ -153,10 +158,10 @@
                                     LineBreakMode="TailTruncation" MaxLines="2"
                                     TextColor="{AppThemeBinding Light=#313032, Dark=#FFFFFF}" />
                             </Border>
-                            <HorizontalStackLayout Spacing="8" HorizontalOptions="End">
-                                <Button Text="Cancel" Clicked="OnShareCancelClicked" />
-                                <Button Text="Copy" Clicked="OnShareCopyClicked" />
-                            </HorizontalStackLayout>
+                            <HorizontalStackLayout Spacing="8" HorizontalOptions="End">-->
+                                <Button BackgroundColor="Transparent" TextColor="Black" Text="Copy Chat" Clicked="OnShareCopyClicked" />
+                                <Button BackgroundColor="Transparent" TextColor="Black" Text="Cancel" Clicked="OnShareCancelClicked" />
+                            <!--</HorizontalStackLayout>-->
                         </VerticalStackLayout>
                     </Border>
                 </DataTemplate>
@@ -165,11 +170,14 @@
 
         <!-- More / Open / Delete popup -->
         <popup:SfPopup x:Name="MorePopup" IsOpen="False" ShowHeader="False" ShowFooter="False" ShowCloseButton="True"
-            OverlayMode="Blur" StaysOpen="True" AutoSizeMode="Both" BackgroundColor="Transparent">
+                       ShowOverlayAlways="False" HeightRequest="100" WidthRequest="100" BackgroundColor="Transparent">
+            <popup:SfPopup.PopupStyle>
+                <popup:PopupStyle CornerRadius="4" PopupBackground="White" HasShadow="True"/>
+            </popup:SfPopup.PopupStyle>
             <popup:SfPopup.ContentTemplate>
                 <DataTemplate>
                     <Border StrokeShape="RoundRectangle 12" StrokeThickness="0" Padding="6"
-                        BackgroundColor="Transparent" MinimumWidthRequest="180">
+                            BackgroundColor="Transparent">
                         <VerticalStackLayout Spacing="0">
                             <Button Text="Open" Clicked="OnMoreOpenClicked" BackgroundColor="Transparent"
                                 TextColor="{AppThemeBinding Light=#313032, Dark=#FFFFFF}" />

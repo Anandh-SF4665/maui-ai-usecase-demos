@@ -68,7 +68,8 @@
         <popup:SfPopup.PopupStyle>
             <popup:PopupStyle HasShadow="True" />
         </popup:SfPopup.PopupStyle>
-        <popup:SfPopup.Content>
+        <popup:SfPopup.ContentTemplate>
+            <DataTemplate x:DataType="viewModel:AgentLogoPopupViewModel">
             <Border
                 BackgroundColor="{AppThemeBinding Light={DynamicResource SentMessageColorLight}, Dark={DynamicResource SentMessageColorDark}}"
                 StrokeThickness="0" StrokeShape="RoundRectangle 16" Padding="20"
@@ -264,6 +265,7 @@
                     </HorizontalStackLayout>
                 </Grid>
             </Border>
-        </popup:SfPopup.Content>
+            </DataTemplate>
+        </popup:SfPopup.ContentTemplate>
     </popup:SfPopup>
 </ContentPage>

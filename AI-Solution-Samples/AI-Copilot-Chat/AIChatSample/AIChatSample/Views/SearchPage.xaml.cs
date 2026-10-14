@@ -83,7 +83,7 @@ public partial class SearchPage : ContentPage
             // the link. The ContentTemplate uses {Binding} which
             // resolves to the popup's BindingContext.
             SharePopup.BindingContext = link;
-            SharePopup.IsOpen = true;
+            SharePopup.ShowRelativeToView(RecentChatsList, PopupRelativePosition.AlignToRightOf, -100, 20);
         }
     }
 
@@ -116,7 +116,7 @@ public partial class SearchPage : ContentPage
         {
             _moreItem = item;
             MorePopup.BindingContext = item;
-            MorePopup.IsOpen = true;
+            MorePopup.ShowRelativeToView(RecentChatsList, PopupRelativePosition.AlignToRightOf, -100, 20);
         }
     }
 
@@ -137,7 +137,7 @@ public partial class SearchPage : ContentPage
         _moreItem = null;
         if (item is null || _layoutVm is null) return;
 
-        var confirmed = await DisplayAlert("Delete chat",
+        var confirmed = await DisplayAlertAsync("Delete chat",
             $"Delete \"{item.Title}\"? This cannot be undone.",
             "Delete", "Cancel");
         if (!confirmed) return;
