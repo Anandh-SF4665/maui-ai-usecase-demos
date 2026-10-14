@@ -227,14 +227,18 @@ public partial class CreateAgentViewModel : ObservableObject
 
     private void OnSendRequested()
     {
-        if (string.IsNullOrWhiteSpace(this.PromptText))
+        // Capture the prompt locally before clearing it so the AI draft
+        // routine has something to send (PromptText is the binding source
+        // for the editor and was being reset to "" in this method).
+        var prompt = this.PromptText?.Trim();
+        if (string.IsNullOrWhiteSpace(prompt))
         {
             return;
         }
 
         var request = new AssistItem
         {
-            Text = this.PromptText!,
+            Text = prompt,
             IsRequested = true,
         };
         this.Messages.Add(request);
@@ -243,12 +247,13 @@ public partial class CreateAgentViewModel : ObservableObject
         // Kick off the AI draft asynchronously; when it completes the
         // DraftReady event fires so the page can navigate to the configure
         // screen with the proposed agent name / description / instructions.
-        _ = OnDraftAgentAsync();
+        _ = OnDraftAgentAsync(prompt);
     }
 
-    private async Task OnDraftAgentAsync()
+    private async Task OnDraftAgentAsync(string? promptOverride = null)
     {
-        if (string.IsNullOrWhiteSpace(this.PromptText))
+        var prompt = (promptOverride ?? this.PromptText)?.Trim();
+        if (string.IsNullOrWhiteSpace(prompt))
         {
             return;
         }
@@ -261,8 +266,6 @@ public partial class CreateAgentViewModel : ObservableObject
             });
             return;
         }
-
-        var prompt = this.PromptText!.Trim();
         // Capture the prompt locally because OnSendRequested clears it
         // immediately so the editor is ready for the next prompt.
         _draftCts?.Cancel();

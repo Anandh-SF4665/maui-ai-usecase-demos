@@ -154,25 +154,41 @@
                                 </CollectionView.ItemsLayout>
                                 <CollectionView.ItemTemplate>
                                     <DataTemplate x:DataType="model:LogoIconModel">
-                                        <Border WidthRequest="36" HeightRequest="36" StrokeThickness="0"
-                                            StrokeShape="RoundRectangle 18" BackgroundColor="Transparent">
-                                            <Border.Triggers>
-                                                <DataTrigger TargetType="Border" Binding="{Binding IsSelected}" Value="True">
-                                                    <Setter Property="Background" Value="{AppThemeBinding Light=#EBDCFF, Dark=#41394E}" />
-                                                </DataTrigger>
-                                            </Border.Triggers>
-                                            <Label Text="{Binding IconGlyph}" FontFamily="{Binding IconFontFamily}"
-                                                FontSize="20"
-                                                TextColor="{AppThemeBinding Light=#474648, Dark=#C9C6C8}"
-                                                HorizontalOptions="Center" VerticalOptions="Center">
-                                                <Label.Triggers>
-                                                    <DataTrigger TargetType="Label" Binding="{Binding IsSelected}" Value="True">
-                                                        <Setter Property="TextColor"
-                                                            Value="{AppThemeBinding Light={DynamicResource PrimaryColorLight}, Dark=#A572F7}" />
+                                        <Grid WidthRequest="40" HeightRequest="40" Padding="2">
+                                            <!-- Suppress MAUI's default selection rectangle and
+                                                 hover border so only the inner tinted circle
+                                                 signals selection. -->
+                                            <VisualStateManager.VisualStateGroups>
+                                                <VisualStateGroup x:Name="CommonStates">
+                                                    <VisualState x:Name="Normal" />
+                                                    <VisualState x:Name="PointerOver" />
+                                                    <VisualState x:Name="Selected">
+                                                        <VisualState.Setters>
+                                                            <Setter Property="BackgroundColor" Value="Transparent" />
+                                                        </VisualState.Setters>
+                                                    </VisualState>
+                                                </VisualStateGroup>
+                                            </VisualStateManager.VisualStateGroups>
+                                            <Border WidthRequest="36" HeightRequest="36" StrokeThickness="0"
+                                                StrokeShape="RoundRectangle 18" BackgroundColor="Transparent">
+                                                <Border.Triggers>
+                                                    <DataTrigger TargetType="Border" Binding="{Binding IsSelected}" Value="True">
+                                                        <Setter Property="Background" Value="{AppThemeBinding Light=#EBDCFF, Dark=#41394E}" />
                                                     </DataTrigger>
-                                                </Label.Triggers>
-                                            </Label>
-                                        </Border>
+                                                </Border.Triggers>
+                                                <Label Text="{Binding IconGlyph}" FontFamily="{Binding IconFontFamily}"
+                                                    FontSize="20"
+                                                    TextColor="{AppThemeBinding Light=#474648, Dark=#C9C6C8}"
+                                                    HorizontalOptions="Center" VerticalOptions="Center">
+                                                    <Label.Triggers>
+                                                        <DataTrigger TargetType="Label" Binding="{Binding IsSelected}" Value="True">
+                                                            <Setter Property="TextColor"
+                                                                Value="{AppThemeBinding Light={DynamicResource PrimaryColorLight}, Dark=#A572F7}" />
+                                                        </DataTrigger>
+                                                    </Label.Triggers>
+                                                </Label>
+                                            </Border>
+                                        </Grid>
                                     </DataTemplate>
                                 </CollectionView.ItemTemplate>
                             </CollectionView>
