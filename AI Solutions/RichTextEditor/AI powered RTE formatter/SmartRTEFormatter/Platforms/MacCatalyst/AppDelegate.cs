@@ -2,6 +2,9 @@
 
 namespace SmartRTEFormatter
 {
+    /// <summary>
+    /// Provides the Mac Catalyst application entry point.
+    /// </summary>
     [Register("AppDelegate")]
     public class AppDelegate : MauiUIApplicationDelegate
     {

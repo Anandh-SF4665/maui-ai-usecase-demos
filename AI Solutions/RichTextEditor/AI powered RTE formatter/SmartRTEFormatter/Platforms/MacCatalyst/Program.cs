@@ -3,9 +3,15 @@ using UIKit;
 
 namespace SmartRTEFormatter
 {
+    /// <summary>
+    /// Starts the application on Mac Catalyst.
+    /// </summary>
     public class Program
     {
-        // This is the main entry point of the application.
+        /// <summary>
+        /// Starts UIKit with the application's delegate.
+        /// </summary>
+        /// <param name="args">Command-line arguments supplied by the operating system.</param>
         static void Main(string[] args)
         {
             // if you want to use a different Application Delegate class from "AppDelegate"

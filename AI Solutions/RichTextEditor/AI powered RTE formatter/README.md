@@ -32,21 +32,26 @@ The prompt guides the model but cannot guarantee exact preservation. Review AI-g
 3. `MainPageViewModel` trims the input, indicates that formatting is in progress, and calls `IAIFormattingService`.
 4. `AzureOpenAIFormattingService` sends the content to the configured chat completions endpoint with instructions to return structured JSON and preserve the source wording.
 5. The response is deserialized into the document model. The service builds HTML from its title, sections, paragraphs, bullet items, numbered items, and action items.
-6. The view model updates `FormattedHtml`, which is bound to the editor's `HtmlText` property. The structured JSON is also stored in `RawOutput` for application use; the current UI does not display it separately.
+6. The view model updates `FormattedHtml`, which is bound to the editor's `HtmlText` property. The editor's `Text` value is passed to the command as a parameter, so assigning formatted HTML does not write the editor's converted text back into an input binding.
+7. If configuration or the AI request fails, the view model exposes the error in the page instead of silently ignoring it.
 
 ## Rich Text Editor Integration
 
-The editor's `Text` property is bound to the user's input, while `HtmlText` receives the AI-formatted result:
+The editor's `Text` property supplies input to the format command, while `HtmlText` receives the AI-formatted result:
 
 ```xaml
+<Button Text="Format text"
+        Command="{Binding FormatCommand}"
+        CommandParameter="{Binding Source={x:Reference RichTextEditor}, Path=Text}" />
+
 <rte:SfRichTextEditor
+    x:Name="RichTextEditor"
     ShowToolbar="True"
-    Text="{Binding InputText, Mode=TwoWay}"
     HtmlText="{Binding FormattedHtml}"
     Placeholder="Paste or enter unformatted text here. Click 'Format text' to transform it into structured content." />
 ```
 
-The **Format text** button is bound to the view model's `FormatCommand`; an activity indicator is shown while the request is running.
+The **Format text** button passes `RichTextEditor.Text` to `FormatCommand`. The editor is not two-way-bound to a separate input property: setting `HtmlText` can update the editor's plain-text representation, and that should not replace the text being formatted in the view model. An activity indicator is shown while the request is running, and a visible error message is shown if formatting fails.
 
 ## Prerequisites
 
@@ -61,13 +66,13 @@ For supported platforms and development environment details, refer to the [.NET 
 
 ## Configure Azure OpenAI
 
-The sample's endpoint and API key placeholders are declared in `Sample/SmartRTEFormatter/Services/AzureOpenAIFormattingService.cs`. Before running the app:
+The endpoint, API key, and deployment placeholders are declared in `Sample/SmartRTEFormatter/Services/AzureOpenAIFormattingService.cs`. Before running the app:
 
-1. Set `BaseEndpoint` to the base URL for an Azure OpenAI-compatible chat completions endpoint. The sample appends `/chat/completions` to this value.
-2. Set `apiKey` to the API key for the Azure OpenAI resource.
-3. Set `DeploymentName` to the name of the model deployment in your Azure resource. The sample currently uses `gpt-5-mini`.
+1. Set `BaseEndpoint` to the base URL for your Azure OpenAI chat completions endpoint. The app appends `/chat/completions` to this value.
+2. Set `ApiKey` to the API key for your Azure OpenAI resource.
+3. Set `DeploymentName` to the name of a model deployment in your Azure resource.
 
-The request sends the API key in the `api-key` HTTP header. Never commit a real API key or other credentials to a public repository. Because this sample calls the AI service from a client application, credentials embedded in the app can be extracted; use a secured backend or another appropriate secrets strategy for production applications.
+The request sends the API key in the `api-key` HTTP header. The app displays a configuration error while the endpoint or key is still set to its placeholder. Never commit a real API key or other credentials to a public repository. Because this sample calls the AI service from a client application, credentials embedded in the app can be extracted; use a secured backend or another appropriate secrets strategy for production applications.
 
 ## Run the Sample
 

@@ -1,14 +1,16 @@
-using System.Text;
+﻿using System.Text;
 using System.Text.Json;
-using SmartRTEFormatter;
 
 namespace SmartRTEFormatter;
 
+/// <summary>
+/// Sends text to an Azure OpenAI chat completions endpoint and converts the response to HTML.
+/// </summary>
 public sealed class AzureOpenAIFormattingService : IAIFormattingService
 {
     private const string BaseEndpoint = "ENDPOINT";
     private const string DeploymentName = "gpt-5-mini";
-    private readonly string? apiKey = "API_KEY";
+    private const string ApiKey = "API_KEY";
 
     private readonly HttpClient httpClient = new();
 
@@ -61,28 +63,38 @@ public sealed class AzureOpenAIFormattingService : IAIFormattingService
 
 
 
-    public async Task<FormattingResult> FormatAsync(
-        string content,
-        CancellationToken cancellationToken = default)
+    /// <summary>
+    /// Formats text using the configured Azure OpenAI deployment.
+    /// </summary>
+    /// <param name="content">The unstructured text to organize.</param>
+    /// <returns>The AI-generated document rendered as HTML.</returns>
+    /// <exception cref="InvalidOperationException">
+    /// Thrown when the Azure OpenAI endpoint or API key has not been configured, or when the
+    /// service returns no usable formatted content.
+    /// </exception>
+    /// <exception cref="HttpRequestException">
+    /// Thrown when the Azure OpenAI request fails.
+    /// </exception>
+    /// <exception cref="JsonException">
+    /// Thrown when the service response does not contain a valid formatted document.
+    /// </exception>
+    public async Task<FormattingResult> FormatAsync(string content)
     {
-        if (string.IsNullOrWhiteSpace(apiKey))
+        if (BaseEndpoint.Contains("YOUR_RESOURCE", StringComparison.OrdinalIgnoreCase) ||
+            string.IsNullOrWhiteSpace(ApiKey) ||
+            ApiKey == "YOUR_API_KEY")
         {
-            var demoDocument = CreateDemoDocument(content);
-
-            return new FormattingResult
-            {
-                HtmlContent = CreateHtml(demoDocument),
-                StructuredJson = SerializeDocument(demoDocument)
-            };
+            throw new InvalidOperationException(
+                "Configure the Azure OpenAI endpoint and API key before formatting content.");
         }
 
-        var requestUri = $"{BaseEndpoint}/chat/completions";
+        var requestUri = $"{BaseEndpoint.TrimEnd('/')}/chat/completions";
 
         using var request = new HttpRequestMessage(
             HttpMethod.Post,
             requestUri);
 
-        request.Headers.Add("api-key", apiKey);
+        request.Headers.Add("api-key", ApiKey);
 
         request.Content = new StringContent(
             JsonSerializer.Serialize(new
@@ -129,11 +141,9 @@ public sealed class AzureOpenAIFormattingService : IAIFormattingService
             Encoding.UTF8,
             "application/json");
 
-        using var response =
-            await httpClient.SendAsync(request, cancellationToken);
+        using var response = await httpClient.SendAsync(request);
 
-        var responseBody =
-            await response.Content.ReadAsStringAsync(cancellationToken);
+        var responseBody = await response.Content.ReadAsStringAsync();
 
         if (!response.IsSuccessStatusCode)
         {
@@ -175,8 +185,7 @@ public sealed class AzureOpenAIFormattingService : IAIFormattingService
 
         return new FormattingResult
         {
-            HtmlContent = CreateHtml(formattedDocument),
-            StructuredJson = SerializeDocument(formattedDocument)
+            HtmlContent = CreateHtml(formattedDocument)
         };
     }
 
@@ -186,41 +195,6 @@ public sealed class AzureOpenAIFormattingService : IAIFormattingService
             .Replace("```json", string.Empty, StringComparison.OrdinalIgnoreCase)
             .Replace("```", string.Empty, StringComparison.OrdinalIgnoreCase)
             .Trim();
-    }
-
-    private static FormattedDocument CreateDemoDocument(string content)
-    {
-        return new FormattedDocument
-        {
-            Title = "Formatted Document",
-            Sections =
-            [
-                new FormattedSection
-                {
-                    Heading = "Content",
-                    Paragraphs = content
-                        .Split(
-                            ['\r', '\n'],
-                            StringSplitOptions.RemoveEmptyEntries)
-                        .Select(x => x.Trim())
-                        .ToList(),
-                    BulletItems = [],
-                    NumberedItems = [],
-                    ActionItems = []
-                }
-            ]
-        };
-    }
-
-    private static string SerializeDocument(
-        FormattedDocument document)
-    {
-        return JsonSerializer.Serialize(
-            document,
-            new JsonSerializerOptions
-            {
-                WriteIndented = true
-            });
     }
 
     private static string CreateHtml(
@@ -240,7 +214,6 @@ public sealed class AzureOpenAIFormattingService : IAIFormattingService
             {
                 AppendSectionList(
                     html,
-                    null,
                     section.BulletItems,
                     "ul");
             }
@@ -249,7 +222,6 @@ public sealed class AzureOpenAIFormattingService : IAIFormattingService
             {
                 AppendSectionList(
                     html,
-                    null,
                     section.NumberedItems,
                     "ol");
             }
@@ -258,7 +230,6 @@ public sealed class AzureOpenAIFormattingService : IAIFormattingService
             {
                 AppendSectionList(
                     html,
-                    null,
                     section.ActionItems,
                     "ul",
                     "action-items");
@@ -294,7 +265,6 @@ public sealed class AzureOpenAIFormattingService : IAIFormattingService
 
     private static void AppendSectionList(
         StringBuilder html,
-        string? title,
         IEnumerable<string> items,
         string tag,
         string? cssClass = null)
@@ -305,11 +275,6 @@ public sealed class AzureOpenAIFormattingService : IAIFormattingService
 
         if (values.Count == 0)
             return;
-
-        if (!string.IsNullOrWhiteSpace(title))
-        {
-            html.Append($"<h3>{System.Net.WebUtility.HtmlEncode(title)}</h3>");
-        }
 
         if (string.IsNullOrWhiteSpace(cssClass))
         {

@@ -19,6 +19,10 @@ namespace SmartRTEFormatter.WinUI
             this.InitializeComponent();
         }
 
+        /// <summary>
+        /// Creates the MAUI application instance for Windows.
+        /// </summary>
+        /// <returns>The configured MAUI application.</returns>
         protected override MauiApp CreateMauiApp() => MauiProgram.CreateMauiApp();
     }
 
