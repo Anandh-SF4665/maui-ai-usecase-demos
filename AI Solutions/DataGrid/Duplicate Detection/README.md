@@ -6,7 +6,7 @@ This sample demonstrates AI-driven duplicate detection with the Syncfusion .NET 
 
 Duplicate records can impact data quality and lead to inconsistent business information. This sample uses Azure OpenAI to intelligently compare customer records and identify potential duplicates based on similarities across multiple fields.
 
-The AI-powered duplicate detection engine considers:
+The AI-powered duplicate detection engine considers:  
 
    - Customer names
    - Email addresses
