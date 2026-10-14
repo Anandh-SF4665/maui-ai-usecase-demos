@@ -107,14 +107,12 @@ public class TagViewModel : INotifyPropertyChanged
     /// </summary>
     public event EventHandler<IReadOnlyList<string>>? TagsReady;
 
-    public TagViewModel()
+    public TagViewModel(IAzureTagService aiService)
     {
-        // Resolve the AI service through DI so unit tests can substitute a
-        // fake without touching production code. Mirrors the
-        // ContextAwareSuggestionsViewModel pattern from the AIAssistView
-        // sample (also DI-resolved via the platform service provider).
-        _aiService = IPlatformApplication.Current!.Services
-            .GetRequiredService<IAzureTagService>();
+        // Service is supplied by DI so unit tests can substitute a fake
+        // without touching production code. Mirrors the
+        // DataGrid_Duplicate_Sample.ViewModel pattern.
+        _aiService = aiService;
 
         Tags = new ObservableCollection<TagModel>();
         Tags.CollectionChanged += (_, _) => HasTags = Tags.Count > 0;

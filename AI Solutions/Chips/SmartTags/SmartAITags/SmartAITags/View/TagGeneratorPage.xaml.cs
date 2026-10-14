@@ -54,10 +54,6 @@ public partial class TagGeneratorPage : ContentPage
     /// <summary>"Try again" affordance on the error banner.</summary>
     private void OnRetryClicked(object? sender, EventArgs e) => RunAISearch();
 
-    /// <summary>Close icon on the error banner.</summary>
-    private void OnDismissErrorClicked(object? sender, EventArgs e)
-        => _viewModel.DismissErrorCommand.Execute(null);
-
     private void RunAISearch()
     {
         if (_viewModel.IsBusy) return;

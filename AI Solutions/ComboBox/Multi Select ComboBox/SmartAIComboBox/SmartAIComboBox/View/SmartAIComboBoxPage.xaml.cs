@@ -50,10 +50,6 @@ public partial class SmartAIComboBoxPage : ContentPage
         comboBox.IsDropDownOpen = false;
     }
 
-    /// <summary>Close icon on the error banner.</summary>
-    private void OnDismissErrorClicked(object? sender, EventArgs e)
-        => _viewModel.DismissErrorCommand.Execute(null);
-
     private void RunAISearch()
     {
         if (_viewModel.IsBusy) return;
