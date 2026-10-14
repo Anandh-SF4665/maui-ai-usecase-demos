@@ -9,6 +9,19 @@ namespace AIChatSample.Views.AIChat
         {
             InitializeComponent();
             this.BindingContext = new AIMainLayoutViewModel();
+            if (BindingContext is AIMainLayoutViewModel vm)
+            {
+                vm.CreateAgentVM.DraftReady += OnDraftReady;
+            }
+        }
+
+        private void OnDraftReady(object? sender, Models.AgentDraft draft)
+        {
+            // Marshal to the UI thread so we can push pages safely.
+            Dispatcher.Dispatch(() =>
+            {
+                ChatNavigationService.Handle(this, "CreateAgent", draft);
+            });
         }
 
         protected override void OnAppearing()

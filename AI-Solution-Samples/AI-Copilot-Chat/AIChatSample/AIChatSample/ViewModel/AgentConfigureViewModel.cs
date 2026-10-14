@@ -47,6 +47,26 @@ public partial class AgentConfigurationViewModel : ObservableObject
         Description = template.DescriptionText;
     }
 
+    /// <summary>
+    /// Pre-fills the form from an AI-drafted agent proposal (the new
+    /// prompt-driven Copilot flow on the CreateAgent page). The user can
+    /// still tweak any field before pressing Create.
+    /// </summary>
+    public void InitializeFromDraft(AgentDraft? draft)
+    {
+        if (draft is null)
+        {
+            return;
+        }
+
+        AgentName = string.IsNullOrWhiteSpace(draft.Name) ? AgentName : draft.Name.Trim();
+        Description = string.IsNullOrWhiteSpace(draft.Description) ? Description : draft.Description.Trim();
+        if (!string.IsNullOrWhiteSpace(draft.Instructions))
+        {
+            Instructions = draft.Instructions.Trim();
+        }
+    }
+
     // ---------- Tabs ----------
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(IsConfigureMode))]

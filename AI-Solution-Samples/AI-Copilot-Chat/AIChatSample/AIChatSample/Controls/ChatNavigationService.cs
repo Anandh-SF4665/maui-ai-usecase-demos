@@ -115,6 +115,13 @@ internal static class ChatNavigationService
                 {
                     vm.AgentVM.InitializeFromTemplate(template);
                 }
+                else if (parameter is AgentDraft draft &&
+                    configurePage.BindingContext is AgentConfigurePageViewModel draftVm)
+                {
+                    // Copilot prompt-driven flow: AI produced a draft that
+                    // we hand off as the form seed.
+                    draftVm.InitializeFromDraft(draft);
+                }
 
                 await currentPage.Navigation.PushAsync(configurePage, animated: true);
                 break;

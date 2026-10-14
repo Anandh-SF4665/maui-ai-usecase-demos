@@ -2,6 +2,7 @@ using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Threading.Tasks;
 using System.Windows.Input;
+using AIChatSample.AIService;
 using AIChatSample.Models;
 using AIChatSample.Services;
 using CommunityToolkit.Mvvm.ComponentModel;
@@ -14,8 +15,10 @@ namespace AIChatSample.ViewModel;
 public partial class CreateAgentViewModel : ObservableObject
 {
     private readonly IAgentStore? _agentStore;
+    private readonly IAIService? _aiService;
+    private CancellationTokenSource? _draftCts;
 
-    public CreateAgentViewModel(IAgentStore? agentStore = null)
+    public CreateAgentViewModel(IAgentStore? agentStore = null, IAIService? aiService = null)
     {
         this.EnableSendIcon = true;
         this.IsHeaderVisible = true;
@@ -107,6 +110,21 @@ public partial class CreateAgentViewModel : ObservableObject
             SyncAgentsFromStore();
             _agentStore.AgentAdded += OnAgentAddedToStore;
         }
+
+        // Resolve the shared AI service so the prompt-driven draft flow can
+        // hit the same IAIService the chat uses (mock or Azure depending on
+        // configuration). ServiceHelper is optional in design-time.
+        _aiService = aiService ?? ServiceHelper.GetService<IAIService>();
+
+        // Copilot-style command: send the user's free-form prompt to the AI
+        // and have it produce a structured AgentDraft. The page routes to
+        // the configure page with the draft pre-filled once it's ready.
+        DraftAgentCommand = new Command(
+            async () => await OnDraftAgentAsync(),
+            () => !IsBusy && !string.IsNullOrWhiteSpace(PromptText));
+        CancelDraftCommand = new Command(
+            () => _draftCts?.Cancel(),
+            () => IsBusy);
     }
 
     /// <summary>Rebuilds the MyAgents collection from the shared store.</summary>
@@ -158,6 +176,10 @@ public partial class CreateAgentViewModel : ObservableObject
     [ObservableProperty] private bool isHeaderVisible;
     [ObservableProperty] private bool isEditorVisible;
 
+    /// <summary>Latest AI-drafted agent proposal; populated when the
+    /// Copilot prompt flow returns. Null when no draft is pending.</summary>
+    [ObservableProperty] private AgentDraft? lastDraft;
+
     #endregion
 
     #region Commands
@@ -167,6 +189,16 @@ public partial class CreateAgentViewModel : ObservableObject
     public ICommand SendButtonCommand { get; }
     public ICommand AttachmentButtonCommand { get; }
     public ICommand VoiceCommand { get; }
+
+    /// <summary>Runs the AI draft flow against the current prompt.</summary>
+    public ICommand DraftAgentCommand { get; }
+
+    /// <summary>Cancels the in-flight draft request.</summary>
+    public ICommand CancelDraftCommand { get; }
+
+    /// <summary>Raised when the AI produces a usable draft and the page
+    /// should navigate to the configure screen pre-filled with it.</summary>
+    public event EventHandler<AgentDraft>? DraftReady;
 
     #endregion
 
@@ -207,6 +239,81 @@ public partial class CreateAgentViewModel : ObservableObject
         };
         this.Messages.Add(request);
         this.PromptText = string.Empty;
+
+        // Kick off the AI draft asynchronously; when it completes the
+        // DraftReady event fires so the page can navigate to the configure
+        // screen with the proposed agent name / description / instructions.
+        _ = OnDraftAgentAsync();
+    }
+
+    private async Task OnDraftAgentAsync()
+    {
+        if (string.IsNullOrWhiteSpace(this.PromptText))
+        {
+            return;
+        }
+        if (_aiService is null)
+        {
+            this.Messages.Add(new AssistItem
+            {
+                Text = "AI service is not configured. Please choose a template or fill the form manually.",
+                IsRequested = false,
+            });
+            return;
+        }
+
+        var prompt = this.PromptText!.Trim();
+        // Capture the prompt locally because OnSendRequested clears it
+        // immediately so the editor is ready for the next prompt.
+        _draftCts?.Cancel();
+        _draftCts = new CancellationTokenSource();
+        var ct = _draftCts.Token;
+        IsBusy = true;
+        (DraftAgentCommand as Command)?.ChangeCanExecute();
+        (CancelDraftCommand as Command)?.ChangeCanExecute();
+
+        try
+        {
+            var draft = await _aiService.DraftAgentAsync(prompt, ct).ConfigureAwait(true);
+            if (ct.IsCancellationRequested) return;
+            if (draft is null)
+            {
+                this.Messages.Add(new AssistItem
+                {
+                    Text = "I couldn't draft an agent from that description. Try adding a few more details or pick a template.",
+                    IsRequested = false,
+                });
+                return;
+            }
+
+            // Echo the AI's proposal back to the user and signal the page to
+            // navigate to the configure screen pre-filled with the draft.
+            this.Messages.Add(new AssistItem
+            {
+                Text = $"How does this look?\n• Name: {draft.Name}\n• Description: {draft.Description}",
+                IsRequested = false,
+            });
+            this.LastDraft = draft;
+            DraftReady?.Invoke(this, draft);
+        }
+        catch (OperationCanceledException)
+        {
+            // ignore — user cancelled
+        }
+        catch (Exception ex)
+        {
+            this.Messages.Add(new AssistItem
+            {
+                Text = $"Sorry, the draft failed: {ex.Message}",
+                IsRequested = false,
+            });
+        }
+        finally
+        {
+            IsBusy = false;
+            (DraftAgentCommand as Command)?.ChangeCanExecute();
+            (CancelDraftCommand as Command)?.ChangeCanExecute();
+        }
     }
 
     #endregion

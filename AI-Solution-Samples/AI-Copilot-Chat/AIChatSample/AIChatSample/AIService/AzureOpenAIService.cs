@@ -2,6 +2,7 @@ using System.Text.Json;
 using Azure;
 using Azure.AI.OpenAI;
 using OpenAI.Chat;
+using AIChatSample.Models;
 
 namespace AIChatSample.AIService;
 
@@ -17,6 +18,13 @@ public sealed class AzureOpenAIService : IAIService
 
     private readonly ChatClient _chatClient;
     private readonly TimeSpan _requestTimeout;
+
+    private static readonly JsonSerializerOptions AgentDraftJsonOptions = new()
+    {
+        PropertyNameCaseInsensitive = true,
+        AllowTrailingCommas = true,
+        ReadCommentHandling = JsonCommentHandling.Skip,
+    };
 
     /// <summary>
     /// Builds the service from the Azure OpenAI environment. Required
@@ -116,6 +124,76 @@ public sealed class AzureOpenAIService : IAIService
             {
                 Answer = $"Error: {ex.Message}"
             };
+        }
+    }
+
+    /// <summary>
+    /// Asks the model to return a strict JSON object with the new agent's
+    /// name, description, and long-form instructions. The model may still
+    /// wrap the JSON in markdown fences; <see cref="ParseAgentDraft"/>
+    /// is forgiving about that.
+    /// </summary>
+    public async Task<AgentDraft?> DraftAgentAsync(string prompt, CancellationToken ct = default)
+    {
+        if (string.IsNullOrWhiteSpace(prompt)) return null;
+
+        try
+        {
+            using var cts = CancellationTokenSource.CreateLinkedTokenSource(ct);
+            cts.CancelAfter(_requestTimeout);
+
+            const string systemPrompt =
+                "You generate JSON describing a new specialist AI agent. " +
+                "Respond with a single JSON object and NOTHING else (no prose, no markdown fences). " +
+                "Schema: { \"name\": string (≤60 chars, Title Case), \"description\": string (one sentence, ≤180 chars), " +
+                "\"instructions\": string (system-prompt style, 1–3 short paragraphs in second person) }.";
+
+            var messages = new List<ChatMessage>
+            {
+                new SystemChatMessage(systemPrompt),
+                new UserChatMessage(prompt),
+            };
+
+            ChatCompletion completion = await _chatClient
+                .CompleteChatAsync(messages, cancellationToken: cts.Token)
+                .ConfigureAwait(false);
+
+            if (ct.IsCancellationRequested) return null;
+            var text = completion?.Content?.FirstOrDefault()?.Text;
+            return ParseAgentDraft(text);
+        }
+        catch (OperationCanceledException) when (ct.IsCancellationRequested)
+        {
+            return null;
+        }
+        catch
+        {
+            // Azure path failure is silent here — the caller can fall back
+            // to a local mock-style draft.
+            return null;
+        }
+    }
+
+    internal static AgentDraft? ParseAgentDraft(string? raw)
+    {
+        if (string.IsNullOrWhiteSpace(raw)) return null;
+        var json = ExtractFirstJsonObject(raw);
+        if (string.IsNullOrEmpty(json)) return null;
+        try
+        {
+            var draft = JsonSerializer.Deserialize<AgentDraft>(json, AgentDraftJsonOptions);
+            if (draft is null) return null;
+            if (string.IsNullOrWhiteSpace(draft.Name) &&
+                string.IsNullOrWhiteSpace(draft.Description) &&
+                string.IsNullOrWhiteSpace(draft.Instructions))
+            {
+                return null;
+            }
+            return draft;
+        }
+        catch (JsonException)
+        {
+            return null;
         }
     }
 

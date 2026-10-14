@@ -1,3 +1,5 @@
+using AIChatSample.Models;
+
 namespace AIChatSample.AIService;
 
 /// <summary>
@@ -23,4 +25,13 @@ public interface IAIService
         string prompt,
         string? systemContext = null,
         CancellationToken ct = default);
+
+    /// <summary>
+    /// Drafts a specialist agent from a free-form prompt. The AI is
+    /// expected to return a structured <see cref="AgentDraft"/> with a
+    /// short name, one-line description, and the long-form system
+    /// instructions the agent should run with. Returns <c>null</c> if
+    /// cancelled or no useful draft could be produced.
+    /// </summary>
+    Task<AgentDraft?> DraftAgentAsync(string prompt, CancellationToken ct = default);
 }

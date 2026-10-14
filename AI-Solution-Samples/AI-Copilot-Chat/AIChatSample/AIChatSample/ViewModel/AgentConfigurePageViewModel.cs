@@ -108,4 +108,7 @@ public partial class AgentConfigurePageViewModel : ObservableObject
 
     /// <summary>Called by the page when the name <c>Entry</c> gains focus; promotes the inline error (FR-1.2).</summary>
     public void NotifyNameInteracted() => AgentVM.NotifyNameInteracted();
+
+    /// <summary>Pre-fills the form fields from an AI-generated proposal.</summary>
+    public void InitializeFromDraft(AgentDraft? draft) => AgentVM.InitializeFromDraft(draft);
 }
