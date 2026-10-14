@@ -24,16 +24,32 @@ The application generates AI responses and dynamically provides context-aware su
 4. The response is displayed in the AI AssistView.
 5. Suggested follow-up prompts are shown below the response, allowing users to continue the conversation with a single tap.
 
-## Sample Use Case
-
-For a prompt such as:
-
-```text
-Python Roadmap
-```
-
 ## Demo
 
 The following video demonstrates AI-generated responses with context-aware follow-up suggestions.
 
-![.NET MAUI AIAssistView With Context Aware Suggestions.](/AIAssistView-Context-Aware-Suggestions/ContextAwareSuggestions/Resources/Context_Aware_Suggestions.gif)
+![.NET MAUI AIAssistView With Context Aware Suggestions.](context_aware_suggestions.gif)
+
+## Requirements to run the demo
+
+To run the demo, refer to https://help.syncfusion.com/maui/system-requirements
+
+## Prerequisites
+
+Before running the sample, ensure that you have:
+
+- Visual Studio 2022 with .NET MAUI workload installed
+- .NET 9 or later
+- Azure OpenAI resource and deployment
+- Syncfusion .NET MAUI Data Grid package
+- Valid Syncfusion license key
+
+## Troubleshooting
+
+### Path too long exception
+
+If you encounter a "Path Too Long" exception while building the project, close Visual Studio, rename the repository folder to a shorter name, and rebuild the project.
+
+## License
+
+Syncfusion has no liability for any damage or consequence that may arise from using or viewing the samples. The samples are for demonstrative purposes. If you choose to use or access the samples, you agree to not hold Syncfusion liable, in any form, for any damage related to use, for accessing, or viewing the samples. By accessing, viewing, or seeing the samples, you acknowledge and agree Syncfusion's samples will not allow you seek injunctive relief in any form for any claim related to the sample. If you do not agree to this, do not view, access, utilize, or otherwise do anything with Syncfusion's samples.
