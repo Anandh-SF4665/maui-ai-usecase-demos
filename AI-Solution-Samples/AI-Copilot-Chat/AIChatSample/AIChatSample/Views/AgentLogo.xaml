@@ -2,7 +2,6 @@
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     xmlns:buttons="clr-namespace:Syncfusion.Maui.Toolkit.Buttons;assembly=Syncfusion.Maui.Toolkit"
-    xmlns:listView="clr-namespace:Syncfusion.Maui.ListView;assembly=Syncfusion.Maui.ListView"
     xmlns:popup="clr-namespace:Syncfusion.Maui.Toolkit.Popup;assembly=Syncfusion.Maui.Toolkit"
     xmlns:viewModel="clr-namespace:AIChatSample.ViewModel"
     xmlns:model="clr-namespace:AIChatSample.Models"
@@ -16,12 +15,13 @@
         <ResourceDictionary>
             <Color x:Key="AL_Border">#E5E5E5</Color>
             <convertor:StringToImageSourceConverter x:Key="StringToImageSource" />
+            <convertor:InverseBooleanConverter x:Key="InverseBoolean" />
 
             <Style x:Key="AL_CloseButton" TargetType="buttons:SfButton">
                 <Setter Property="Background" Value="Transparent" />
-                <Setter Property="WidthRequest" Value="24" />
-                <Setter Property="HeightRequest" Value="24" />
-                <Setter Property="CornerRadius" Value="12" />
+                <Setter Property="WidthRequest" Value="32" />
+                <Setter Property="HeightRequest" Value="32" />
+                <Setter Property="CornerRadius" Value="16" />
                 <Setter Property="Padding" Value="0" />
                 <Setter Property="StrokeThickness" Value="0" />
                 <Setter Property="TextColor" Value="{AppThemeBinding Light=#474648, Dark=#C9C6C8}" />
@@ -36,7 +36,7 @@
                 <Setter Property="FontSize" Value="14" />
                 <Setter Property="CornerRadius" Value="18" />
                 <Setter Property="HeightRequest" Value="36" />
-                <Setter Property="WidthRequest" Value="80" />
+                <Setter Property="WidthRequest" Value="96" />
                 <Setter Property="Stroke" Value="{AppThemeBinding Light=#7633DA, Dark=#8D4CF5}" />
                 <Setter Property="StrokeThickness" Value="1" />
                 <Setter Property="Padding" Value="0" />
@@ -49,233 +49,221 @@
                 <Setter Property="FontSize" Value="14" />
                 <Setter Property="CornerRadius" Value="18" />
                 <Setter Property="HeightRequest" Value="36" />
-                <Setter Property="WidthRequest" Value="80" />
+                <Setter Property="WidthRequest" Value="96" />
                 <Setter Property="StrokeThickness" Value="0" />
                 <Setter Property="Padding" Value="0" />
             </Style>
         </ResourceDictionary>
     </ContentPage.Resources>
 
-    <Grid>
-        <!-- Hidden addressable list views (direct children of the page so
-             they can be referenced from code-behind). They live in the
-             visual tree so SfListView realizes the selected item state. -->
-        <listView:SfListView x:Name="IconsList"
-                             IsVisible="False"
-                             HeightRequest="120"
-                             ItemsSource="{Binding AvailableIcons}"
-                             Orientation="Vertical"
-                             SelectionMode="Single"
-                             BackgroundColor="Transparent"
-                             SelectionChanged="IconsList_SelectionChanged">
-            <listView:SfListView.ItemsLayout>
-                <listView:GridLayout SpanCount="5"/>
-            </listView:SfListView.ItemsLayout>
-        </listView:SfListView>
+    <popup:SfPopup x:Name="LogoPopup"
+                   IsOpen="True"
+                   ShowHeader="False"
+                   ShowFooter="False"
+                   ShowCloseButton="False"
+                   AutoSizeMode="Both"
+                   OverlayMode="Blur"
+                   StaysOpen="True"
+                   BackgroundColor="Transparent">
+        <popup:SfPopup.PopupStyle>
+            <popup:PopupStyle HasShadow="True" />
+        </popup:SfPopup.PopupStyle>
+        <popup:SfPopup.Content>
+            <Border
+                BackgroundColor="{AppThemeBinding Light={DynamicResource SentMessageColorLight}, Dark={DynamicResource SentMessageColorDark}}"
+                StrokeThickness="0" StrokeShape="RoundRectangle 16" Padding="20"
+                WidthRequest="{OnIdiom Phone=320, Default=540}" HorizontalOptions="Center" VerticalOptions="Center">
+                <Border.Shadow>
+                    <Shadow Brush="#40000000" Offset="0,8" Radius="16" Opacity="0.35" />
+                </Border.Shadow>
 
-        <listView:SfListView x:Name="ColorsList"
-                             IsVisible="False"
-                             HeightRequest="60"
-                             ItemsSource="{Binding AvailableColors}"
-                             SelectionMode="Single"
-                             Orientation="Horizontal" ItemSpacing="10"
-                             BackgroundColor="Transparent"
-                             SelectionChanged="ColorsList_SelectionChanged" />
+                <Grid RowDefinitions="Auto,Auto,*,Auto" RowSpacing="12">
 
-        <popup:SfPopup x:Name="LogoPopup"
-                       IsOpen="True"
-                       ShowHeader="False"
-                       ShowFooter="False"
-                       ShowCloseButton="False"
-                       AutoSizeMode="Both"
-                       OverlayMode="Blur"
-                       StaysOpen="True"
-                       BackgroundColor="Transparent">
-            <popup:SfPopup.PopupStyle>
-                <popup:PopupStyle HasShadow="True" />
-            </popup:SfPopup.PopupStyle>
-            <popup:SfPopup.ContentTemplate>
-                <DataTemplate x:DataType="viewModel:AgentLogoPopupViewModel">
-                <Border
-                    BackgroundColor="{AppThemeBinding Light={DynamicResource SentMessageColorLight}, Dark={DynamicResource SentMessageColorDark}}"
-                    StrokeThickness="0" StrokeShape="RoundRectangle 16" Padding="20"
-                    WidthRequest="{OnIdiom Phone=320, Default=540}" HorizontalOptions="Center" VerticalOptions="Center">
-                    <Border.Shadow>
-                        <Shadow Brush="#40000000" Offset="0,8" Radius="16" Opacity="0.35" />
-                    </Border.Shadow>
-
-                    <Grid RowDefinitions="Auto,Auto,Auto,Auto" RowSpacing="0">
-                        <Grid Grid.Row="0" ColumnDefinitions="*,Auto" ColumnSpacing="8" Margin="0,0,0,16">
-                            <Label Grid.Column="0" Text="Agent Logo" FontFamily="Roboto-Medium" FontSize="22"
-                                TextColor="{AppThemeBinding Light=#313032, Dark=#FFFFFF}" VerticalOptions="Center" />
-                            <buttons:SfButton Grid.Column="1" Style="{StaticResource AL_CloseButton}" Text="✕"
-                                Command="{Binding ClosePopupCommand}" />
-                        </Grid>
-
-                        <HorizontalStackLayout Grid.Row="1" HorizontalOptions="Center" Spacing="8" Margin="0,0,0,16">
-                            <buttons:SfButton Text="Create" WidthRequest="80"
-                                TextColor="{AppThemeBinding Light=#313032, Dark=#FFFFFF}"
-                                Command="{Binding SwitchToCreateCommand}">
-                                <buttons:SfButton.Triggers>
-                                    <DataTrigger TargetType="buttons:SfButton" Binding="{Binding IsCreateMode}" Value="True">
-                                        <Setter Property="Background" Value="{AppThemeBinding Light=#EBDCFF, Dark=#3C3B3D}" />
-                                        <Setter Property="Stroke" Value="{AppThemeBinding Light=#7633DA, Dark=#8D4CF5}" />
-                                        <Setter Property="StrokeThickness" Value="1" />
-                                    </DataTrigger>
-                                    <DataTrigger TargetType="buttons:SfButton" Binding="{Binding IsCreateMode}" Value="False">
-                                        <Setter Property="Background" Value="{AppThemeBinding Light=#F3F0F2, Dark=#3C3B3D}" />
-                                        <Setter Property="StrokeThickness" Value="0" />
-                                    </DataTrigger>
-                                </buttons:SfButton.Triggers>
-                            </buttons:SfButton>
-
-                            <buttons:SfButton Text="Upload" WidthRequest="85"
-                                TextColor="{AppThemeBinding Light=#313032, Dark=#FFFFFF}"
-                                Command="{Binding SwitchToUploadCommand}">
-                                <buttons:SfButton.Triggers>
-                                    <DataTrigger TargetType="buttons:SfButton" Binding="{Binding IsUploadMode}" Value="True">
-                                        <Setter Property="Background" Value="{AppThemeBinding Light=#EBDCFF, Dark=#3C3B3D}" />
-                                        <Setter Property="Stroke" Value="{AppThemeBinding Light=#7633DA, Dark=#8D4CF5}" />
-                                        <Setter Property="StrokeThickness" Value="1" />
-                                    </DataTrigger>
-                                    <DataTrigger TargetType="buttons:SfButton" Binding="{Binding IsUploadMode}" Value="False">
-                                        <Setter Property="Background" Value="{AppThemeBinding Light=#F3F0F2, Dark=#3C3B3D}" />
-                                        <Setter Property="StrokeThickness" Value="0" />
-                                    </DataTrigger>
-                                </buttons:SfButton.Triggers>
-                            </buttons:SfButton>
-                        </HorizontalStackLayout>
-
-                        <ScrollView Grid.Row="2" VerticalScrollBarVisibility="Never" VerticalOptions="Start">
-                            <Grid>
-                                <VerticalStackLayout Spacing="0" IsVisible="{Binding IsCreateMode}">
-                                    <Border WidthRequest="80" HeightRequest="80" StrokeThickness="0"
-                                        StrokeShape="RoundRectangle 16" HorizontalOptions="Center" Margin="0,0,0,8"
-                                        BackgroundColor="{Binding SelectedColor.ColorHex}">
-                                        <Grid HorizontalOptions="Fill" VerticalOptions="Fill">
-                                            <Label Text="{Binding SelectedIcon.IconGlyph}"
-                                                FontFamily="{Binding SelectedIcon.IconFontFamily}" FontSize="34"
-                                                TextColor="Black" HorizontalOptions="Center" VerticalOptions="Center" />
-                                        </Grid>
-                                    </Border>
-
-                                    <Label Text="Icons" FontFamily="Roboto-Medium" FontSize="22"
-                                        TextColor="{AppThemeBinding Light=#313032, Dark=#FFFFFF}" />
-
-                                    <CollectionView ItemsSource="{Binding AvailableIcons}"
-                                                    SelectionMode="Single"
-                                                    SelectedItem="{Binding SelectedIcon, Mode=TwoWay}"
-                                                    HeightRequest="160">
-                                        <CollectionView.ItemsLayout>
-                                            <GridItemsLayout Span="5" Orientation="Vertical" />
-                                        </CollectionView.ItemsLayout>
-                                        <CollectionView.ItemTemplate>
-                                            <DataTemplate x:DataType="model:LogoIconModel">
-                                                <Border WidthRequest="36" HeightRequest="36" StrokeThickness="0"
-                                                    StrokeShape="RoundRectangle 18" BackgroundColor="Transparent">
-                                                    <Border.Triggers>
-                                                        <DataTrigger TargetType="Border" Binding="{Binding IsSelected}" Value="True">
-                                                            <Setter Property="Background" Value="{AppThemeBinding Light=#EBDCFF, Dark=#41394E}" />
-                                                        </DataTrigger>
-                                                    </Border.Triggers>
-                                                    <Label Text="{Binding IconGlyph}" FontFamily="{Binding IconFontFamily}"
-                                                        FontSize="20"
-                                                        TextColor="{AppThemeBinding Light=#474648, Dark=#C9C6C8}"
-                                                        HorizontalOptions="Center" VerticalOptions="Center">
-                                                        <Label.Triggers>
-                                                            <DataTrigger TargetType="Label" Binding="{Binding IsSelected}" Value="True">
-                                                                <Setter Property="TextColor"
-                                                                    Value="{AppThemeBinding Light={DynamicResource PrimaryColorLight}, Dark=#A572F7}" />
-                                                            </DataTrigger>
-                                                        </Label.Triggers>
-                                                    </Label>
-                                                </Border>
-                                            </DataTemplate>
-                                        </CollectionView.ItemTemplate>
-                                    </CollectionView>
-
-                                    <Label Text="Colors" FontFamily="Roboto-Medium" FontSize="22"
-                                        TextColor="{AppThemeBinding Light=#313032, Dark=#FFFFFF}" />
-
-                                    <CollectionView ItemsSource="{Binding AvailableColors}"
-                                                    SelectionMode="Single"
-                                                    SelectedItem="{Binding SelectedColor, Mode=TwoWay}"
-                                                    HeightRequest="60">
-                                        <CollectionView.ItemsLayout>
-                                            <LinearItemsLayout Orientation="Horizontal" ItemSpacing="10" />
-                                        </CollectionView.ItemsLayout>
-                                        <CollectionView.ItemTemplate>
-                                            <DataTemplate x:DataType="model:LogoColorModel">
-                                                <Border WidthRequest="40" HeightRequest="40" StrokeThickness="0"
-                                                    StrokeShape="RoundRectangle 20" BackgroundColor="Transparent">
-                                                    <Border WidthRequest="32" HeightRequest="32" StrokeThickness="2"
-                                                        Stroke="Transparent" StrokeShape="RoundRectangle 16"
-                                                        BackgroundColor="{Binding ColorHex}" HorizontalOptions="Center"
-                                                        VerticalOptions="Center">
-                                                        <Border.Triggers>
-                                                            <DataTrigger TargetType="Border" Binding="{Binding IsSelected}" Value="True">
-                                                                <Setter Property="Stroke" Value="{AppThemeBinding Light=#5F5E60, Dark=#FFFFFF}" />
-                                                            </DataTrigger>
-                                                        </Border.Triggers>
-                                                    </Border>
-                                                </Border>
-                                            </DataTemplate>
-                                        </CollectionView.ItemTemplate>
-                                    </CollectionView>
-                                </VerticalStackLayout>
-
-                                <VerticalStackLayout Spacing="0" IsVisible="{Binding IsUploadMode}" HorizontalOptions="Fill"
-                                    VerticalOptions="Fill" Margin="0,8,0,0">
-                                    <Border WidthRequest="80" HeightRequest="80"
-                                        Stroke="{AppThemeBinding Light=#C9C6C8, Dark=#858385}" StrokeThickness="1"
-                                        StrokeShape="RoundRectangle 15" BackgroundColor="Transparent" HorizontalOptions="Center"
-                                        Margin="0,0,0,8">
-                                        <Grid>
-                                            <Image Source="{Binding SelectedImage, Converter={StaticResource StringToImageSource}}"
-                                                Aspect="AspectFill"
-                                                IsVisible="{Binding HasSelectedImage}" />
-                                            <Image Source="{AppThemeBinding Light=photolight.png, Dark=photodark.png}"
-                                                WidthRequest="24" HeightRequest="24" HorizontalOptions="Center"
-                                                VerticalOptions="Center"
-                                                IsVisible="{Binding HasSelectedImage, Converter={StaticResource InverseBoolean}}" />
-                                        </Grid>
-                                    </Border>
-
-                                    <buttons:SfButton Text="Remove Image" FontSize="14" TextColor="#929092"
-                                        Background="Transparent" FontFamily="Roboto-Medium" StrokeThickness="0"
-                                        HorizontalOptions="End" Padding="0" Margin="0,0,0,4" CornerRadius="50"
-                                        Command="{Binding RemoveImageCommand}" />
-
-                                    <Border Stroke="{AppThemeBinding Light=#C9C6C8, Dark=#858385}" StrokeThickness="1"
-                                        StrokeShape="RoundRectangle 10"
-                                        BackgroundColor="{AppThemeBinding Light=#FCF8FA, Dark=#313032}" HeightRequest="90"
-                                        Margin="0,8,0,0" Padding="0">
-                                        <Border.GestureRecognizers>
-                                            <TapGestureRecognizer Command="{Binding SelectImageCommand}" />
-                                        </Border.GestureRecognizers>
-                                        <VerticalStackLayout Spacing="8" HorizontalOptions="Center" VerticalOptions="Center">
-                                            <Image Source="{AppThemeBinding Light=container.png, Dark=containerdark.png}"
-                                                WidthRequest="24" HeightRequest="24" HorizontalOptions="Center"
-                                                VerticalOptions="Center" />
-                                            <Label Text="Click or drag your image here" FontFamily="Roboto-Regular"
-                                                FontSize="14" TextColor="{AppThemeBinding Light=#474648, Dark=#C9C6C8}"
-                                                HorizontalOptions="Center" />
-                                        </VerticalStackLayout>
-                                    </Border>
-                                </VerticalStackLayout>
-                            </Grid>
-                        </ScrollView>
-
-                        <HorizontalStackLayout Grid.Row="3" Spacing="12" HorizontalOptions="End" Margin="0,16,0,0">
-                            <buttons:SfButton Style="{StaticResource AL_CancelButton}" Text="Cancel"
-                                Command="{Binding CancelCommand}" />
-                            <buttons:SfButton Style="{StaticResource AL_ApplyButton}" Text="Apply"
-                                Command="{Binding ApplyCommand}" IsEnabled="{Binding IsApplyEnabled}" />
-                        </HorizontalStackLayout>
+                    <!-- HEADER -->
+                    <Grid Grid.Row="0" ColumnDefinitions="*,Auto" ColumnSpacing="8">
+                        <Label Grid.Column="0" Text="Agent Logo" FontFamily="Roboto-Medium" FontSize="20"
+                            TextColor="{AppThemeBinding Light=#313032, Dark=#FFFFFF}" VerticalOptions="Center" />
+                        <buttons:SfButton Grid.Column="1" Style="{StaticResource AL_CloseButton}" Text="✕"
+                            Command="{Binding ClosePopupCommand}" />
                     </Grid>
-                </Border>
-                </DataTemplate>
-            </popup:SfPopup.ContentTemplate>
-        </popup:SfPopup>
-    </Grid>
+
+                    <!-- MODE SELECTOR -->
+                    <HorizontalStackLayout Grid.Row="1" HorizontalOptions="Center" Spacing="8">
+                        <buttons:SfButton Text="Create" WidthRequest="80"
+                            TextColor="{AppThemeBinding Light=#313032, Dark=#FFFFFF}"
+                            Command="{Binding SwitchToCreateCommand}">
+                            <buttons:SfButton.Triggers>
+                                <DataTrigger TargetType="buttons:SfButton" Binding="{Binding IsCreateMode}" Value="True">
+                                    <Setter Property="Background" Value="{AppThemeBinding Light=#EBDCFF, Dark=#3C3B3D}" />
+                                    <Setter Property="Stroke" Value="{AppThemeBinding Light=#7633DA, Dark=#8D4CF5}" />
+                                    <Setter Property="StrokeThickness" Value="1" />
+                                </DataTrigger>
+                                <DataTrigger TargetType="buttons:SfButton" Binding="{Binding IsCreateMode}" Value="False">
+                                    <Setter Property="Background" Value="{AppThemeBinding Light=#F3F0F2, Dark=#3C3B3D}" />
+                                    <Setter Property="StrokeThickness" Value="0" />
+                                </DataTrigger>
+                            </buttons:SfButton.Triggers>
+                        </buttons:SfButton>
+
+                        <buttons:SfButton Text="Upload" WidthRequest="85"
+                            TextColor="{AppThemeBinding Light=#313032, Dark=#FFFFFF}"
+                            Command="{Binding SwitchToUploadCommand}">
+                            <buttons:SfButton.Triggers>
+                                <DataTrigger TargetType="buttons:SfButton" Binding="{Binding IsUploadMode}" Value="True">
+                                    <Setter Property="Background" Value="{AppThemeBinding Light=#EBDCFF, Dark=#3C3B3D}" />
+                                    <Setter Property="Stroke" Value="{AppThemeBinding Light=#7633DA, Dark=#8D4CF5}" />
+                                    <Setter Property="StrokeThickness" Value="1" />
+                                </DataTrigger>
+                                <DataTrigger TargetType="buttons:SfButton" Binding="{Binding IsUploadMode}" Value="False">
+                                    <Setter Property="Background" Value="{AppThemeBinding Light=#F3F0F2, Dark=#3C3B3D}" />
+                                    <Setter Property="StrokeThickness" Value="0" />
+                                </DataTrigger>
+                            </buttons:SfButton.Triggers>
+                        </buttons:SfButton>
+                    </HorizontalStackLayout>
+
+                    <!-- BODY -->
+                    <Grid Grid.Row="2">
+
+                        <!-- CREATE MODE -->
+                        <VerticalStackLayout Spacing="12" IsVisible="{Binding IsCreateMode}">
+
+                            <!-- LIVE LOGO PREVIEW -->
+                            <Border WidthRequest="72" HeightRequest="72" StrokeThickness="0"
+                                StrokeShape="RoundRectangle 16" HorizontalOptions="Center" Margin="0,4,0,0"
+                                BackgroundColor="{Binding SelectedColor.ColorHex}">
+                                <Grid HorizontalOptions="Fill" VerticalOptions="Fill">
+                                    <Label Text="{Binding SelectedIcon.IconGlyph}"
+                                        FontFamily="{Binding SelectedIcon.IconFontFamily}" FontSize="30"
+                                        TextColor="Black" HorizontalOptions="Center" VerticalOptions="Center" />
+                                </Grid>
+                            </Border>
+
+                            <!-- ICONS -->
+                            <Label Text="Icons" FontFamily="Roboto-Medium" FontSize="14"
+                                TextColor="{AppThemeBinding Light=#313032, Dark=#FFFFFF}" Margin="4,0,0,0" />
+
+                            <CollectionView x:Name="IconsGrid"
+                                ItemsSource="{Binding AvailableIcons}"
+                                SelectionMode="Single"
+                                SelectedItem="{Binding SelectedIcon, Mode=TwoWay}"
+                                HeightRequest="96">
+                                <CollectionView.ItemsLayout>
+                                    <GridItemsLayout Span="5" Orientation="Vertical" HorizontalItemSpacing="8" VerticalItemSpacing="8" />
+                                </CollectionView.ItemsLayout>
+                                <CollectionView.ItemTemplate>
+                                    <DataTemplate x:DataType="model:LogoIconModel">
+                                        <Border WidthRequest="36" HeightRequest="36" StrokeThickness="0"
+                                            StrokeShape="RoundRectangle 18" BackgroundColor="Transparent">
+                                            <Border.Triggers>
+                                                <DataTrigger TargetType="Border" Binding="{Binding IsSelected}" Value="True">
+                                                    <Setter Property="Background" Value="{AppThemeBinding Light=#EBDCFF, Dark=#41394E}" />
+                                                </DataTrigger>
+                                            </Border.Triggers>
+                                            <Label Text="{Binding IconGlyph}" FontFamily="{Binding IconFontFamily}"
+                                                FontSize="20"
+                                                TextColor="{AppThemeBinding Light=#474648, Dark=#C9C6C8}"
+                                                HorizontalOptions="Center" VerticalOptions="Center">
+                                                <Label.Triggers>
+                                                    <DataTrigger TargetType="Label" Binding="{Binding IsSelected}" Value="True">
+                                                        <Setter Property="TextColor"
+                                                            Value="{AppThemeBinding Light={DynamicResource PrimaryColorLight}, Dark=#A572F7}" />
+                                                    </DataTrigger>
+                                                </Label.Triggers>
+                                            </Label>
+                                        </Border>
+                                    </DataTemplate>
+                                </CollectionView.ItemTemplate>
+                            </CollectionView>
+
+                            <!-- COLORS -->
+                            <Label Text="Colors" FontFamily="Roboto-Medium" FontSize="14"
+                                TextColor="{AppThemeBinding Light=#313032, Dark=#FFFFFF}" Margin="4,0,0,0" />
+
+                            <CollectionView x:Name="ColorsGrid"
+                                ItemsSource="{Binding AvailableColors}"
+                                SelectionMode="Single"
+                                SelectedItem="{Binding SelectedColor, Mode=TwoWay}"
+                                HeightRequest="48">
+                                <CollectionView.ItemsLayout>
+                                    <LinearItemsLayout Orientation="Horizontal" ItemSpacing="10" />
+                                </CollectionView.ItemsLayout>
+                                <CollectionView.ItemTemplate>
+                                    <DataTemplate x:DataType="model:LogoColorModel">
+                                        <Border WidthRequest="40" HeightRequest="40"
+                                            StrokeThickness="0" StrokeShape="RoundRectangle 20"
+                                            BackgroundColor="Transparent">
+                                            <Border WidthRequest="32" HeightRequest="32"
+                                                StrokeThickness="2" Stroke="Transparent"
+                                                StrokeShape="RoundRectangle 16"
+                                                BackgroundColor="{Binding ColorHex}"
+                                                HorizontalOptions="Center" VerticalOptions="Center">
+                                                <Border.Triggers>
+                                                    <DataTrigger TargetType="Border" Binding="{Binding IsSelected}" Value="True">
+                                                        <Setter Property="Stroke" Value="{AppThemeBinding Light=#5F5E60, Dark=#FFFFFF}" />
+                                                    </DataTrigger>
+                                                </Border.Triggers>
+                                            </Border>
+                                        </Border>
+                                    </DataTemplate>
+                                </CollectionView.ItemTemplate>
+                            </CollectionView>
+                        </VerticalStackLayout>
+
+                        <!-- UPLOAD MODE -->
+                        <VerticalStackLayout Spacing="12" IsVisible="{Binding IsUploadMode}" HorizontalOptions="Center">
+
+                            <!-- LIVE IMAGE PREVIEW (large so the picked image is clearly visible) -->
+                            <Border WidthRequest="160" HeightRequest="160" StrokeThickness="1"
+                                Stroke="{AppThemeBinding Light=#C9C6C8, Dark=#858385}" StrokeShape="RoundRectangle 16"
+                                BackgroundColor="Transparent" HorizontalOptions="Center" Margin="0,4,0,0">
+                                <Grid>
+                                    <Image Source="{Binding SelectedImage, Converter={StaticResource StringToImageSource}}"
+                                        Aspect="AspectFill"
+                                        IsVisible="{Binding HasSelectedImage}" />
+                                    <Image Source="{AppThemeBinding Light=photolight.png, Dark=photodark.png}"
+                                        WidthRequest="40" HeightRequest="40" HorizontalOptions="Center"
+                                        VerticalOptions="Center"
+                                        IsVisible="{Binding HasSelectedImage, Converter={StaticResource InverseBoolean}}" />
+                                </Grid>
+                            </Border>
+
+                            <!-- REMOVE BUTTON (centered) -->
+                            <buttons:SfButton Text="Remove Image" FontSize="14" TextColor="#929092"
+                                Background="Transparent" FontFamily="Roboto-Medium" StrokeThickness="0"
+                                HorizontalOptions="Center" Padding="0" Margin="0" CornerRadius="50"
+                                IsVisible="{Binding HasSelectedImage}"
+                                Command="{Binding RemoveImageCommand}" />
+
+                            <!-- DROP ZONE -->
+                            <Border Stroke="{AppThemeBinding Light=#C9C6C8, Dark=#858385}" StrokeThickness="1"
+                                StrokeShape="RoundRectangle 10"
+                                BackgroundColor="{AppThemeBinding Light=#FCF8FA, Dark=#313032}" HeightRequest="80"
+                                Padding="0" WidthRequest="380" HorizontalOptions="Center">
+                                <Border.GestureRecognizers>
+                                    <TapGestureRecognizer Command="{Binding SelectImageCommand}" />
+                                </Border.GestureRecognizers>
+                                <VerticalStackLayout Spacing="6" HorizontalOptions="Center" VerticalOptions="Center">
+                                    <Image Source="{AppThemeBinding Light=container.png, Dark=containerdark.png}"
+                                        WidthRequest="24" HeightRequest="24" HorizontalOptions="Center"
+                                        VerticalOptions="Center" />
+                                    <Label Text="Click or drag your image here" FontFamily="Roboto-Regular"
+                                        FontSize="14" TextColor="{AppThemeBinding Light=#474648, Dark=#C9C6C8}"
+                                        HorizontalOptions="Center" />
+                                </VerticalStackLayout>
+                            </Border>
+                        </VerticalStackLayout>
+                    </Grid>
+
+                    <!-- FOOTER: Cancel / Apply -->
+                    <HorizontalStackLayout Grid.Row="3" Spacing="12" HorizontalOptions="End" Margin="0,8,0,0">
+                        <buttons:SfButton Style="{StaticResource AL_CancelButton}" Text="Cancel"
+                            Command="{Binding CancelCommand}" />
+                        <buttons:SfButton Style="{StaticResource AL_ApplyButton}" Text="Apply"
+                            Command="{Binding ApplyCommand}" IsEnabled="{Binding IsApplyEnabled}" />
+                    </HorizontalStackLayout>
+                </Grid>
+            </Border>
+        </popup:SfPopup.Content>
+    </popup:SfPopup>
 </ContentPage>

@@ -221,14 +221,17 @@ namespace AIChatSample.ViewModel
         partial void OnSelectedImageChanged(string? value) => RefreshApplyEnabled();
         partial void OnSelectedIconChanged(LogoIconModel? value)
         {
-            LiveIconGlyph = value?.IconGlyph;
-            LiveIconFontFamily = value?.IconFontFamily;
-            OnPropertyChanged(nameof(LiveIconAvatar));
-            OnPropertyChanged(nameof(LiveIsIconAvatar));
+            // TwoWay SelectedItem binding on the CollectionView only sets
+            // SelectedIcon; the underlying LogoIconModel.IsSelected flags
+            // are the binding source for the per-cell highlight, so keep
+            // them in lock-step here (single-selection across the list).
+            foreach (var i in AvailableIcons) i.IsSelected = ReferenceEquals(i, value);
             RefreshApplyEnabled();
         }
         partial void OnSelectedColorChanged(LogoColorModel? value)
         {
+            // Same single-selection deselect for the color row.
+            foreach (var c in AvailableColors) c.IsSelected = ReferenceEquals(c, value);
             LiveIconColor = value?.ColorHex;
             RefreshApplyEnabled();
         }
