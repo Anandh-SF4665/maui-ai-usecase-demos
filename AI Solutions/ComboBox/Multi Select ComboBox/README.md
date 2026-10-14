@@ -12,10 +12,11 @@ The solution is useful for scenarios such as guided filtering, product selection
 
 - Syncfusion .NET MAUI ComboBox integration
 - Azure OpenAI-powered intent-based selection
-- Multi-select item filtering for fruit choices
+- AI matching against a fixed fruit menu
+- Up to 10 matching fruit selections per response
 - Natural-language request understanding
-- Loading, clear, and selection states in the UI
-- Structured mapping to a known item list
+- Loading, error, clear, and selection states in the UI
+- Checkbox-based dropdown rows with token-style selected values
 - Cross-platform .NET MAUI application
 
 ## Sample
@@ -27,11 +28,14 @@ The solution is useful for scenarios such as guided filtering, product selection
                     IsEditable="False"
                     IsFilteringEnabled="False"
                     DisplayMemberPath="Name"
+                    TextMemberPath="Name"
+                    Placeholder="{Binding ComboHint}"
                     MultiSelectionDisplayMode="Token"
-                    ItemsSource="{Binding Foods}"
+                    TokensWrapMode="Wrap"
+                    ItemsSource="{Binding Fruits}"
                     SelectedItems="{Binding SelectedItems, Mode=TwoWay}">
     <editors:SfComboBox.ItemTemplate>
-        <DataTemplate x:DataType="local:FoodModel">
+        <DataTemplate x:DataType="local:FruitModel">
             <Grid ColumnDefinitions="0.9*,0.1*">
                 <Label Text="{Binding Name}" />
                 <CheckBox IsChecked="{Binding IsSelected, Mode=TwoWay}" />
@@ -40,6 +44,16 @@ The solution is useful for scenarios such as guided filtering, product selection
     </editors:SfComboBox.ItemTemplate>
 </editors:SfComboBox>
 ```
+
+## AI integration
+
+`FruitSelectionAzureAIService` uses Azure.AI.OpenAI 2.1.0 and the same typed SDK flow as the SmartTags sample: `AzureOpenAIClient`, `GetChatClient`, and `CompleteChatAsync`. The view model sends the fruit names and their descriptive tags with the user's request. It parses the response, ignores non-matches, removes duplicates, limits results to 10, and applies the matching names to the existing fruit models.
+
+## Azure OpenAI setup
+
+Configure the endpoint and deployment in `SmartAIComboBox/SmartAIComboBox/AIService/FruitSelectionAzureAIService.cs`. Replace the `ApiKey` placeholder there with a newly rotated key before running; the service reports an actionable error while the placeholder remains. Do not commit credentials. This sample calls Azure OpenAI directly from the MAUI client, so a packaged app can expose a bundled key. Use a secured backend service to protect credentials in production.
+
+The project targets .NET 10 and uses the Azure.AI.OpenAI 2.1.0 NuGet package.
 
 ## Output
 
@@ -53,10 +67,10 @@ To run the demo, refer to https://help.syncfusion.com/maui/system-requirements
 
 Before running the sample, ensure that you have:
 
-- Visual Studio 2022 with .NET MAUI workload installed
-- .NET 9 or later
+- Visual Studio with the .NET 10 SDK and .NET MAUI workload installed
+- .NET 10 SDK with the .NET MAUI workload
 - Azure OpenAI resource and deployment
-- Syncfusion .NET MAUI Inputs package
+- Syncfusion .NET MAUI Core and Inputs packages
 - Valid Syncfusion license key
 
 ## Troubleshooting

@@ -117,7 +117,7 @@ public class TagViewModel : INotifyPropertyChanged
         Tags = new ObservableCollection<TagModel>();
         Tags.CollectionChanged += (_, _) => HasTags = Tags.Count > 0;
 
-        GenerateTagsCommand = new Command(async () => await GenerateTagsAsync());
+        GenerateTagsCommand = new Command(async () => await GenerateTagsAsync(UserQuery));
         ClearCommand = new Command(Clear);
         DismissErrorCommand = new Command(() => ErrorMessage = null);
     }

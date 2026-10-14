@@ -1,112 +1,74 @@
-using System.Diagnostics;
-using System.Text;
-using System.Text.Json;
+using System.ClientModel;
+using Azure;
+using Azure.AI.OpenAI;
+using OpenAI.Chat;
 
 namespace SmartAIComboBox;
 
 /// <summary>
 /// Azure OpenAI fruit-selection service for the SmartAIComboBox sample.
-/// Mirrors the SmartAIDatePicker.AzureOpenAIService pattern exactly:
-/// no constructor logic, no IsCredentialValid probe, no SK abstractions.
+/// Uses the same Azure OpenAI SDK flow and deployment as the SmartAITags sample.
 /// Errors are surfaced as exceptions (caller publishes to its bound
 /// <c>ErrorMessage</c>) — never as magic-prefixed strings.
 /// </summary>
 public sealed class FruitSelectionAzureAIService : IFruitSelectionAIService
 {
-    private const string BaseEndpoint =
+    private const string Endpoint =
         "Your Endpoint";
 
     private const string DeploymentName = "Your Deployment Name";
 
-    private const string ApiKey =
+    private static readonly string ApiKey =
         "Your API Key";
 
-    private static readonly HttpClient Http = new()
-    {
-        Timeout = TimeSpan.FromSeconds(30)
-    };
-
     /// <summary>
-    /// Sends the user prompt to the chat-completions endpoint and returns the
-    /// raw completion text. Throws on transport / HTTP / parse failures so the
-    /// caller can surface them through its own error channel.
+    /// Sends the user prompt through the Azure OpenAI SDK and returns the raw
+    /// completion text. Throws on request failures so the caller can surface
+    /// them through its own error channel.
     /// </summary>
     public async Task<string> GetCompletionAsync(
         string prompt,
         CancellationToken cancellationToken = default)
     {
-        var requestBody = new
+        if (ApiKey == "REPLACE_WITH_ROTATED_AZURE_OPENAI_API_KEY")
+            throw new InvalidOperationException(
+                "Set a rotated Azure OpenAI API key in FruitSelectionAzureAIService before running the sample.");
+
+        var client = new AzureOpenAIClient(new Uri(Endpoint), new AzureKeyCredential(ApiKey));
+        var chatClient = client.GetChatClient(DeploymentName);
+        var messages = new List<ChatMessage>
         {
-            model = DeploymentName,
-            messages = new object[]
-            {
-                new
-                {
-                    role = "system",
-                    content =
-                        "You are an AI fruit-selection assistant for a MultiSelect fruit menu. " +
-                        "Choose fruits from the provided menu that match the user's natural-language request. " +
-                        "Return ONLY the exact fruit Names from the menu, one per line. " +
-                        "Do NOT include tags, numbers, dashes, bullets, explanations, or any preamble. " +
-                        "If no fruit matches, return exactly the word: Empty"
-                },
-                new
-                {
-                    role = "user",
-                    content = prompt
-                }
-            },
-            max_completion_tokens = 800,
-            reasoning_effort = "minimal"
+            new SystemChatMessage(
+                "You are an AI fruit-selection assistant for a MultiSelect fruit menu. " +
+                "Choose fruits from the provided menu that match the user's natural-language request. " +
+                "Return ONLY the exact fruit Names from the menu, one per line. " +
+                "Do NOT include tags, numbers, dashes, bullets, explanations, or any preamble. " +
+                "If no fruit matches, return exactly the word: Empty"),
+            new UserChatMessage(prompt)
         };
 
-        var url = $"{BaseEndpoint}/chat/completions";
-
-        using var request = new HttpRequestMessage(HttpMethod.Post, url);
-        request.Headers.Add("api-key", ApiKey);
-        request.Content = new StringContent(
-            JsonSerializer.Serialize(requestBody),
-            Encoding.UTF8,
-            "application/json");
-
-        using var response = await Http.SendAsync(request, cancellationToken);
-
-        var raw = await response.Content.ReadAsStringAsync(cancellationToken);
-
-        Debug.WriteLine($"[AzureAI] Status: {(int)response.StatusCode}");
-        Debug.WriteLine($"[AzureAI] Raw Response: {raw}");
-
-        if (!response.IsSuccessStatusCode)
+        ChatCompletion completion;
+        try
         {
-            throw new HttpRequestException(
-                $"Azure OpenAI request failed with HTTP {(int)response.StatusCode} {response.StatusCode}.",
-                inner: null,
-                statusCode: response.StatusCode);
+            completion = await chatClient.CompleteChatAsync(
+                messages,
+                cancellationToken: cancellationToken);
         }
-
-        using var document = JsonDocument.Parse(raw);
-
-        if (!document.RootElement.TryGetProperty("choices", out var choices)
-            || choices.GetArrayLength() == 0)
+        catch (ClientResultException ex) when (ex.Status == 401)
         {
             throw new InvalidOperationException(
-                $"Azure OpenAI response did not contain a 'choices' array. Raw response: {Truncate(raw, 4000)}");
+                "Azure OpenAI returned 401. Verify that the API key belongs to the resource at the configured endpoint.", ex);
+        }
+        catch (ClientResultException ex) when (ex.Status == 404)
+        {
+            throw new InvalidOperationException(
+                $"Azure OpenAI returned 404. Verify that deployment '{DeploymentName}' exists on the configured resource.", ex);
         }
 
-        var content = choices[0]
-            .GetProperty("message")
-            .GetProperty("content")
-            .GetString();
-
+        var content = string.Concat(completion.Content.Select(part => part.Text));
         if (string.IsNullOrWhiteSpace(content))
-        {
-            throw new InvalidOperationException(
-                $"Azure OpenAI returned empty content. Raw response: {Truncate(raw, 4000)}");
-        }
+            throw new InvalidOperationException("Azure OpenAI returned empty content.");
 
         return content.Trim();
     }
-
-    private static string Truncate(string value, int max) =>
-        value.Length <= max ? value : value[..max] + "…";
 }

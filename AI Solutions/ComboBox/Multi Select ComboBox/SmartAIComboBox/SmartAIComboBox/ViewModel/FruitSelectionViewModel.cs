@@ -93,7 +93,7 @@ public class FruitSelectionViewModel : INotifyPropertyChanged
         _aiService = aiService;
         Fruits = new ObservableCollection<FruitModel>(BuildFruitList());
 
-        AskAICommand = new Command(async () => await AskAIAsync());
+        AskAICommand = new Command(async () => await AskAIAsync(UserQuery));
         ClearCommand = new Command(Clear);
         DismissErrorCommand = new Command(() => ErrorMessage = null);
         ToggleSelectionCommand = new Command<FruitModel>(ToggleSelection);

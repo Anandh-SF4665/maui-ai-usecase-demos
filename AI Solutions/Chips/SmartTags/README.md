@@ -13,6 +13,8 @@ The AI-generated tags are displayed as chips with a polished loading state and a
 - Syncfusion .NET MAUI Chips integration
 - Azure OpenAI-powered tag generation
 - Vocabulary-constrained output for valid chip labels
+- Case-insensitive parsing with canonical tag names and duplicate removal
+- Up to 12 accepted tags per response
 - Natural-language input for feature and content descriptions
 - Loading, empty, and results states in the UI
 - Wrapping chip layout for responsive display
@@ -40,6 +42,18 @@ The AI-generated tags are displayed as chips with a polished loading state and a
 </syncfusion:SfChipGroup>
 ```
 
+## AI integration
+
+`AzureOpenAITagService` uses Azure.AI.OpenAI 2.1.0. It creates an `AzureOpenAIClient`, gets the configured chat deployment, and sends system and user messages with `CompleteChatAsync`. Cancellation is passed through to the SDK. Authentication, missing-deployment, and empty-response errors are surfaced to the view model and shown in the UI.
+
+The system prompt constrains the model to `TagVocabulary`. The view model then validates each returned line against that vocabulary, canonicalizes names, removes duplicates, and limits the displayed results to 12 tags.
+
+## Azure OpenAI setup
+
+The endpoint, deployment name, and API key are configured in `SmartAITags/SmartAITags/AIService/AzureOpenAITagService.cs`. Rotate any key that has been committed, and never commit credentials. This sample calls Azure OpenAI directly from the MAUI client, so a packaged app can expose a bundled key. Use a secured backend service to protect credentials in production.
+
+The project targets .NET 10 and uses the Azure.AI.OpenAI 2.1.0 NuGet package.
+
 ## Output
 
 ![Smart Tags demo](SmartAITag.gif)
@@ -52,10 +66,10 @@ To run the demo, refer to https://help.syncfusion.com/maui/system-requirements
 
 Before running the sample, ensure that you have:
 
-- Visual Studio 2022 with .NET MAUI workload installed
-- .NET 9 or later
+- Visual Studio with the .NET 10 SDK and .NET MAUI workload installed
+- .NET 10 SDK with the .NET MAUI workload
 - Azure OpenAI resource and deployment
-- Syncfusion .NET MAUI Core/Inputs packages
+- Syncfusion .NET MAUI Core package
 - Valid Syncfusion license key
 
 ## Troubleshooting
