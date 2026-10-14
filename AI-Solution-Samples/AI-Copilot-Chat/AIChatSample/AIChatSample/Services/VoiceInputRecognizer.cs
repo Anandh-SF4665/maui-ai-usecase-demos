@@ -1,30 +1,25 @@
 namespace AIChatSample.Services;
 
-/// <summary>
-/// Cross-platform voice-to-text input. The default implementation
-/// provides a text-prompt fallback so the mic icon does something
-/// meaningful on every target platform, and platform-specific overrides
-/// in <c>Platforms/</c> can replace it with native speech-to-text
-/// (Windows.Media.SpeechRecognition, Android SpeechRecognizer, iOS
-/// AVSpeechRecognizer, etc.) when the corresponding runtime is available.
-/// </summary>
-public partial class VoiceInputRecognizer
+// Provide the default (non-Windows) implementation. The Windows-specific
+// implementation lives under Platforms/Windows and is compiled only when
+// the WINDOWS symbol is defined, so exclude this file in that case to
+// avoid duplicate member definitions.
+#if !WINDOWS
+public static class VoiceInputRecognizer
 {
     /// <summary>
-    /// True when the platform's native speech-to-text is wired up. False
-    /// means the recognizer will fall back to a typed-input prompt so the
-    /// feature remains usable everywhere.
+    /// True when the platform's native speech-to-text is wired up. The
+    /// default (non-Windows) implementation does not provide native
+    /// recognition.
     /// </summary>
-    public virtual bool IsNativeRecognitionSupported => false;
+    public static bool IsNativeRecognitionSupported => false;
 
     /// <summary>
     /// Captures voice input and returns the recognized text. The optional
     /// <paramref name="existingText"/> is concatenated with the result so
     /// successive recordings append to the editor instead of replacing it.
-    /// Implementations should respect cancellation via the caller passing
-    /// a CancellationToken where applicable.
     /// </summary>
-    public virtual async Task<string?> RecognizeAsync(string? existingText, CancellationToken ct = default)
+    public static async Task<string?> RecognizeAsync(string? existingText, CancellationToken ct = default)
     {
         // Default fallback: prompt the user for the text the mic would
         // have produced. This keeps the feature working on every platform
@@ -43,3 +38,4 @@ public partial class VoiceInputRecognizer
         return prompt;
     }
 }
+#endif

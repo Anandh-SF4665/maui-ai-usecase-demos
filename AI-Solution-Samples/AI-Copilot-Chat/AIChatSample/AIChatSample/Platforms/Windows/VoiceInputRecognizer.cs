@@ -10,11 +10,11 @@ namespace AIChatSample.Services;
 /// the typed-prompt default when no recognizer is installed on the
 /// device or the user denies microphone access.
 /// </summary>
-public partial class VoiceInputRecognizer
+public static class VoiceInputRecognizer
 {
-    public override bool IsNativeRecognitionSupported => true;
+    public static bool IsNativeRecognitionSupported => true;
 
-    public override async Task<string?> RecognizeAsync(string? existingText, CancellationToken ct = default)
+    public static async Task<string?> RecognizeAsync(string? existingText, CancellationToken ct = default)
     {
         try
         {
@@ -28,10 +28,6 @@ public partial class VoiceInputRecognizer
             // utterance. The UI's IsListening state is shown while we
             // wait, and the recognized text is appended to the editor.
             var session = recognizer.RecognizeAsync();
-            using var reg = ct.Register(() =>
-            {
-                try { recognizer.Cancel(); } catch { /* ignore */ }
-            });
             var result = await session;
             if (result?.Status != SpeechRecognitionResultStatus.Success) return existingText;
             var recognized = result.Text;
@@ -42,7 +38,21 @@ public partial class VoiceInputRecognizer
         }
         catch
         {
-            return await base.RecognizeAsync(existingText, ct);
+            // Fallback: show the typed prompt so the feature works even
+            // when native recognition fails or microphone permission is
+            // denied.
+            var page = Microsoft.Maui.Controls.Application.Current?.Windows
+                .FirstOrDefault()?.Page;
+            if (page is null) return existingText;
+            var prompt = await page.DisplayPromptAsync(
+                title: "Voice input",
+                message: "Speak or type your message. Recognized text will be added to the editor.",
+                accept: "Use",
+                cancel: "Cancel",
+                placeholder: "Type the message…",
+                initialValue: existingText ?? string.Empty,
+                keyboard: Microsoft.Maui.Keyboard.Text);
+            return prompt;
         }
     }
 }

@@ -47,6 +47,18 @@
 		<TargetPlatformMinVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'windows'">10.0.17763.0</TargetPlatformMinVersion>
 	</PropertyGroup>
 
+	<!--
+	  Conservative: disable Maui splash-screen resizetizer when building on
+	  non-mac machines (prevents Apple-specific resizetizer tasks from
+	  running on Windows CI/dev machines where macOS toolchain isn't
+	  available). This only affects the automatic splash/storyboard image
+	  processing step; app icons and other assets remain unchanged for
+	  other platforms.
+	-->
+	<PropertyGroup Condition="'$(OS)' == 'Windows_NT'">
+		<EnableMauiSplashScreenProcessing>false</EnableMauiSplashScreenProcessing>
+	</PropertyGroup>
+
 	<ItemGroup>
 		<!-- App Icon -->
 		<MauiIcon Include="Resources\AppIcon\appicon.svg" ForegroundFile="Resources\AppIcon\appiconfg.svg" Color="#512BD4" />

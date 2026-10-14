@@ -8,6 +8,7 @@ using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using System.Windows.Input;
 using CommunityToolkit.Mvvm.Input;
+using CommunityToolkit.Mvvm.ComponentModel;
 
 namespace AIChatSample.ViewModel;
 
@@ -17,7 +18,7 @@ namespace AIChatSample.ViewModel;
 /// <see cref="IAIService"/> (NFR-2). Uses async/await so the UI thread
 /// stays responsive while a request is in flight (NFR-8).
 /// </summary>
-public class AIChatSuggestionViewModel : INotifyPropertyChanged
+public partial class AIChatSuggestionViewModel : ObservableObject
 {
     private readonly IAIService _aiService;
     private readonly IChatDataService _data;
@@ -133,7 +134,7 @@ public class AIChatSuggestionViewModel : INotifyPropertyChanged
             if (ReferenceEquals(this._selectedAgent, value)) return;
             this._selectedAgent = value;
             this.SetSystemContext(value?.Instructions);
-            this.RaisePropertyChanged();
+            this.OnPropertyChanged();
         }
     }
 
@@ -196,7 +197,7 @@ public class AIChatSuggestionViewModel : INotifyPropertyChanged
         set
         {
             this._suggestions = value;
-            this.RaisePropertyChanged(nameof(Suggestions));
+            this.OnPropertyChanged(nameof(Suggestions));
         }
     }
 
@@ -212,9 +213,9 @@ public class AIChatSuggestionViewModel : INotifyPropertyChanged
 
             this._assistItems = value ?? new ObservableCollection<IAssistItem>();
             this._assistItems.CollectionChanged += OnAssistItemsChanged;
-            this.RaisePropertyChanged(nameof(AssistItems));
-            this.RaisePropertyChanged(nameof(HasMessages));
-            this.RaisePropertyChanged(nameof(ShowWelcomeSuggestions));
+            this.OnPropertyChanged(nameof(AssistItems));
+            this.OnPropertyChanged(nameof(HasMessages));
+            this.OnPropertyChanged(nameof(ShowWelcomeSuggestions));
         }
     }
 
@@ -248,10 +249,10 @@ public class AIChatSuggestionViewModel : INotifyPropertyChanged
 
     private void OnSessionChanged()
     {
-        this.RaisePropertyChanged(nameof(IsAgentSession));
-        this.RaisePropertyChanged(nameof(HeaderTitle));
-        this.RaisePropertyChanged(nameof(HeaderSubtitle));
-        this.RaisePropertyChanged(nameof(ShowWelcomeSuggestions));
+        this.OnPropertyChanged(nameof(IsAgentSession));
+        this.OnPropertyChanged(nameof(HeaderTitle));
+        this.OnPropertyChanged(nameof(HeaderSubtitle));
+        this.OnPropertyChanged(nameof(ShowWelcomeSuggestions));
     }
 
     public string InputText
@@ -261,7 +262,7 @@ public class AIChatSuggestionViewModel : INotifyPropertyChanged
         {
             if (this._inputText == value) return;
             this._inputText = value;
-            this.RaisePropertyChanged(nameof(InputText));
+            this.OnPropertyChanged(nameof(InputText));
             (this.SendCommand as Command)?.ChangeCanExecute();
         }
     }
@@ -273,7 +274,7 @@ public class AIChatSuggestionViewModel : INotifyPropertyChanged
         {
             if (this._isBusy == value) return;
             this._isBusy = value;
-            this.RaisePropertyChanged(nameof(IsBusy));
+            this.OnPropertyChanged(nameof(IsBusy));
             (this.CancelRequestCommand as Command)?.ChangeCanExecute();
             (this.SendCommand as Command)?.ChangeCanExecute();
         }
@@ -301,9 +302,9 @@ public class AIChatSuggestionViewModel : INotifyPropertyChanged
         {
             if (ReferenceEquals(_session, value)) return;
             _session = value;
-            RaisePropertyChanged();
-            RaisePropertyChanged(nameof(HasSession));
-            RaisePropertyChanged(nameof(CurrentAgent));
+            OnPropertyChanged();
+            OnPropertyChanged(nameof(HasSession));
+            OnPropertyChanged(nameof(CurrentAgent));
             this.OnSessionChanged();
         }
     }
@@ -571,7 +572,7 @@ public class AIChatSuggestionViewModel : INotifyPropertyChanged
         {
             if (_showResponseLoader == value) return;
             _showResponseLoader = value;
-            RaisePropertyChanged();
+            OnPropertyChanged();
         }
     }
 
@@ -605,7 +606,7 @@ public class AIChatSuggestionViewModel : INotifyPropertyChanged
                 ImageSource = new FontImageSource { Glyph = "\ue7f5", FontFamily = "MaterialAssets", Color = iconColor },
             });
         }
-        this.RaisePropertyChanged(nameof(Suggestions));
+        this.OnPropertyChanged(nameof(Suggestions));
     }
 
 
@@ -664,8 +665,8 @@ public class AIChatSuggestionViewModel : INotifyPropertyChanged
 
     private void OnAssistItemsChanged(object? sender, NotifyCollectionChangedEventArgs e)
     {
-        this.RaisePropertyChanged(nameof(HasMessages));
-        this.RaisePropertyChanged(nameof(ShowWelcomeSuggestions));
+        this.OnPropertyChanged(nameof(HasMessages));
+        this.OnPropertyChanged(nameof(ShowWelcomeSuggestions));
     }
 
     /// <summary>
@@ -678,7 +679,7 @@ public class AIChatSuggestionViewModel : INotifyPropertyChanged
     {
         CancelActiveRequest();
         this._inputText = string.Empty;
-        this.RaisePropertyChanged(nameof(InputText));
+            this.OnPropertyChanged(nameof(InputText));
         (this.SendCommand as Command)?.ChangeCanExecute();
 
         if (this._assistItems.Count == 0)
@@ -695,10 +696,5 @@ public class AIChatSuggestionViewModel : INotifyPropertyChanged
         _systemContext = systemContext;
     }
 
-    public event PropertyChangedEventHandler? PropertyChanged;
 
-    private void RaisePropertyChanged([CallerMemberName] string? propertyName = null)
-    {
-        this.PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-    }
 }
