@@ -93,16 +93,21 @@
             <ScrollView Grid.Row="1" VerticalScrollBarVisibility="Never">
                 <Grid Background="{AppThemeBinding Light=white,Dark=#1C1B1D}"
                     ColumnDefinitions="{OnIdiom Default='1*,2,1*', Phone='0,0,*'}" ColumnSpacing="0" RowSpacing="0">
-                    <!-- AI ASSIST VIEW -->
+                    <!-- AI ASSIST VIEW — Microsoft Copilot-style prompt area:
+                         the user describes the agent and the AI fills the
+                         Agent Name / Description / Behaviour fields on the right. -->
                     <aiassist:SfAIAssistView x:Name="sfAIAssistView"
                         Background="{AppThemeBinding Light=white,Dark=#1C1B1D}" MinimumHeightRequest="320"
                         EnableConversationHistory="False" ShowToolbar="False"
                         HeaderTemplate="{StaticResource HeaderView}" ShowScrollToBottomButton="True"
-                        CanAutoScrollToBottom="False">
+                        CanAutoScrollToBottom="False"
+                        AssistItems="{Binding Assistant.Messages}"
+                        RequestCommand="{Binding Assistant.RequestCommand}">
                         <aiassist:SfAIAssistView.EditorViewTemplate>
                             <DataTemplate>
                                 <controls:AIChatInputEditor HorizontalOptions="Fill" Margin="10,0"
-                                    Placeholder="Type Message..." x:Name="InputEditor" />
+                                    Placeholder="Describe the agent you want to create..."
+                                    x:Name="InputEditor" />
                             </DataTemplate>
                         </aiassist:SfAIAssistView.EditorViewTemplate>
                     </aiassist:SfAIAssistView>

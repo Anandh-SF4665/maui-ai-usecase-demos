@@ -21,6 +21,12 @@ public partial class AgentConfigurePageViewModel : ObservableObject
         // HasAvatar binding stays live after the popup applies.
         AgentPopUpVM = ChatLayout.AgentPopUpVM;
 
+        // Microsoft Copilot-style assistant that lives in the chat at the
+        // bottom of the Configure Agent page. When the user types a prompt,
+        // the AI fills the Agent Name / Description / Behaviour fields in
+        // place — no navigation.
+        Assistant = new AgentConfigAssistantViewModel(AgentVM);
+
         // The popup writes its Apply result into AgentPopUpVM.AgentAvatar;
         // mirror that onto AgentVM.AgentAvatar so the form's Create flow
         // (and the configure/preview avatar circle) see the customized logo.
@@ -48,6 +54,13 @@ public partial class AgentConfigurePageViewModel : ObservableObject
 
     /// <summary>Shared agent-logo popup state. Lives on the layout VM so the avatar tap can push <c>AgentLogoPage</c> against the same instance the configure form binds to.</summary>
     public AgentLogoPopupViewModel AgentPopUpVM { get; }
+
+    /// <summary>
+    /// Microsoft Copilot-style assistant bound to the SfAIAssistView at
+    /// the bottom of the page. Sending a message here fills the
+    /// <see cref="AgentConfigurationViewModel"/> form fields in place.
+    /// </summary>
+    public AgentConfigAssistantViewModel Assistant { get; }
 
     // ---- Flattened properties so XAML can bind "AgentName" / "Instructions"
     //      / "SelectedTab" / "IsConfigureMode" / "IsPreviewMode" / etc. directly. ----
