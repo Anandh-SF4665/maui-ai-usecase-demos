@@ -29,7 +29,6 @@ public sealed class AzureOpenAiSchemaService : IAiSchemaService
 
     private readonly AzureOpenAiOptions options;
     private ChatClient? chat;
-    internal (bool Ok, string? Error)? LastCredentialStatus;
 
     public AzureOpenAiSchemaService(AzureOpenAiOptions options)
     {
@@ -116,8 +115,7 @@ public sealed class AzureOpenAiSchemaService : IAiSchemaService
         var validationError = options.ValidationError;
         if (validationError is not null)
         {
-            LastCredentialStatus = (false, validationError);
-            throw new InvalidOperationException($"Invalid API key details. {validationError}");
+            throw new AiCredentialException($"Invalid API key details. {validationError}");
         }
 
         try
@@ -132,8 +130,7 @@ public sealed class AzureOpenAiSchemaService : IAiSchemaService
         }
         catch (Exception ex)
         {
-            LastCredentialStatus = (false, ex.Message);
-            throw new InvalidOperationException($"Invalid API key details. Could not initialise the Azure OpenAI client: {ex.Message}", ex);
+            throw new AiCredentialException($"Invalid API key details. Could not initialise the Azure OpenAI client: {ex.Message}", ex);
         }
 
         try
@@ -145,17 +142,14 @@ public sealed class AzureOpenAiSchemaService : IAiSchemaService
             };
             await this.chat.CompleteChatAsync(new List<ChatMessage> { new UserChatMessage("ping") },probe,cancellationToken).ConfigureAwait(false);
 
-            LastCredentialStatus = (true, null);
         }
         catch (RequestFailedException ex)
         {
-            LastCredentialStatus = (false, $"HTTP {ex.Status} ({ex.ErrorCode}) {ex.Message}");
-            throw new InvalidOperationException($"Invalid API key details. Azure OpenAI returned HTTP {ex.Status} ({ex.ErrorCode}). {ex.Message}",ex);
+            throw new AiCredentialException($"Invalid API key details. Azure OpenAI returned HTTP {ex.Status} ({ex.ErrorCode}). {ex.Message}",ex);
         }
         catch (ClientResultException ex)
         {
-            LastCredentialStatus = (false, $"HTTP {ex.Status} {ex.Message}");
-            throw new InvalidOperationException($"Invalid API key details. Azure OpenAI returned HTTP {ex.Status}. {ex.Message}", ex);
+            throw new AiCredentialException($"Invalid API key details. Azure OpenAI returned HTTP {ex.Status}. {ex.Message}", ex);
         }
         catch (OperationCanceledException)
         {

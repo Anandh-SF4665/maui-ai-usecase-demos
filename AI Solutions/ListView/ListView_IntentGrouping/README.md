@@ -8,10 +8,17 @@ Customer feedback and support tickets often contain large volumes of information
 
 Users can enter natural language commands such as:
 
-- "group by feedbacks"
-- "group by ratings"
-- "group by priority"
-- "group by month"
+- "ratings"
+- "priority"
+- "theme" (the intent the AI assigned)
+- "sender"
+- "customer type"
+- "product"
+- "business impact"
+- "trend"
+- "month"
+
+A leading "group by" is optional, so "group by ratings" works as well.
 
 The AI engine analyzes the request, processes the feedback dataset, and dynamically organizes records into corresponding groups within a Syncfusion ListView.
 
@@ -29,27 +36,29 @@ The solution helps users:
 ```xaml
 <syncfusion:SfListView
     ItemsSource="{Binding Items}"
-    IsStickyGroupHeader="True">
+    AllowGroupExpandCollapse="True">
 
-    <syncfusion:SfListView.GroupDescriptor>
-        <syncfusion:GroupDescriptor PropertyName="GroupKey"/>
-    </syncfusion:SfListView.GroupDescriptor>
+    <syncfusion:SfListView.Behaviors>
+        <local:IntentGroupingBehavior GroupingKind="{Binding CurrentGrouping}" />
+    </syncfusion:SfListView.Behaviors>
 
 </syncfusion:SfListView>
 ```
+
+`IntentGroupingBehavior` adds a `GroupDescriptor` on `GroupKey` whenever the view-model's `CurrentGrouping` is not `None`, and removes it for the flat list.
 
 ## Natural Language Grouping
 
 Users can type prompts such as:
 
 ```text
-group by feedbacks
-group by ratings
+ratings
 group by priority
-group by month
+theme
+month
 ```
 
-The application interprets the request and automatically groups the feedback items using AI-assisted analysis. 【1-031b7b】
+The application interprets the request and automatically groups the feedback items using AI-assisted analysis.
 
 ## How It Works
 
@@ -58,11 +67,11 @@ The application interprets the request and automatically groups the feedback ite
 3. Users enter a natural-language grouping request.
 4. The AI engine determines the grouping intent.
 5. Feedback records are categorized into appropriate groups.
-6. Syncfusion ListView displays grouped data with customized headers and summaries. 【1-031b7b】
+6. Syncfusion ListView displays grouped data with customized headers and summaries.
 
 ## Azure OpenAI Integration
 
-The sample uses Azure OpenAI to perform intent analysis and determine how records should be organized. If valid Azure OpenAI credentials are unavailable, the application falls back to a local rule-based analyzer. 【2-2ca05e】【1-031b7b】
+The sample uses Azure OpenAI to perform intent analysis and determine how records should be organized. If valid Azure OpenAI credentials are unavailable, the application falls back to a local rule-based analyzer.
 
 ## Output
 
