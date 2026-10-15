@@ -1,5 +1,5 @@
 ﻿
-using SchedulerAISample.ViewModel;
+using SchedulerAISample;
 
 namespace SchedulerAISample
 {

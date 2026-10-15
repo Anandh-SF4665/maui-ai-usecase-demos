@@ -19,7 +19,7 @@
 				<Border BackgroundColor="{StaticResource CardBackground}"
 						Stroke="{StaticResource BorderColor}"
 						StrokeThickness="1"
-						Padding="22">
+                        Padding="{OnIdiom Default='22', Phone='16'}">
 
 					<Border.StrokeShape>
 						<RoundRectangle CornerRadius="14" />
@@ -31,10 +31,10 @@
 												ContainerBackground="{StaticResource InputBackground}"
 												ShowHint="False"
 												OutlineCornerRadius="9"
-												HeightRequest="120">
+												HeightRequest="{OnIdiom Default='120', Phone='160'}">
 
 							<Editor Text="{Binding UserInput}"
-									HeightRequest="100"
+									HeightRequest="{OnIdiom Default='100', Phone='140'}"
 									Placeholder="Example: Organize a company event next month."
 									FontSize="14"
 									BackgroundColor="Transparent"
@@ -91,8 +91,8 @@
 						BackgroundColor="White"
 						Stroke="{StaticResource BorderColor}"
 						StrokeThickness="1"
-						Margin="4"
-						Padding="18">
+						Margin="{OnIdiom Default='4', Phone='2'}"
+						Padding="{OnIdiom Default='18', Phone='6'}">
 
 					<Border.StrokeShape>
 						<RoundRectangle CornerRadius="14" />
@@ -114,10 +114,10 @@
 									   TextColor="{StaticResource SecondaryText}" />
 							</VerticalStackLayout>
 
-							<buttons:SfButton Text="Apply Schedule"
+							<buttons:SfButton Text="{OnIdiom Default='Apply Scheduler', Phone='Apply'}"
 											  Grid.Column="1"
 											  Command="{Binding ApplyScheduleCommand}"
-											  WidthRequest="180"
+											  WidthRequest="{OnIdiom Default='180', Phone='120'}"
 											  Background="#0878D1"
 											  HorizontalOptions="Center"
 											  TextColor="White"
@@ -147,12 +147,12 @@
 															ShowHint="False"
 															OutlineCornerRadius="8"
 															VerticalOptions="Center"
-															HeightRequest="56">
+															HeightRequest="{OnIdiom Default='56', Phone='80'}">
 										<Editor Text="{Binding PlanTitle, Mode=TwoWay}"
 												BackgroundColor="Transparent"
 												FontSize="14"
 												AutoSize="Disabled"
-												HeightRequest="40"
+												HeightRequest="{OnIdiom Default='40', Phone='60'}"
 												Placeholder="Plan title" />
 									</core:SfTextInputLayout>
 								</VerticalStackLayout>
@@ -167,7 +167,7 @@
 										Padding="0">
 									<buttons:SfButton Text="＋  Add Task"
 													  Command="{Binding AddTaskCommand}"
-													  WidthRequest="140"
+													  WidthRequest="{OnIdiom Default='140', Phone='100'}"
 													  Background="#0878D1"
 													  HorizontalOptions="Center"
 													  TextColor="White"
@@ -207,7 +207,7 @@
 													<buttons:SfButton Text="✕  Remove"
 																	  Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.RemoveTaskCommand}"
 																	  CommandParameter="{Binding .}"
-																	  WidthRequest="140"
+																	  WidthRequest="{OnIdiom Default='140', Phone='100'}"
 																	  Background="#0878D1"
 																	  HorizontalOptions="Center"
 																	  TextColor="White"
@@ -223,12 +223,12 @@
 																	ShowHint="False"
 																	OutlineCornerRadius="8"
 																	VerticalOptions="Center"
-																	HeightRequest="56">
+																	HeightRequest="{OnIdiom Default='56', Phone='80'}">
 												<Editor Text="{Binding TaskName, Mode=TwoWay}"
 														BackgroundColor="Transparent"
 														FontSize="14"
 														AutoSize="Disabled"
-														HeightRequest="40"
+														HeightRequest="{OnIdiom Default='40', Phone='60'}"
 														Placeholder="Task title" />
 											</core:SfTextInputLayout>
 
@@ -260,9 +260,9 @@
 											<core:SfTextInputLayout ContainerType="Filled"
 																	ContainerBackground="{StaticResource InputBackground}"
 																	OutlineCornerRadius="8"
-																	HeightRequest="120">
+																	HeightRequest="{OnIdiom Default='120', Phone='160'}">
 												<Editor Text="{Binding Description, Mode=TwoWay}"
-														HeightRequest="80"
+														HeightRequest="{OnIdiom Default='80', Phone='140'}"
 														AutoSize="Disabled"
 														FontSize="13"
 														BackgroundColor="Transparent"
@@ -281,8 +281,8 @@
 						BackgroundColor="White"
 						Stroke="{StaticResource BorderColor}"
 						StrokeThickness="1"
-						Margin="4"
-						Padding="18">
+						Margin="{OnIdiom Default='4', Phone='2'}"
+						Padding="{OnIdiom Default='18', Phone='6'}">
 
 					<Border.StrokeShape>
 						<RoundRectangle CornerRadius="14" />
