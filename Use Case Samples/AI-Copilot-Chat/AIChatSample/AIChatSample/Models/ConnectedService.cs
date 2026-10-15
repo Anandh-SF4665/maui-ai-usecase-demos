@@ -1,11 +1,17 @@
-namespace AIChatSample.Models
+namespace AIChatSample.Models;
+
+/// <summary>One row in the Connected Services card on the Profile page.</summary>
+public sealed class ConnectedService
 {
-    /// <summary>One row in the Connected Services card.</summary>
-    public sealed class ConnectedService
-    {
-        public string Name        { get; init; } = string.Empty;
-        public string IconSource  { get; init; } = string.Empty;
-        public bool   IsConnected { get; init; }
-        public string ActionText  { get; init; } = "Connect";
-    }
+    /// <summary>Display name (e.g. "Google Drive").</summary>
+    public string Name { get; init; } = string.Empty;
+
+    /// <summary>Image file name rendered as the row's left icon.</summary>
+    public string IconSource { get; init; } = string.Empty;
+
+    /// <summary>True when the service is currently connected.</summary>
+    public bool IsConnected { get; init; }
+
+    /// <summary>Text shown in the row's action button (e.g. "Connect").</summary>
+    public string ActionText { get; init; } = "Connect";
 }

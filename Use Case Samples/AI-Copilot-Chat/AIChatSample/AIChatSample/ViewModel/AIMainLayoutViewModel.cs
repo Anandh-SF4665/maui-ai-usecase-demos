@@ -400,6 +400,7 @@ namespace AIChatSample.ViewModel
         public ICommand CreateAgentCommand =>
             this.createAgentCommand ??= new Command(this.OnCreateAgentClicked);
 
+        /// <summary>Persists the user's profile changes (display name + email) to the shared <see cref="UserProfile"/>.</summary>
         public ICommand SaveProfileCommand => new Command(this.OnSaveProfileClicked);
 
         #endregion

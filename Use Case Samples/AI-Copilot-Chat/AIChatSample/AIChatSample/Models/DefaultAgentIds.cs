@@ -9,6 +9,9 @@ namespace AIChatSample.Models;
 /// </summary>
 public static class DefaultAgentIds
 {
+    /// <summary>Identifier of the default "Code Reviewer" agent.</summary>
     public const string CodeReviewer = "default-agent-code-reviewer";
+
+    /// <summary>Identifier of the default "Social Media Writer" agent.</summary>
     public const string SocialMediaWriter = "default-agent-social-media-writer";
 }

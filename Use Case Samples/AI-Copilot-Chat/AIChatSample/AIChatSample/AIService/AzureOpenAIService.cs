@@ -86,7 +86,6 @@ public sealed class AzureOpenAIService : IAIService
 
             var messages = new List<ChatMessage>
             {
-               // new SystemChatMessage(string.IsNullOrWhiteSpace(systemContext) ? DefaultSystemPrompt : systemContext),
                 new UserChatMessage(prompt),
             };
 
@@ -250,6 +249,4 @@ public sealed class AzureOpenAIService : IAIService
         return string.Empty;
     }
 
-    private static int ParseInt(string? value, int defaultValue)
-        => int.TryParse(value, out var parsed) ? parsed : defaultValue;
 }

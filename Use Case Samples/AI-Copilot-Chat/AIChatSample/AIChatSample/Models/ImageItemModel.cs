@@ -1,34 +1,53 @@
-﻿using System.ComponentModel;
+using System.ComponentModel;
 using System.Runtime.CompilerServices;
 
-namespace AIChatSample.Models
+namespace AIChatSample.Models;
+
+/// <summary>One image card in the Image Library / Media Gallery grid.</summary>
+public class ImageItemModel : INotifyPropertyChanged
 {
-    /// <summary>One image card in the Image Library / Media Gallery grid.</summary>
-    public class ImageItemModel : INotifyPropertyChanged
+    /// <summary>Stable identifier for the image.</summary>
+    public string? Id { get; set; }
+
+    /// <summary>Path to the full-size image file.</summary>
+    public string? ImagePath { get; set; }
+
+    /// <summary>Display name for the image.</summary>
+    public string? ImageName { get; set; }
+
+    /// <summary>Comma-separated tags used for filter / search.</summary>
+    public string? Tags { get; set; }
+
+    /// <summary>Category (e.g. "Marketing", "Standup") used by the filter strip.</summary>
+    public string? Category { get; set; }
+
+    /// <summary>Long-form description shown in the image details panel.</summary>
+    public string? Description { get; set; }
+
+    /// <summary>Pre-formatted creation date string.</summary>
+    public string? CreatedDate { get; set; }
+
+    /// <summary>Optional separate thumbnail path; falls back to <see cref="ImagePath"/>.</summary>
+    public string? ThumbnailPath { get; set; }
+
+    private bool isSelected;
+
+    /// <summary>True while the user has the image selected (multi-select grid).</summary>
+    public bool IsSelected
     {
-        public string? Id { get; set; }
-        public string? ImagePath { get; set; }
-        public string? ImageName { get; set; }
-        public string? Tags { get; set; }
-        public string? Category { get; set; }
-        public string? Description { get; set; }
-        public string? CreatedDate { get; set; }
-        public string? ThumbnailPath { get; set; }
-
-        private bool isSelected;
-        public bool IsSelected
+        get => this.isSelected;
+        set
         {
-            get => this.isSelected;
-            set
-            {
-                if (this.isSelected == value) return;
-                this.isSelected = value;
-                this.OnPropertyChanged(nameof(this.IsSelected));
-            }
+            if (this.isSelected == value) return;
+            this.isSelected = value;
+            this.OnPropertyChanged(nameof(this.IsSelected));
         }
-
-        public event PropertyChangedEventHandler? PropertyChanged;
-        protected void OnPropertyChanged([CallerMemberName] string? p = null) =>
-            this.PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(p));
     }
+
+    /// <inheritdoc />
+    public event PropertyChangedEventHandler? PropertyChanged;
+
+    /// <summary>Raises <see cref="PropertyChanged"/> for the supplied property name.</summary>
+    protected void OnPropertyChanged([CallerMemberName] string? p = null) =>
+        this.PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(p));
 }

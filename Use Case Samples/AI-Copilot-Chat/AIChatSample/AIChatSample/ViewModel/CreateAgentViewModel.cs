@@ -6,12 +6,17 @@ using AIChatSample.AIService;
 using AIChatSample.Models;
 using AIChatSample.Services;
 using CommunityToolkit.Mvvm.ComponentModel;
-using CommunityToolkit.Mvvm.Input;
 using Syncfusion.Maui.AIAssistView;
 
 namespace AIChatSample.ViewModel;
 
-
+/// <summary>
+/// View-model for the Copilot-style "create new agent" prompt page.
+/// Owns the prompt text, runs the AI-driven <see cref="IAIService.DraftAgentAsync"/>
+/// flow when the user taps send, and raises <see cref="DraftReady"/>
+/// so the host page can navigate to the agent-configure screen with
+/// the proposed fields pre-filled.
+/// </summary>
 public partial class CreateAgentViewModel : ObservableObject
 {
     private readonly IAgentStore? _agentStore;

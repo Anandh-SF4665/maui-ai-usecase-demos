@@ -5,6 +5,14 @@ namespace AIChatSample.Services;
 // the WINDOWS symbol is defined, so exclude this file in that case to
 // avoid duplicate member definitions.
 #if !WINDOWS
+
+/// <summary>
+/// Cross-platform helper that captures voice input and returns the
+/// recognized text. The Windows implementation uses the WinUI speech
+/// recognizer; every other platform falls back to a prompt-based stub so
+/// the feature still works (and the UI can still be exercised) in
+/// environments without a microphone.
+/// </summary>
 public static class VoiceInputRecognizer
 {
     /// <summary>
@@ -38,4 +46,5 @@ public static class VoiceInputRecognizer
         return prompt;
     }
 }
+
 #endif

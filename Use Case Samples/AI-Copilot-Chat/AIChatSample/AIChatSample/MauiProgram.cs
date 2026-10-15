@@ -9,8 +9,15 @@ using Microsoft.Extensions.Logging;
 
 namespace AIChatSample
 {
+    /// <summary>
+    /// MAUI host bootstrap. Wires up DI, Syncfusion themes, the shared
+    /// fonts, and picks the appropriate <see cref="IAIService"/>
+    /// implementation based on environment configuration.
+    /// </summary>
     public static class MauiProgram
     {
+        /// <summary>Builds and configures the MAUI app. Invoked by the host at startup.</summary>
+        /// <returns>The fully-configured <see cref="MauiApp"/> ready to run.</returns>
         public static MauiApp CreateMauiApp()
         {
             var builder = MauiApp.CreateBuilder();
@@ -20,8 +27,6 @@ namespace AIChatSample
                 .ConfigureSyncfusionToolkit()
                 .ConfigureFonts(fonts =>
                 {
-                    //fonts.AddFont("OpenSans-Regular.ttf", "OpenSansRegular");
-                    //fonts.AddFont("OpenSans-Semibold.ttf", "OpenSansSemibold");
                     fonts.AddFont("Roboto-Medium.ttf", "Roboto-Medium");
                     fonts.AddFont("Roboto-Regular.ttf", "Roboto-Regular");
                     fonts.AddFont("MauiMaterialAssets.ttf", "MaterialAssets");
@@ -62,11 +67,6 @@ namespace AIChatSample
             {
                 builder.Services.AddSingleton<IAIService, MockAIService>();
             }
-
-            // Legacy seam kept for backward compatibility with code that
-            // still depends on the old interface.
-            builder.Services.AddSingleton<IAzureAIService>(sp =>
-                new ContextAwareAzureAIService(sp.GetRequiredService<IAIService>()));
 
 #if DEBUG
             builder.Logging.AddDebug();

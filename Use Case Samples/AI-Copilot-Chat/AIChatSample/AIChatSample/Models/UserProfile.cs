@@ -13,6 +13,7 @@ public sealed class UserProfile : INotifyPropertyChanged
     private string email = string.Empty;
     private string color = "#6C4EC2";
 
+    /// <summary>Display name shown in the profile header and avatar.</summary>
     public string Name
     {
         get => name;
@@ -25,6 +26,7 @@ public sealed class UserProfile : INotifyPropertyChanged
         }
     }
 
+    /// <summary>Contact email address.</summary>
     public string Email
     {
         get => email;
@@ -36,6 +38,7 @@ public sealed class UserProfile : INotifyPropertyChanged
         }
     }
 
+    /// <summary>Default avatar background color (hex).</summary>
     public string Color
     {
         get => color;
@@ -57,6 +60,7 @@ public sealed class UserProfile : INotifyPropertyChanged
         }
     }
 
+    /// <inheritdoc />
     public event PropertyChangedEventHandler? PropertyChanged;
 
     private void OnPropertyChanged([CallerMemberName] string? name = null)
