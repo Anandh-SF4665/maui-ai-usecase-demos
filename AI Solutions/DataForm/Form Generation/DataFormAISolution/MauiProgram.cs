@@ -7,6 +7,7 @@ namespace DataFormAISolution
 	{
 		public static MauiApp CreateMauiApp()
 		{
+			Syncfusion.Licensing.SyncfusionLicenseProvider.RegisterLicense("YOUR LICENSE KEY");
 			var builder = MauiApp.CreateBuilder();
 			builder
 				.UseMauiApp<App>()
