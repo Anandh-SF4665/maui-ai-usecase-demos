@@ -97,11 +97,19 @@ internal static class ChatNavigationService
                 break;
 
             case "NewAgent":
+                // "New agent" opens the Copilot-style prompt page where the
+                // user describes the specialist they want. After the AI
+                // produces a draft, the page navigates to AgentConfigurePage
+                // via the "CreateAgent" key below.
+                await PushIfNotCurrent(currentPage, typeof(CreateNewAgentPage));
+                break;
+
             case "CreateAgent":
-                // "New agent" goes straight to the configure page where the
-                // user can fill in the specialist-agent details. When a
-                // template card (from the AIAssistView suggestion row) is
-                // passed as the parameter, prefill the form from it.
+                // Used both for template cards (from the AIAssistView
+                // suggestion rows on CreateNewAgentPage) and for the AI
+                // draft that the prompt-driven Copilot flow hands back.
+                // Push the configure page pre-filled with whichever input
+                // arrived as the navigation parameter.
                 AgentConfigurePage? configurePage = null;
                 if (currentPage.Handler?.MauiContext?.Services is IServiceProvider services &&
                     services.GetService<AgentConfigurePage>() is { } resolved)

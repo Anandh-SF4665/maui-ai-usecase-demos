@@ -109,7 +109,10 @@
                             <aiassist:SfAIAssistView.EditorViewTemplate>
                                 <DataTemplate>
                                     <controls:AIChatInputEditor HorizontalOptions="Fill"
-                                        Placeholder="Type Message..." x:Name="InputEditor" />
+                                        Placeholder="Describe the agent you want to create..."
+                                        x:Name="InputEditor"
+                                        Text="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.CreateAgentVM.PromptText, Mode=TwoWay}"
+                                        SendCommand="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.CreateAgentVM.SendButtonCommand}" />
                                 </DataTemplate>
                             </aiassist:SfAIAssistView.EditorViewTemplate>
                         </aiassist:SfAIAssistView>
