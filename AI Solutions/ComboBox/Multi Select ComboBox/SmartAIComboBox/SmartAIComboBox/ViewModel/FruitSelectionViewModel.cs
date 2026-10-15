@@ -19,7 +19,6 @@ public class FruitSelectionViewModel : INotifyPropertyChanged
     private bool _isBusy;
     private bool _hasSearched;
     private string? _errorMessage;
-    private CancellationTokenSource? _cts;
 
     public ObservableCollection<FruitModel> Fruits { get; }
     public ObservableCollection<FruitModel> SelectedItems { get; } = new();
@@ -116,8 +115,14 @@ public class FruitSelectionViewModel : INotifyPropertyChanged
     public void ToggleSelection(FruitModel? fruit)
     {
         if (fruit is null) return;
-        fruit.IsSelected = !fruit.IsSelected;
-        if (fruit.IsSelected)
+        SetSelection(fruit, !fruit.IsSelected);
+    }
+
+    public void SetSelection(FruitModel? fruit, bool isSelected)
+    {
+        if (fruit is null) return;
+        fruit.IsSelected = isSelected;
+        if (isSelected)
         {
             if (!SelectedItems.Contains(fruit))
                 SelectedItems.Add(fruit);
@@ -244,11 +249,7 @@ public class FruitSelectionViewModel : INotifyPropertyChanged
         ErrorMessage = null;
 
         IsBusy = true;
-
-        // Cancel any in-flight request before starting a new one.
-        _cts?.Cancel();
-        _cts = new CancellationTokenSource();
-        var token = _cts.Token;
+        using var requestCts = new CancellationTokenSource(TimeSpan.FromSeconds(30));
 
         try
         {
@@ -297,8 +298,9 @@ public class FruitSelectionViewModel : INotifyPropertyChanged
                 "User request: " + query + "\n\n" +
                 "Matching fruits (one per line, exact names from the menu):";
 
-            var completion = await _aiService.GetCompletionAsync(prompt, token);
-            token.ThrowIfCancellationRequested();
+            var completion = await _aiService.GetCompletionAsync(prompt, requestCts.Token)
+                .WaitAsync(requestCts.Token);
+            requestCts.Token.ThrowIfCancellationRequested();
 
             if (string.IsNullOrWhiteSpace(completion))
                 return;
@@ -319,9 +321,13 @@ public class FruitSelectionViewModel : INotifyPropertyChanged
 
             ApplyAISelection(matches);
         }
+        catch (OperationCanceledException) when (requestCts.IsCancellationRequested)
+        {
+            ErrorMessage = "AI request timed out after 30 seconds. Please try again.";
+        }
         catch (OperationCanceledException)
         {
-            // A newer search superseded this one — leave the UI clean.
+            ErrorMessage = "AI request was canceled. Please try again.";
         }
         catch (Exception ex)
         {
