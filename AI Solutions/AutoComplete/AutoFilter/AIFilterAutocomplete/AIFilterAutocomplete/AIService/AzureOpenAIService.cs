@@ -10,20 +10,20 @@ namespace AIFilterAutocomplete.AIFilterAutocomplete.AIService
 {
     public class AzureOpenAIService
     {
-        /// <summary>
+         /// <summary>
         /// The EndPoint
         /// </summary>
-        private const string endpoint = "....";
+        private const string endpoint = "AZURE_OPENAI_ENDPOINT";
 
         /// <summary>
         /// The Deployment name
         /// </summary>
-        private const string deploymentName = "....";
+        private const string deploymentName = "AZURE_OPENAI_DEPLOYMENT";
 
         /// <summary>
         /// The API key
         /// </summary>
-        private const string key = "....";
+        private const string key = "AZURE_OPENAI_KEY";
 
         /// <summary>
         /// The chat completion service
