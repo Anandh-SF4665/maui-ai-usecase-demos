@@ -135,7 +135,7 @@ public class AzureOpenAIIntentAnalyzer : AzureBaseService, IIntentAnalyzer
             throw new IntentAnalysisException(
                 DescribeHttpFailure(ex.Status, "Message", ex.Message), ex);
         }
-        catch (Exception ex) when (ex is not IntentAnalysisException)
+        catch (Exception ex) when (ex is not IntentAnalysisException and not OperationCanceledException)
         {
             _logger?.LogWarning(ex, "Azure OpenAI call failed");
             throw new IntentAnalysisException(
@@ -207,10 +207,6 @@ public class AzureOpenAIIntentAnalyzer : AzureBaseService, IIntentAnalyzer
             var category = new IntentCategory
             {
                 Name = def?.Name ?? name,
-                Description = def?.Description ?? incoming.Description ?? string.Empty,
-                Icon = def?.Icon ?? "\uE73E",
-                AccentColor = def?.AccentColor ?? "#5F6368",
-                IconBackground = def?.IconBackground ?? "#E8EAED",
                 SummaryTemplate = def?.SummaryTemplate
                     ?? "{count} items in this category. Recurring themes: {keywords}.",
                 Summary = incoming.Summary ?? string.Empty,
@@ -227,10 +223,6 @@ public class AzureOpenAIIntentAnalyzer : AzureBaseService, IIntentAnalyzer
                 categoryByName[def.Name] = new IntentCategory
                 {
                     Name = def.Name,
-                    Description = def.Description,
-                    Icon = def.Icon,
-                    AccentColor = def.AccentColor,
-                    IconBackground = def.IconBackground,
                     SummaryTemplate = def.SummaryTemplate,
                 };
             }
@@ -270,11 +262,9 @@ public class AzureOpenAIIntentAnalyzer : AzureBaseService, IIntentAnalyzer
             item.Confidence = assignment?.Confidence is double c
                 ? Math.Clamp(c, 0.0, 1.0)
                 : 0.5;
-            item.Priority = ComputePriority(item, category.Name);
+            item.Priority = IntentScoring.ComputePriority(item, category.Name);
             item.GroupKey = category;
             category.Items.Add(item);
-            category.AverageRating = (int)Math.Round(category.Items.Average(x => x.Rating));
-            category.VisibleCount = category.Items.Count;
 
             // Tally keyword themes when the AI supplied them.
             if (assignment?.MatchedKeywords is { Count: > 0 } matched)
@@ -303,7 +293,7 @@ public class AzureOpenAIIntentAnalyzer : AzureBaseService, IIntentAnalyzer
         {
             if (string.IsNullOrWhiteSpace(category.Summary))
             {
-                var keywords = ExtractTopKeywords(category.Items.Select(x => x.Text), topN: 4);
+                var keywords = IntentScoring.ExtractTopKeywords(category.Items.Select(x => x.Text), topN: 4);
                 var joined = keywords.Count == 0
                     ? "no dominant keywords detected"
                     : string.Join(", ", keywords);
@@ -326,14 +316,14 @@ public class AzureOpenAIIntentAnalyzer : AzureBaseService, IIntentAnalyzer
         }
         if (result.TopThemes.Count == 0)
         {
-            var localThemes = ExtractTopKeywords(itemsList.Select(x => x.Text), topN: 5);
+            var localThemes = IntentScoring.ExtractTopKeywords(itemsList.Select(x => x.Text), topN: 5);
             result.TopThemes = localThemes;
         }
 
         result.UnclassifiedCount = unclassified;
         if (string.IsNullOrWhiteSpace(result.OverallSummary))
         {
-            result.OverallSummary = BuildOverallSummary(result);
+            result.OverallSummary = IntentScoring.BuildOverallSummary(result);
         }
         return result;
     }
@@ -404,71 +394,6 @@ public class AzureOpenAIIntentAnalyzer : AzureBaseService, IIntentAnalyzer
             sb.AppendLine($"- {item.Id} | {item.Rating} | {safeText}");
         }
         return sb.ToString();
-    }
-
-    // ----------------------------------------------------------------
-    // Scoring helpers (mirrors the local analyzer)
-    // ----------------------------------------------------------------
-
-    private static int ComputePriority(FeedbackItem item, string intentName)
-    {
-        bool criticalIntent = intentName is "Account Management"
-            or "Security" or "Billing" or "Performance"
-            or "Login Issues" or "Payment Issues" or "Technical Issues"
-            or "Negative Feedback" or "Performance & Bugs"
-            or "Dissatisfied" or "Customer Support";
-        int score = 0;
-        if (item.Rating <= 2) score += 2;
-        if (item.Rating == 3) score += 1;
-        if (criticalIntent && item.Rating <= 2) score += 2;
-        if (Regex.IsMatch(item.Text, @"\b(urgent|asap|immediately|critical|emergency|blocked)\b",
-                RegexOptions.IgnoreCase))
-        {
-            score += 1;
-        }
-        return Math.Clamp(score, 1, 5);
-    }
-
-    private static List<string> ExtractTopKeywords(IEnumerable<string> texts, int topN)
-    {
-        var counts = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
-        foreach (var raw in texts)
-        {
-            if (string.IsNullOrWhiteSpace(raw)) continue;
-            var tokens = Regex.Split(raw.ToLowerInvariant(), @"[^a-z0-9]+");
-            foreach (var token in tokens)
-            {
-                if (string.IsNullOrWhiteSpace(token)) continue;
-                if (token.Length < 4) continue;
-                if (IntentTaxonomies.StopWords.Contains(token)) continue;
-                if (!char.IsLetter(token[0])) continue;
-                counts.TryGetValue(token, out var c);
-                counts[token] = c + 1;
-            }
-        }
-        return counts
-            .OrderByDescending(kv => kv.Value)
-            .ThenBy(kv => kv.Key, StringComparer.OrdinalIgnoreCase)
-            .Take(topN)
-            .Select(kv => kv.Key)
-            .ToList();
-    }
-
-    private static string BuildOverallSummary(IntentAnalysisResult result)
-    {
-        var dominant = result.Categories.FirstOrDefault();
-        if (dominant == null)
-        {
-            return $"No clear intent patterns were detected in the supplied {result.DetectedDomain}.";
-        }
-        var second = result.Categories.Skip(1).FirstOrDefault();
-        var phrase = second == null
-            ? $"The dataset is dominated by a single intent: {dominant.Name}."
-            : $"The two strongest intents are {dominant.Name} ({dominant.Items.Count} items) and {second.Name} ({second.Items.Count} items).";
-        var themes = result.TopThemes.Count == 0
-            ? string.Empty
-            : $" Most frequent terms: {string.Join(", ", result.TopThemes)}.";
-        return $"{result.DetectedDomain} were grouped into {result.Categories.Count} intent categories covering {result.TotalItems} items. {phrase}{themes}";
     }
 
     private static string Truncate(string s, int max)

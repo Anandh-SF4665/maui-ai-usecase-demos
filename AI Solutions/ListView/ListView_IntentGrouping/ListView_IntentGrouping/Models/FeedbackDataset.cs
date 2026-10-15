@@ -1,38 +1,6 @@
 using System.Collections.ObjectModel;
-using System.Globalization;
 
 namespace ListView_IntentGrouping.Models;
-
-/// <summary>
-/// A single dataset description. With the new ticket-based UI
-/// there is only one dataset (the unified ticket list), but we
-/// keep the lightweight wrapper so the SfListView / header code
-/// can keep treating every input as a dataset.
-/// </summary>
-public sealed class DatasetDefinition
-{
-    public DatasetDefinition(string domain,
-                             string sourceLabel,
-                             string emoji,
-                             IReadOnlyList<FeedbackItem> items,
-                             string? groupTitle = null,
-                             string? groupIcon = null)
-    {
-        Domain = domain;
-        SourceLabel = sourceLabel;
-        Emoji = emoji;
-        Items = items;
-        GroupTitle = groupTitle ?? domain;
-        GroupIcon = groupIcon ?? emoji;
-    }
-
-    public string Domain { get; }
-    public string SourceLabel { get; }
-    public string Emoji { get; }
-    public string GroupTitle { get; }
-    public string GroupIcon { get; }
-    public IReadOnlyList<FeedbackItem> Items { get; }
-}
 
 /// <summary>
 /// The single combined ticket list backing the user-driven grouping
@@ -135,27 +103,5 @@ public static class FeedbackDataset
             });
         }
         return new ReadOnlyCollection<FeedbackItem>(list);
-    }
-
-    /// <summary>
-    /// Default dataset. Backwards-compatible shim: wraps the
-    /// unified ticket list in a <see cref="DatasetDefinition"/>.
-    /// </summary>
-    public static DatasetDefinition DefaultDataset { get; } =
-        new(Domain, "Support Ticket", "🎫", Tickets,
-            groupTitle: "Support Tickets", groupIcon: "🎫");
-
-    /// <summary>
-    /// Convenience: returns the dataset for a given key, falling
-    /// back to <see cref="DefaultDataset"/> when no match is found.
-    /// </summary>
-    public static DatasetDefinition GetDataset(string? key)
-    {
-        if (!string.IsNullOrWhiteSpace(key) &&
-            string.Equals(key, Domain, StringComparison.OrdinalIgnoreCase))
-        {
-            return DefaultDataset;
-        }
-        return DefaultDataset;
     }
 }

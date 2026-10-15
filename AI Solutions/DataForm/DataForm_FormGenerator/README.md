@@ -27,7 +27,7 @@ The application allows users to add multiple education entries, manage them inde
 <dataForm:SfDataForm
     DataObject="{Binding Entry}"
     AutoGenerateItems="True"
-    ValidationMode="LostFocus"
+    ValidationMode="PropertyChanged"
     CommitMode="PropertyChanged">
 </dataForm:SfDataForm>
 ```
@@ -96,7 +96,7 @@ For .NET MAUI requirements, refer to: https://help.syncfusion.com/maui/system-re
 
 ## Azure OpenAI Configuration
 
-Configure your Azure OpenAI settings before running the application:
+Set your Azure OpenAI values in `DataForm_FormGenerator/appsettings.json` (embedded into the app at build time) before running the application:
 
 ```json
 {

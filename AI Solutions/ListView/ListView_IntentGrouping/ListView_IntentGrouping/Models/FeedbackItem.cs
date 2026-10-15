@@ -1,3 +1,6 @@
+using System.ComponentModel;
+using System.Runtime.CompilerServices;
+
 namespace ListView_IntentGrouping.Models;
 
 /// <summary>
@@ -15,8 +18,14 @@ namespace ListView_IntentGrouping.Models;
 /// <see cref="ShortDescription"/>.
 /// </para>
 /// </summary>
-public class FeedbackItem
+public class FeedbackItem : INotifyPropertyChanged
 {
+    private int _priority;
+    private string _assignedIntent = string.Empty;
+    private double _confidence;
+
+    public event PropertyChangedEventHandler? PropertyChanged;
+
     public string Id { get; set; } = string.Empty;
 
     /// <summary>
@@ -51,7 +60,11 @@ public class FeedbackItem
     /// (mapped to Low / Medium / High via
     /// <c>PriorityToLabelConverter</c>).
     /// </summary>
-    public int Priority { get; set; }
+    public int Priority
+    {
+        get => _priority;
+        set => SetField(ref _priority, value);
+    }
 
     /// <summary>
     /// One-paragraph summary of the ticket. Surfaced as the
@@ -91,7 +104,11 @@ public class FeedbackItem
     /// The intent label assigned by the AI analyzer
     /// (e.g. "Billing", "Performance").
     /// </summary>
-    public string AssignedIntent { get; set; } = string.Empty;
+    public string AssignedIntent
+    {
+        get => _assignedIntent;
+        set => SetField(ref _assignedIntent, value);
+    }
 
     /// <summary>
     /// The header record this item is grouped under (ratings
@@ -106,7 +123,11 @@ public class FeedbackItem
     /// Confidence score in the range [0, 1] for any AI-assigned
     /// grouping.
     /// </summary>
-    public double Confidence { get; set; }
+    public double Confidence
+    {
+        get => _confidence;
+        set => SetField(ref _confidence, value);
+    }
 
     /// <summary>
     /// Two-letter initials used for the avatar circle.
@@ -122,5 +143,12 @@ public class FeedbackItem
                 return parts[0].Substring(0, Math.Min(2, parts[0].Length)).ToUpperInvariant();
             return (parts[0][0].ToString() + parts[parts.Length - 1][0]).ToUpperInvariant();
         }
+    }
+
+    private void SetField<T>(ref T field, T value, [CallerMemberName] string? name = null)
+    {
+        if (EqualityComparer<T>.Default.Equals(field, value)) return;
+        field = value;
+        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
     }
 }

@@ -4,12 +4,12 @@
              xmlns:local="clr-namespace:DataForm_FormGenerator"
              xmlns:sf="clr-namespace:Syncfusion.Maui.DataForm;assembly=Syncfusion.Maui.DataForm"
              xmlns:inputs="clr-namespace:Syncfusion.Maui.Inputs;assembly=Syncfusion.Maui.Inputs"
-             x:Class="DataForm_FormGenerator.MainPage">
+             x:Class="DataForm_FormGenerator.MainPage"
+             x:DataType="local:EducationFormViewModel">
 
     <ContentPage.Resources>
         <ResourceDictionary>
             <local:StringNotEmptyConverter x:Key="StringNotEmptyConverter" />
-            <local:BoolInverseConverter x:Key="BoolInverseConverter" />
 
             <Style x:Key="SectionCard" TargetType="Border">
                 <Setter Property="HorizontalOptions" Value="Fill"/>
@@ -20,7 +20,7 @@
             </Style>
 
             <Style x:Key="SectionTitle" TargetType="Label">
-                <Setter Property="FontFamily" Value="Roboto" />
+                <Setter Property="FontFamily" Value="OpenSansSemibold" />
                 <Setter Property="FontSize" Value="20" />
                 <Setter Property="FontAttributes" Value="Bold" />
                 <Setter Property="TextColor" Value="#0F172A" />
@@ -73,7 +73,7 @@
                                            Text="&#xe756;"
                                            TextColor="#005EA8"
                                            FontFamily="MaterialAssets"
-                                           FontSize="22"
+										   FontSize="22"
                                            VerticalTextAlignment="Center" />
                                     <Label Grid.Column="1"
                                            Text="Student Information"
@@ -96,6 +96,9 @@
                ValidationMode="PropertyChanged"
                AutoGenerateItems="True"
                ColumnCount="1">
+                                    <sf:SfDataForm.Behaviors>
+                                        <local:DataFormProviderBehavior />
+                                    </sf:SfDataForm.Behaviors>
                                     <sf:SfDataForm.DefaultLayoutSettings>
                                         <sf:DataFormDefaultLayoutSettings LabelPosition="Left" />
                                     </sf:SfDataForm.DefaultLayoutSettings>
@@ -108,7 +111,7 @@
                                              Spacing="10"
                                              BindableLayout.ItemsSource="{Binding EducationEntries}">
                             <BindableLayout.ItemTemplate>
-                                <DataTemplate>
+                                <DataTemplate x:DataType="local:EducationEntryViewModel">
                                     <Border Style="{StaticResource SectionCard}">
                                         <VerticalStackLayout Spacing="14">
                                             <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="10">
@@ -170,6 +173,9 @@
                                                                CommitMode="PropertyChanged"
                                                                LayoutType="TextInputLayout"
                                                                ColumnCount="1">
+                                                    <sf:SfDataForm.Behaviors>
+                                                        <local:DataFormProviderBehavior />
+                                                    </sf:SfDataForm.Behaviors>
                                                     <sf:SfDataForm.DefaultLayoutSettings>
                                                         <sf:DataFormDefaultLayoutSettings>
                                                             <sf:DataFormDefaultLayoutSettings.LabelPosition>
