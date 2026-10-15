@@ -1,0 +1,137 @@
+{
+  "Version": 1,
+  "WorkspaceRootPath": "D:\\maui-ai-usecase-demos\\AI Solutions\\AutoComplete\\AutoFilter\\",
+  "Documents": [
+    {
+      "AbsoluteMoniker": "D:0:0:{E1A4AEB0-0B63-44CD-BD12-7063248CB5A0}|AIFilterAutocomplete\\AIFilterAutocomplete.csproj|d:\\maui-ai-usecase-demos\\ai solutions\\autocomplete\\autofilter\\aifilterautocomplete\\view\\aifilterautocompletepage.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}",
+      "RelativeMoniker": "D:0:0:{E1A4AEB0-0B63-44CD-BD12-7063248CB5A0}|AIFilterAutocomplete\\AIFilterAutocomplete.csproj|solutionrelative:aifilterautocomplete\\view\\aifilterautocompletepage.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{E1A4AEB0-0B63-44CD-BD12-7063248CB5A0}|AIFilterAutocomplete\\AIFilterAutocomplete.csproj|d:\\maui-ai-usecase-demos\\ai solutions\\autocomplete\\autofilter\\aifilterautocomplete\\view\\aifilterautocompletepage.xaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{E1A4AEB0-0B63-44CD-BD12-7063248CB5A0}|AIFilterAutocomplete\\AIFilterAutocomplete.csproj|solutionrelative:aifilterautocomplete\\view\\aifilterautocompletepage.xaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{E1A4AEB0-0B63-44CD-BD12-7063248CB5A0}|AIFilterAutocomplete\\AIFilterAutocomplete.csproj|d:\\maui-ai-usecase-demos\\ai solutions\\autocomplete\\autofilter\\aifilterautocomplete\\app.xaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{E1A4AEB0-0B63-44CD-BD12-7063248CB5A0}|AIFilterAutocomplete\\AIFilterAutocomplete.csproj|solutionrelative:aifilterautocomplete\\app.xaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{E1A4AEB0-0B63-44CD-BD12-7063248CB5A0}|AIFilterAutocomplete\\AIFilterAutocomplete.csproj|d:\\maui-ai-usecase-demos\\ai solutions\\autocomplete\\autofilter\\aifilterautocomplete\\viewmodel\\autocompleteviewmodel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{E1A4AEB0-0B63-44CD-BD12-7063248CB5A0}|AIFilterAutocomplete\\AIFilterAutocomplete.csproj|solutionrelative:aifilterautocomplete\\viewmodel\\autocompleteviewmodel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{E1A4AEB0-0B63-44CD-BD12-7063248CB5A0}|AIFilterAutocomplete\\AIFilterAutocomplete.csproj|d:\\maui-ai-usecase-demos\\ai solutions\\autocomplete\\autofilter\\aifilterautocomplete\\model\\autocompletemodel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{E1A4AEB0-0B63-44CD-BD12-7063248CB5A0}|AIFilterAutocomplete\\AIFilterAutocomplete.csproj|solutionrelative:aifilterautocomplete\\model\\autocompletemodel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{E1A4AEB0-0B63-44CD-BD12-7063248CB5A0}|AIFilterAutocomplete\\AIFilterAutocomplete.csproj|d:\\maui-ai-usecase-demos\\ai solutions\\autocomplete\\autofilter\\aifilterautocomplete\\aiservice\\azureopenaiservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{E1A4AEB0-0B63-44CD-BD12-7063248CB5A0}|AIFilterAutocomplete\\AIFilterAutocomplete.csproj|solutionrelative:aifilterautocomplete\\aiservice\\azureopenaiservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{E1A4AEB0-0B63-44CD-BD12-7063248CB5A0}|AIFilterAutocomplete\\AIFilterAutocomplete.csproj|d:\\maui-ai-usecase-demos\\ai solutions\\autocomplete\\autofilter\\aifilterautocomplete\\customfilter\\autocompletefilterbehavior.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{E1A4AEB0-0B63-44CD-BD12-7063248CB5A0}|AIFilterAutocomplete\\AIFilterAutocomplete.csproj|solutionrelative:aifilterautocomplete\\customfilter\\autocompletefilterbehavior.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    }
+  ],
+  "DocumentGroupContainers": [
+    {
+      "Orientation": 0,
+      "VerticalTabListWidth": 256,
+      "DocumentGroups": [
+        {
+          "DockedWidth": 200,
+          "SelectedChildIndex": 3,
+          "Children": [
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
+              "Title": "App.xaml.cs",
+              "DocumentMoniker": "D:\\maui-ai-usecase-demos\\AI Solutions\\AutoComplete\\AutoFilter\\AIFilterAutocomplete\\App.xaml.cs",
+              "RelativeDocumentMoniker": "AIFilterAutocomplete\\App.xaml.cs",
+              "ToolTip": "D:\\maui-ai-usecase-demos\\AI Solutions\\AutoComplete\\AutoFilter\\AIFilterAutocomplete\\App.xaml.cs",
+              "RelativeToolTip": "AIFilterAutocomplete\\App.xaml.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-10-15T11:19:47.729Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "AIFilterAutocompletePage.xaml.cs",
+              "DocumentMoniker": "D:\\maui-ai-usecase-demos\\AI Solutions\\AutoComplete\\AutoFilter\\AIFilterAutocomplete\\View\\AIFilterAutocompletePage.xaml.cs",
+              "RelativeDocumentMoniker": "AIFilterAutocomplete\\View\\AIFilterAutocompletePage.xaml.cs",
+              "ToolTip": "D:\\maui-ai-usecase-demos\\AI Solutions\\AutoComplete\\AutoFilter\\AIFilterAutocomplete\\View\\AIFilterAutocompletePage.xaml.cs",
+              "RelativeToolTip": "AIFilterAutocomplete\\View\\AIFilterAutocompletePage.xaml.cs",
+              "ViewState": "AgIAAAEAAAAAAAAAAAAkwBAAAAAFAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-10-15T11:15:31.533Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 3,
+              "Title": "AutocompleteViewModel.cs",
+              "DocumentMoniker": "D:\\maui-ai-usecase-demos\\AI Solutions\\AutoComplete\\AutoFilter\\AIFilterAutocomplete\\ViewModel\\AutocompleteViewModel.cs",
+              "RelativeDocumentMoniker": "AIFilterAutocomplete\\ViewModel\\AutocompleteViewModel.cs",
+              "ToolTip": "D:\\maui-ai-usecase-demos\\AI Solutions\\AutoComplete\\AutoFilter\\AIFilterAutocomplete\\ViewModel\\AutocompleteViewModel.cs",
+              "RelativeToolTip": "AIFilterAutocomplete\\ViewModel\\AutocompleteViewModel.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAgAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-10-15T11:03:43.078Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "AIFilterAutocompletePage.xaml",
+              "DocumentMoniker": "D:\\maui-ai-usecase-demos\\AI Solutions\\AutoComplete\\AutoFilter\\AIFilterAutocomplete\\View\\AIFilterAutocompletePage.xaml",
+              "RelativeDocumentMoniker": "AIFilterAutocomplete\\View\\AIFilterAutocompletePage.xaml",
+              "ToolTip": "D:\\maui-ai-usecase-demos\\AI Solutions\\AutoComplete\\AutoFilter\\AIFilterAutocomplete\\View\\AIFilterAutocompletePage.xaml",
+              "RelativeToolTip": "AIFilterAutocomplete\\View\\AIFilterAutocompletePage.xaml",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABIAAAAtAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003549|",
+              "WhenOpened": "2026-10-15T11:03:37.821Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 4,
+              "Title": "AutocompleteModel.cs",
+              "DocumentMoniker": "D:\\maui-ai-usecase-demos\\AI Solutions\\AutoComplete\\AutoFilter\\AIFilterAutocomplete\\Model\\AutocompleteModel.cs",
+              "RelativeDocumentMoniker": "AIFilterAutocomplete\\Model\\AutocompleteModel.cs",
+              "ToolTip": "D:\\maui-ai-usecase-demos\\AI Solutions\\AutoComplete\\AutoFilter\\AIFilterAutocomplete\\Model\\AutocompleteModel.cs",
+              "RelativeToolTip": "AIFilterAutocomplete\\Model\\AutocompleteModel.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAA0AAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-10-15T11:03:30.55Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 6,
+              "Title": "AutocompleteFilterBehavior.cs",
+              "DocumentMoniker": "D:\\maui-ai-usecase-demos\\AI Solutions\\AutoComplete\\AutoFilter\\AIFilterAutocomplete\\CustomFilter\\AutocompleteFilterBehavior.cs",
+              "RelativeDocumentMoniker": "AIFilterAutocomplete\\CustomFilter\\AutocompleteFilterBehavior.cs",
+              "ToolTip": "D:\\maui-ai-usecase-demos\\AI Solutions\\AutoComplete\\AutoFilter\\AIFilterAutocomplete\\CustomFilter\\AutocompleteFilterBehavior.cs",
+              "RelativeToolTip": "AIFilterAutocomplete\\CustomFilter\\AutocompleteFilterBehavior.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAsAAAA6AAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-10-15T11:03:24.161Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 5,
+              "Title": "AzureOpenAIService.cs",
+              "DocumentMoniker": "D:\\maui-ai-usecase-demos\\AI Solutions\\AutoComplete\\AutoFilter\\AIFilterAutocomplete\\AIService\\AzureOpenAIService.cs",
+              "RelativeDocumentMoniker": "AIFilterAutocomplete\\AIService\\AzureOpenAIService.cs",
+              "ToolTip": "D:\\maui-ai-usecase-demos\\AI Solutions\\AutoComplete\\AutoFilter\\AIFilterAutocomplete\\AIService\\AzureOpenAIService.cs",
+              "RelativeToolTip": "AIFilterAutocomplete\\AIService\\AzureOpenAIService.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAgAAAAeAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-10-15T11:03:14.845Z"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
