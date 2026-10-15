@@ -37,7 +37,7 @@ public partial class NewChat : ContentPage
         if (Handler is null)
         {
             AIChatNavigationPanel.NavigationRequested -= OnNavigationRequested;
-            AIChatToolbar.BackRequested -= OnBackRequested;
+           // AIChatToolbar.BackRequested -= OnBackRequested;
             if (_layoutVm is not null)
             {
                 _layoutVm.ChatSessionReplaced -= OnChatSessionReplaced;
@@ -48,8 +48,8 @@ public partial class NewChat : ContentPage
         {
             AIChatNavigationPanel.NavigationRequested -= OnNavigationRequested;
             AIChatNavigationPanel.NavigationRequested += OnNavigationRequested;
-            AIChatToolbar.BackRequested -= OnBackRequested;
-            AIChatToolbar.BackRequested += OnBackRequested;
+            //AIChatToolbar.BackRequested -= OnBackRequested;
+            //AIChatToolbar.BackRequested += OnBackRequested;
 
             // FR-0.4: subscribe to ChatSessionReplaced so opening a
             // recent chat from the drawer re-binds the AIAssistView to
@@ -66,7 +66,7 @@ public partial class NewChat : ContentPage
     protected override void OnAppearing()
     {
         base.OnAppearing();
-        AIChatToolbar.IsBackVisible = Navigation?.NavigationStack.Count > 1;
+        // AIChatToolbar.IsBackVisible = Navigation?.NavigationStack.Count > 1;
 
         // FR-0.4: respect the active session chosen from the drawer.
         // If the user navigated to this page by tapping a recent chat,

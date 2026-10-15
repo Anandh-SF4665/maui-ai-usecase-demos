@@ -19,21 +19,21 @@ namespace AIChatSample.Views.AIChat
             if (Handler is null)
             {
                 AIChatNavigationPanel.NavigationRequested -= OnNavigationRequested;
-                AIChatToolbar.BackRequested -= OnBackRequested;
+                //AIChatToolbar.BackRequested -= OnBackRequested;
             }
             else
             {
                 AIChatNavigationPanel.NavigationRequested -= OnNavigationRequested;
                 AIChatNavigationPanel.NavigationRequested += OnNavigationRequested;
-                AIChatToolbar.BackRequested -= OnBackRequested;
-                AIChatToolbar.BackRequested += OnBackRequested;
+                //AIChatToolbar.BackRequested -= OnBackRequested;
+                //AIChatToolbar.BackRequested += OnBackRequested;
             }
         }
 
         protected override void OnAppearing()
         {
             base.OnAppearing();
-            AIChatToolbar.IsBackVisible = Navigation?.NavigationStack.Count > 1;
+            // AIChatToolbar.IsBackVisible = Navigation?.NavigationStack.Count > 1;
         }
 
         private async void OnBackRequested(object? sender, EventArgs e)

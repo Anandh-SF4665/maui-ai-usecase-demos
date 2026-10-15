@@ -27,7 +27,7 @@ namespace AIChatSample.Views.AIChat
         protected override void OnAppearing()
         {
             base.OnAppearing();
-            AIChatToolbar.IsBackVisible = Navigation?.NavigationStack.Count > 1;
+           // AIChatToolbar.IsBackVisible = Navigation?.NavigationStack.Count > 1;
 
             // Refresh the "My Agents" row so freshly created agents appear
             // whenever the user lands back on this page.
@@ -44,7 +44,7 @@ namespace AIChatSample.Views.AIChat
             if (Handler is null)
             {
                 AIChatNavigationPanel.NavigationRequested -= OnNavigationRequested;
-                AIChatToolbar.BackRequested -= OnBackRequested;
+                //AIChatToolbar.BackRequested -= OnBackRequested;
 #if WINDOWS
                 if (_themeChangedSubscribed && Application.Current is { } app)
                     app.RequestedThemeChanged -= OnRequestedThemeChanged;
@@ -63,8 +63,8 @@ namespace AIChatSample.Views.AIChat
 
             AIChatNavigationPanel.NavigationRequested -= OnNavigationRequested;
             AIChatNavigationPanel.NavigationRequested += OnNavigationRequested;
-            AIChatToolbar.BackRequested -= OnBackRequested;
-            AIChatToolbar.BackRequested += OnBackRequested;
+            //AIChatToolbar.BackRequested -= OnBackRequested;
+            //AIChatToolbar.BackRequested += OnBackRequested;
 
 #if WINDOWS
             if (!_themeChangedSubscribed && Application.Current is { } application)
