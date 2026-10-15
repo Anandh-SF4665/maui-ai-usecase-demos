@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="utf-8" ?>
+
+<ContentPage
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:cards="clr-namespace:Syncfusion.Maui.Cards;assembly=Syncfusion.Maui.Cards"
+    xmlns:rating="clr-namespace:Syncfusion.Maui.Inputs;assembly=Syncfusion.Maui.Inputs"
+    xmlns:inputLayout="clr-namespace:Syncfusion.Maui.Core;assembly=Syncfusion.Maui.Core"
+    x:Class="AIRatingFeedback.MainPage"
+    Padding="30"
+    Title="">
+
+    <cards:SfCardView
+        VerticalOptions="Center"
+        CornerRadius="15"
+        HeightRequest="410"
+        BackgroundColor="White">
+        <VerticalStackLayout Spacing="0">
+            <!-- Header -->
+            <Grid
+                HeightRequest="74"
+                Padding="25,10"
+                ColumnDefinitions="*,Auto,Auto"
+                ColumnSpacing="14"
+                BackgroundColor="#EEF2F8">
+                <Label
+                    VerticalOptions="Center"
+                    Text="Feedback"
+                    FontSize="18"
+                    FontAttributes="Bold"
+                    TextColor="#263A5A" />
+                <ActivityIndicator
+                    x:Name="LoadingIndicator"
+                    Grid.Column="1"
+                    WidthRequest="22"
+                    HeightRequest="22"
+                    HorizontalOptions="End"
+                    VerticalOptions="Center"
+                    Color="#4F46E5"
+                    IsRunning="False"
+                    IsVisible="False" />
+                <rating:SfRating
+                    x:Name="RatingControl"
+                    Grid.Column="2"
+                    VerticalOptions="Center"
+                    HorizontalOptions="End"
+                    ItemCount="5"
+                    ItemSize="32"
+                    Value="0"
+                    IsReadOnly="True"
+                    BackgroundColor="Transparent">
+                    <rating:SfRating.RatingSettings>
+                        <rating:RatingSettings RatedFill="#4F46E5" />
+                    </rating:SfRating.RatingSettings>
+                </rating:SfRating>
+            </Grid>
+
+            <!-- Editor -->
+            <inputLayout:SfTextInputLayout
+                Margin="24,24,24,0"
+                Hint=""
+                ContainerType="None"
+                ShowHint="False"
+                CharMaxLength="300"
+                ShowCharCount="True"
+                Stroke="#EEF2F8">
+                <Editor
+                    x:Name="FeedbackEditor"
+                    HeightRequest="240"
+                    FontSize="16"
+                    BackgroundColor="Transparent"
+                    Placeholder="Describe your customer support experience..."
+                    PlaceholderColor="#8A9BB8"
+                    AutoSize="Disabled"
+                    TextChanged="FeedbackEditor_TextChanged" />
+            </inputLayout:SfTextInputLayout>
+        </VerticalStackLayout>
+    </cards:SfCardView>
+</ContentPage>
