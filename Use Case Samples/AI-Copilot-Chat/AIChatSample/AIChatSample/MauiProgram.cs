@@ -1,4 +1,4 @@
-﻿using AIChatSample.AIService;
+using AIChatSample.AIService;
 using AIChatSample.Services;
 using AIChatSample.ViewModel;
 using AIChatSample.Views;
@@ -42,13 +42,26 @@ namespace AIChatSample
             // navigation panel and the chat host page.
             builder.Services.AddSingleton<AIMainLayoutViewModel>();
 
-            // AI service: default to the deterministic mock so the sample
-            // runs with zero configuration. Switch to AzureOpenAIService
-            // when AZURE_OPENAI_ENDPOINT / _KEY / _DEPLOYMENT are present
-            // (NFR-2, NFR-5).
-            // The credentials are hard-coded in AzureOpenAIService, so
-            // always use it (environment variables are no longer required).
-            builder.Services.AddSingleton<IAIService, AzureOpenAIService>();
+            // AI service: prefer AzureOpenAIService when the Azure
+            // configuration is present, otherwise register the offline
+            // MockAIService so the sample is still runnable with zero
+            // configuration (NFR-2, NFR-5). AzureOpenAIService's
+            // constructor throws if the env vars are missing, so we
+            // can't register it unconditionally and let activation fail
+            // later.
+            if (HasAzureOpenAIConfiguration())
+            {
+                builder.Services.AddSingleton<IAIService>(_ =>
+                    new AzureOpenAIService(
+                        Environment.GetEnvironmentVariable("AZURE_OPENAI_ENDPOINT"),
+                        Environment.GetEnvironmentVariable("AZURE_OPENAI_KEY"),
+                        Environment.GetEnvironmentVariable("AZURE_OPENAI_DEPLOYMENT"),
+                        int.TryParse(Environment.GetEnvironmentVariable("AZURE_OPENAI_TIMEOUT_SECONDS"), out var t) ? t : 100));
+            }
+            else
+            {
+                builder.Services.AddSingleton<IAIService, MockAIService>();
+            }
 
             // Legacy seam kept for backward compatibility with code that
             // still depends on the old interface.
