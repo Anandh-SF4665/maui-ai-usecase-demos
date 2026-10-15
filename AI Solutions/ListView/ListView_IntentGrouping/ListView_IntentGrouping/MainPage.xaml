@@ -4,7 +4,9 @@
              xmlns:vm="clr-namespace:ListView_IntentGrouping.ViewModels"
              xmlns:model="clr-namespace:ListView_IntentGrouping.Models"
              xmlns:conv="clr-namespace:ListView_IntentGrouping.Converters"
-             x:Class="ListView_IntentGrouping.MainPage"           
+             xmlns:local="clr-namespace:ListView_IntentGrouping"
+             x:Class="ListView_IntentGrouping.MainPage"
+             x:DataType="vm:MainPageViewModel"           
              BackgroundColor="{AppThemeBinding Light=#F5F4FB, Dark=#0F0F12}"
              Shell.NavBarIsVisible="False">
 
@@ -14,7 +16,6 @@
             <conv:RatingToStarsConverter x:Key="RatingToStars" />
             <conv:PriorityToLabelConverter x:Key="PriorityToLabel" />
             <conv:PriorityToColorConverter x:Key="PriorityToColor" />
-            <conv:GroupExpandGlyphConverter x:Key="GroupExpandGlyph" />
             <conv:GroupExpandRotationConverter x:Key="GroupExpandRotation" />
 
             <Color x:Key="CardSurface">#FFFFFF</Color>
@@ -53,11 +54,10 @@
                Text="{Binding Prompt, Mode=TwoWay}"
                Placeholder="Try: ratings, priority, theme, sender, customer type, product, business impact, trend, month"
                FontSize="14"
-               FontFamily="Roboto"
+               FontFamily="OpenSansSemibold"
                BackgroundColor="Transparent"
                ReturnType="Go"
                ReturnCommand="{Binding GroupCommand}"
-               Completed="OnPromptCompleted"
                VerticalOptions="Center" />
                         </Border>
 
@@ -72,7 +72,7 @@
 
                             <Label Text="Group"
                FontSize="14"
-               FontFamily="Roboto"
+               FontFamily="OpenSansSemibold"
                FontAttributes="Bold"
                TextColor="White"
                HorizontalOptions="Center"
@@ -102,8 +102,12 @@
                                ScrollBarVisibility="Never"
                                AllowGroupExpandCollapse="True">
 
+            <syncfusion:SfListView.Behaviors>
+                <local:IntentGroupingBehavior GroupingKind="{Binding CurrentGrouping}" />
+            </syncfusion:SfListView.Behaviors>
+
             <syncfusion:SfListView.GroupHeaderTemplate>
-                <DataTemplate>
+                <DataTemplate x:DataType="{x:Null}">
                     <Border Margin="12,6,12,6"
                             StrokeShape="RoundRectangle 18"
                             Stroke="{StaticResource HeaderGray}"
@@ -112,22 +116,18 @@
                             Padding="10,4"
                             VerticalOptions="Center"
                             HorizontalOptions="Start">
-                        <Border.GestureRecognizers>
-                            <TapGestureRecognizer Tapped="OnGroupHeaderToggleTapped" />
-                        </Border.GestureRecognizers>
                         <HorizontalStackLayout Spacing="8"
                                                VerticalOptions="Center">
 
-                            <Label Text="{Binding IsExpand, Converter={StaticResource GroupExpandGlyph}}"
+                            <Label Text="&#x25BC;"
                                    Rotation="{Binding IsExpand, Converter={StaticResource GroupExpandRotation}}"
-                                   FontFamily="MaterialAssets"
                                    FontSize="14"
                                    FontAttributes="Bold"
                                    TextColor="{StaticResource HeaderGray}"
                                    VerticalOptions="Center" />
 
                             <Label Text="{Binding Key.Title}"
-                                   FontFamily="Roboto"
+                                   FontFamily="OpenSansSemibold"
                                    FontSize="13"
                                    FontAttributes="Bold"
                                    LineBreakMode="TailTruncation"
@@ -140,7 +140,7 @@
                                     Padding="8,2"
                                     VerticalOptions="Center">
                                 <Label Text="{Binding Key.ItemCount}"
-                                       FontFamily="Roboto"
+                                       FontFamily="OpenSansSemibold"
                                        FontSize="11"
                                        FontAttributes="Bold"
                                        TextColor="White"
@@ -196,7 +196,7 @@
                                     VerticalOptions="Start">
                                 <Label Text="{Binding Initials}"
                                        FontSize="11"
-                                       FontFamily="Roboto"
+                                       FontFamily="OpenSansSemibold"
                                        FontAttributes="Bold"
                                        TextColor="{StaticResource HeaderAccent}"
                                        HorizontalOptions="Center"
@@ -208,7 +208,7 @@
                                                  VerticalOptions="Fill">
                                 <Label Text="{Binding TicketName}"
                                        FontSize="13"
-                                       FontFamily="Roboto"
+                                       FontFamily="OpenSansSemibold"
                                        FontAttributes="Bold"
                                        LineBreakMode="TailTruncation"
                                        TextColor="{AppThemeBinding Light=#1C1B1F, Dark=#F2EFFE}" />
@@ -216,7 +216,7 @@
                                                        VerticalOptions="Center">
                                     <Label Text="{Binding SenderName}"
                                            FontSize="11"
-                                           FontFamily="Roboto"
+                                           FontFamily="OpenSansSemibold"
                                            LineBreakMode="TailTruncation"
                                            TextColor="{AppThemeBinding Light=#1C1B1F, Dark=#F2EFFE}"
                                            VerticalOptions="Center" />
@@ -225,14 +225,14 @@
                                            TextColor="{StaticResource SubtleText}"
                                            VerticalOptions="Center" />
                                     <Label Text="{Binding Rating, Converter={StaticResource RatingToStars}}"
-                                           FontFamily="Roboto"
+                                           FontFamily="OpenSansSemibold"
                                            FontSize="11"
                                            TextColor="#F4B400"
                                            VerticalOptions="Center" />
                                 </HorizontalStackLayout>
                                 <Label Text="{Binding ShortDescription}"
                                        FontSize="11"
-                                       FontFamily="Roboto"
+                                       FontFamily="OpenSansSemibold"
                                        LineBreakMode="TailTruncation"
                                        MaxLines="2"
                                        TextColor="{AppThemeBinding Light={StaticResource SubtleText}, Dark={StaticResource SubtleTextDark}}" />
@@ -247,7 +247,7 @@
                                     IsVisible="{Binding Priority, Converter={StaticResource IntToBool}}">
                                 <Label Text="{Binding Priority, Converter={StaticResource PriorityToLabel}}"
                                        FontSize="10"
-                                       FontFamily="Roboto"
+                                       FontFamily="OpenSansSemibold"
                                        FontAttributes="Bold"
                                        TextColor="White"
                                        HorizontalOptions="Center"
@@ -263,7 +263,6 @@
                     <Label Grid.Row="0"
                            Text="No tickets to show"
                            HorizontalOptions="Center"
-                           FontFamily="MaterialAssets"
                            FontSize="16"
                            TextColor="{AppThemeBinding Light=#1C1B1F, Dark=#F2EFFE}" />
                     <Label Grid.Row="1"
@@ -311,10 +310,13 @@
                            HorizontalOptions="Center"
                            HorizontalTextAlignment="Center"
                            FontSize="12"
-                           FontFamily="Roboto"
+                           FontFamily="OpenSansSemibold"
                            FontAttributes="Bold"
                            TextColor="{StaticResource HeaderAccent}"
                            LineBreakMode="WordWrap" />
+                    <Button Text="Cancel"
+                            Command="{Binding CancelCommand}"
+                            HorizontalOptions="Center" />
                 </VerticalStackLayout>
             </Border>
         </Grid>

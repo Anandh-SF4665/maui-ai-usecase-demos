@@ -17,6 +17,7 @@ public class MainPageViewModel : INotifyPropertyChanged
     private GroupingKind _currentGrouping = GroupingKind.None;
     private string _analyzerLabel = string.Empty;
     private string _credentialBanner = string.Empty;
+    private CancellationTokenSource? _cts;
 
     /// <summary>
     /// Pristine working snapshot of every ticket. The view-model
@@ -32,7 +33,8 @@ public class MainPageViewModel : INotifyPropertyChanged
         _analyzerLabel = string.IsNullOrWhiteSpace(_analyzer.DisplayName)
             ? "AI analyzer"
             : _analyzer.DisplayName;
-        GroupCommand = new Command(async () => await GroupAsync());
+        GroupCommand = new Command(async () => await GroupAsync(), () => !IsBusy);
+        CancelCommand = new Command(() => _cts?.Cancel(), () => IsBusy);
     }
 
     /// <summary>
@@ -102,16 +104,17 @@ public class MainPageViewModel : INotifyPropertyChanged
             _isBusy = value;
             OnPropertyChanged();
             OnPropertyChanged(nameof(IsNotBusy));
+            GroupCommand.ChangeCanExecute();
+            CancelCommand.ChangeCanExecute();
         }
     }
 
     public bool IsNotBusy => !IsBusy;
 
     /// <summary>
-    /// Current grouping mode. The page code-behind reads this to
-    /// decide whether to install a <c>GroupDescriptor</c> (when
-    /// not <see cref="GroupingKind.None"/>) and what the empty-
-    /// state should display.
+    /// Current grouping mode. The list's grouping behavior binds to
+    /// this to install or remove its <c>GroupDescriptor</c>, and the
+    /// empty-state text follows it.
     /// </summary>
     public GroupingKind CurrentGrouping
     {
@@ -170,7 +173,12 @@ public class MainPageViewModel : INotifyPropertyChanged
         _                           => "Type a prompt above (for example: \"ratings\") and tap Group."
     };
 
-    public ICommand GroupCommand { get; }
+    public Command GroupCommand { get; }
+
+    /// <summary>
+    /// Cancels the Azure call that is currently in flight.
+    /// </summary>
+    public Command CancelCommand { get; }
 
     /// <summary>
     /// First-time entry point. Loads the unified ticket list into
@@ -182,6 +190,7 @@ public class MainPageViewModel : INotifyPropertyChanged
     /// </summary>
     public async Task LoadInitialItemsAsync()
     {
+        using var cts = BeginOperation();
         try
         {
             IsBusy = true;
@@ -194,7 +203,7 @@ public class MainPageViewModel : INotifyPropertyChanged
 
             // Run the AI once on initial load so its work is
             // visible immediately in the status banner.
-            await RunAnalyzerAsync(string.Empty, CancellationToken.None);
+            await RunAnalyzerAsync(string.Empty, cts.Token);
 
             ReloadVisibleItems(GroupingKind.None);
 
@@ -215,9 +224,14 @@ public class MainPageViewModel : INotifyPropertyChanged
             StatusMessage = $"Loaded {_sourceTickets.Count} tickets: {ex.Message} " +
                             $"[Active: {AzureBaseService.ActiveCredentialSummary}]";
         }
+        catch (OperationCanceledException)
+        {
+            ReloadVisibleItems(GroupingKind.None);
+            StatusMessage = $"Loaded {_sourceTickets.Count} tickets (analysis cancelled).";
+        }
         finally
         {
-            IsBusy = false;
+            EndOperation(cts);
         }
     }
 
@@ -225,12 +239,13 @@ public class MainPageViewModel : INotifyPropertyChanged
     /// The "Group" button handler. Resolves the user's prompt
     /// into a <see cref="GroupingKind"/>, runs the AI analyzer
     /// (so it does the grouping work) and rebuilds the visible
-    /// groups accordingly. The page code-behind installs a
-    /// fresh <c>GroupDescriptor</c> via property notification.
+    /// groups accordingly. The list's grouping behavior reacts to
+    /// <see cref="CurrentGrouping"/> through its binding.
     /// </summary>
     public async Task GroupAsync()
     {
         if (IsBusy) return;
+        using var cts = BeginOperation();
         try
         {
             IsBusy = true;
@@ -252,7 +267,7 @@ public class MainPageViewModel : INotifyPropertyChanged
             // confidence, re-computed priority). The requested
             // <see cref="GroupingKind"/> then projects those
             // results into the right buckets below.
-            await RunAnalyzerAsync(Prompt, CancellationToken.None);
+            await RunAnalyzerAsync(Prompt, cts.Token);
 
             // Show the live credential fingerprint after every
             // successful Group click. When the next click returns
@@ -288,10 +303,30 @@ public class MainPageViewModel : INotifyPropertyChanged
             StatusMessage = $"AI grouping failed: {ex.Message} " +
                             $"[Active: {AzureBaseService.ActiveCredentialSummary}]";
         }
+        catch (OperationCanceledException)
+        {
+            StatusMessage = "Grouping cancelled.";
+        }
         finally
         {
-            IsBusy = false;
+            EndOperation(cts);
         }
+    }
+
+    private CancellationTokenSource BeginOperation()
+    {
+        var cts = new CancellationTokenSource();
+        _cts = cts;
+        return cts;
+    }
+
+    private void EndOperation(CancellationTokenSource cts)
+    {
+        if (ReferenceEquals(_cts, cts))
+        {
+            _cts = null;
+        }
+        IsBusy = false;
     }
 
     /// <summary>
@@ -312,7 +347,7 @@ public class MainPageViewModel : INotifyPropertyChanged
                 cancellationToken).ConfigureAwait(true);
             AnalyzerLabel = _analyzer.DisplayName;
         }
-        catch (IntentAnalysisException)
+        catch (Exception ex) when (ex is IntentAnalysisException or OperationCanceledException)
         {
             throw;
         }
@@ -390,8 +425,7 @@ public class MainPageViewModel : INotifyPropertyChanged
         }
 
         // Flip CurrentGrouping exactly once at the end of the
-        // rebuild so the page code-behind listens for a single
-        // notification and refreshes the GroupDescriptor.
+        // rebuild so the list refreshes its GroupDescriptor once.
         CurrentGrouping = kind;
     }
 

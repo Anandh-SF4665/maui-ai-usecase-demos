@@ -1,4 +1,5 @@
 ﻿using DataForm_FormGenerator.Configuration;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Syncfusion.Maui.Core.Hosting;
 
@@ -16,14 +17,15 @@ namespace DataForm_FormGenerator
                 {
                     fonts.AddFont("OpenSans-Regular.ttf", "OpenSansRegular");
                     fonts.AddFont("OpenSans-Semibold.ttf", "OpenSansSemibold");
-                    fonts.AddFont("MauiMaterialAssets.ttf", "MaterialAssets");
+					fonts.AddFont("MauiMaterialAssets.ttf", "MaterialAssets");
                 });
 
-            // Credentials (Endpoint / DeploymentName / ApiKey) are configured
-            // directly in AzureOpenAiOptions. They are validated on every
-            // "Generate Form" call; when invalid the app shows the invalid
-            // key-details message and does NOT render the form.
-            builder.Services.AddSingleton(new AzureOpenAiOptions());
+            // Credentials (Endpoint / DeploymentName / ApiKey) come from the
+            // "AzureOpenAI" section of the embedded appsettings.json. They are
+            // validated on startup and on every generation; when invalid the
+            // app shows the invalid key-details message and does NOT render
+            // the form.
+            builder.Services.AddSingleton(LoadAzureOpenAiOptions());
             builder.Services.AddSingleton<IAiSchemaService, AzureOpenAiSchemaService>();
             builder.Services.AddTransient<EducationFormViewModel>();
 
@@ -33,6 +35,27 @@ namespace DataForm_FormGenerator
 #endif
 
             return builder.Build();
+        }
+
+        private static AzureOpenAiOptions LoadAzureOpenAiOptions()
+        {
+            var assembly = typeof(MauiProgram).Assembly;
+            var resourceName = assembly.GetManifestResourceNames()
+                .FirstOrDefault(n => n.EndsWith("appsettings.json", StringComparison.OrdinalIgnoreCase));
+            if (resourceName is null)
+            {
+                return new AzureOpenAiOptions();
+            }
+
+            using var stream = assembly.GetManifestResourceStream(resourceName)!;
+            var configuration = new ConfigurationBuilder().AddJsonStream(stream).Build();
+            var section = configuration.GetSection("AzureOpenAI");
+
+            var options = new AzureOpenAiOptions();
+            options.Endpoint = section["Endpoint"] ?? options.Endpoint;
+            options.DeploymentName = section["DeploymentName"] ?? options.DeploymentName;
+            options.ApiKey = section["ApiKey"] ?? options.ApiKey;
+            return options;
         }
     }
 }

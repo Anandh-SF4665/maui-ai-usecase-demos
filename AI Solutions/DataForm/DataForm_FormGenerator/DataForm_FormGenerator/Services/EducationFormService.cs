@@ -46,7 +46,7 @@ public sealed class EducationFormService
     /// <c>(null, null)</c> only when the requested level isn't a known
     /// catalog value (i.e. caller asked for a level that doesn't exist).
     /// </summary>
-    public async Task<(string? Title, object? Entry)> GenerateAsync(string educationType)
+    public async Task<(string? Title, object? Entry)> GenerateAsync(string educationType, CancellationToken cancellationToken = default)
     {
         var normalized = (educationType ?? string.Empty).Trim();
         if (!EducationFormCatalog.IsKnown(normalized))
@@ -57,7 +57,7 @@ public sealed class EducationFormService
         try
         {
             SetBusy(true);
-            var result = await schemaService.GenerateAsync(normalized);
+            var result = await schemaService.GenerateAsync(normalized, cancellationToken);
             var schema = result.Schema;
             if (schema is null)
             {
@@ -70,7 +70,7 @@ public sealed class EducationFormService
                     "AI returned an empty schema. Please retry — if this persists, the deployment may be unreachable.");
             }
 
-            var entry = CreateEntry(normalized);
+            var entry = EducationFormCatalog.CreateEntry(normalized);
             return (schema.Title, entry);
         }
         finally
@@ -83,31 +83,5 @@ public sealed class EducationFormService
     {
         IsBusy = value;
         BusyChanged?.Invoke(this, EventArgs.Empty);
-    }
-
-    private static object CreateEntry(string educationType)
-    {
-        var normalized = educationType.Trim().ToLowerInvariant();
-        if (normalized == EducationFormCatalog.HighSchool.ToLowerInvariant())
-        {
-            return new HighSchoolEntry();
-        }
-        if (normalized == EducationFormCatalog.Diploma.ToLowerInvariant())
-        {
-            return new DiplomaEntry();
-        }
-        if (normalized == EducationFormCatalog.AssociateDegree.ToLowerInvariant())
-        {
-            return new AssociateEntry();
-        }
-        if (normalized == EducationFormCatalog.BachelorsDegree.ToLowerInvariant())
-        {
-            return new BachelorsEntry();
-        }
-        if (normalized == EducationFormCatalog.MastersDegree.ToLowerInvariant())
-        {
-            return new MasterEntry();
-        }
-        return new HighSchoolEntry();
     }
 }
