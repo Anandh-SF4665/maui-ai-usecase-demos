@@ -1,9 +1,9 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using AIChatSample.Models;
-using AIChatSample.Services;
 
-namespace AIChatSample.ViewModel;
+
+
+namespace AIChatSample;
 
 /// <summary>
 /// View-model that backs ONLY the right-pane of AgentConfigurePage:

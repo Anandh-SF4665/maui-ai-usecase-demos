@@ -1,9 +1,9 @@
 using System.Collections.ObjectModel;
-using AIChatSample.Models;
+
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 
-namespace AIChatSample.ViewModel;
+namespace AIChatSample;
 
 /// <summary>
 /// View-model for the Profile page. Owns the user-identity block, the

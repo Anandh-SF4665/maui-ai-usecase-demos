@@ -1,14 +1,14 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
-            xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml" x:Class="AIChatSample.Views.AIChat.CreateNewAgentPage"
+            xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml" x:Class="AIChatSample.CreateNewAgentPage"
             xmlns:aiassist="clr-namespace:Syncfusion.Maui.AIAssistView;assembly=Syncfusion.Maui.AIAssistView"
             xmlns:syncTheme="clr-namespace:Syncfusion.Maui.Themes;assembly=Syncfusion.Maui.Core"
-            xmlns:chatViews="clr-namespace:AIChatSample.Views.AIChat"
+            xmlns:chatViews="clr-namespace:AIChatSample"
             xmlns:listView="clr-namespace:Syncfusion.Maui.ListView;assembly=Syncfusion.Maui.ListView"
             xmlns:controls="clr-namespace:AIChatSample.Controls"
             xmlns:local="clr-namespace:AIChatSample"
             xmlns:core="clr-namespace:Syncfusion.Maui.Core;assembly=Syncfusion.Maui.Core"
-            xmlns:model="clr-namespace:AIChatSample.Models" xmlns:viewModel="clr-namespace:AIChatSample.ViewModel">
+            xmlns:model="clr-namespace:AIChatSample" xmlns:viewModel="clr-namespace:AIChatSample">
 
     <ContentPage.Resources>
         <ResourceDictionary>

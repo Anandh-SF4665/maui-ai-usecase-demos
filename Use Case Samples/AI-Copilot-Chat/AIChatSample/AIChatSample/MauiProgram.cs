@@ -1,8 +1,3 @@
-using AIChatSample.AIService;
-using AIChatSample.Services;
-using AIChatSample.ViewModel;
-using AIChatSample.Views;
-using AIChatSample.Views.AIChat;
 using Syncfusion.Maui.Core.Hosting;
 using Syncfusion.Maui.Toolkit.Hosting;
 using Microsoft.Extensions.Logging;

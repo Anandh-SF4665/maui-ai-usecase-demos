@@ -1,4 +1,4 @@
-namespace AIChatSample.Services;
+namespace AIChatSample;
 
 // Provide the default (non-Windows) implementation. The Windows-specific
 // implementation lives under Platforms/Windows and is compiled only when

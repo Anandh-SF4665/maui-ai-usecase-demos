@@ -1,4 +1,4 @@
-namespace AIChatSample.Services;
+namespace AIChatSample;
 
 /// <summary>
 /// Persist/track created agents across the app (single source of truth).
@@ -7,13 +7,13 @@ namespace AIChatSample.Services;
 public interface IAgentStore
 {
     /// <summary>All agents currently known to the store.</summary>
-    IReadOnlyList<Models.AgentConfiguration> Agents { get; }
+    IReadOnlyList<AgentConfiguration> Agents { get; }
 
     /// <summary>Raised on the UI thread when a new agent is added.</summary>
-    event EventHandler<Models.AgentConfiguration>? AgentAdded;
+    event EventHandler<AgentConfiguration>? AgentAdded;
 
     /// <summary>Adds <paramref name="config"/> to the store and raises <see cref="AgentAdded"/>.</summary>
-    void Add(Models.AgentConfiguration config);
+    void Add(AgentConfiguration config);
 
     /// <summary>Returns <c>true</c> when an agent named <paramref name="name"/> already exists (case-insensitive).</summary>
     bool IsNameTaken(string name);
@@ -26,16 +26,16 @@ public interface IAgentStore
 /// </summary>
 public sealed class InMemoryAgentStore : IAgentStore
 {
-    private readonly List<Models.AgentConfiguration> _agents = new();
+    private readonly List<AgentConfiguration> _agents = new();
 
     /// <inheritdoc />
-    public IReadOnlyList<Models.AgentConfiguration> Agents => _agents;
+    public IReadOnlyList<AgentConfiguration> Agents => _agents;
 
     /// <inheritdoc />
-    public event EventHandler<Models.AgentConfiguration>? AgentAdded;
+    public event EventHandler<AgentConfiguration>? AgentAdded;
 
     /// <inheritdoc />
-    public void Add(Models.AgentConfiguration config)
+    public void Add(AgentConfiguration config)
     {
         if (config is null || string.IsNullOrWhiteSpace(config.AgentName))
         {

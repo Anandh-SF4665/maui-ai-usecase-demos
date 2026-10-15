@@ -1,6 +1,6 @@
-using AIChatSample.Models;
 
-namespace AIChatSample.Services;
+
+namespace AIChatSample;
 
 /// <summary>
 /// Creation/validation gateway for agents. Currently simulates a backend

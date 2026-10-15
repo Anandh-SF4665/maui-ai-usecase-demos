@@ -1,8 +1,8 @@
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
-using AIChatSample.Models;
 
-namespace AIChatSample.Services;
+
+namespace AIChatSample;
 
 /// <summary>
 /// In-memory store for chat sessions and the shared <see cref="UserProfile"/>.

@@ -1,7 +1,7 @@
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 
-namespace AIChatSample.Models;
+namespace AIChatSample;
 
 /// <summary>Row kind surfaced in the Library list.</summary>
 public enum LibraryItemType

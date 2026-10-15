@@ -1,8 +1,3 @@
-using AIChatSample.Models;
-using AIChatSample.Services;
-using AIChatSample.ViewModel;
-using Microsoft.Maui.Controls;
-using Syncfusion.Maui.ListView;
 using System.ComponentModel;
 
 namespace AIChatSample.Controls;

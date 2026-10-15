@@ -1,7 +1,7 @@
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 
-namespace AIChatSample.Models;
+namespace AIChatSample;
 
 /// <summary>One image card in the Image Library / Media Gallery grid.</summary>
 public class ImageItemModel : INotifyPropertyChanged

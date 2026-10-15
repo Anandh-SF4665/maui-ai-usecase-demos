@@ -1,7 +1,7 @@
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 
-namespace AIChatSample.Models;
+namespace AIChatSample;
 
 /// <summary>One selectable icon in the Agent Logo popup (Create mode).</summary>
 public class LogoIconModel : INotifyPropertyChanged

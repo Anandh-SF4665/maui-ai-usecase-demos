@@ -1,6 +1,6 @@
-using AIChatSample.AIService;
-using AIChatSample.Models;
-using AIChatSample.Services;
+
+
+
 using Syncfusion.Maui.AIAssistView;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
@@ -10,7 +10,7 @@ using System.Windows.Input;
 using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.ComponentModel;
 
-namespace AIChatSample.ViewModel;
+namespace AIChatSample;
 
 /// <summary>
 /// View-model for the new-chat screen. Owns the prompt + response flow

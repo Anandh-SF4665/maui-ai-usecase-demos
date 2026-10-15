@@ -1,4 +1,4 @@
-namespace AIChatSample.Services;
+namespace AIChatSample;
 
 /// <summary>
 /// Minimal service locator giving non-DI-constructed view-models (XAML

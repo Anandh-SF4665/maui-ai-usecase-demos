@@ -1,6 +1,6 @@
-using AIChatSample.Models;
 
-namespace AIChatSample.AIService;
+
+namespace AIChatSample;
 
 /// <summary>
 /// Single seam between the UI and any AI provider (NFR-2).

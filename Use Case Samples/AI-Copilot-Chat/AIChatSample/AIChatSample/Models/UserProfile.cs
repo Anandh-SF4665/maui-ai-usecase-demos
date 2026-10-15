@@ -1,7 +1,7 @@
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 
-namespace AIChatSample.Models;
+namespace AIChatSample;
 
 /// <summary>
 /// App-wide shared user identity. Mutating this object notifies every

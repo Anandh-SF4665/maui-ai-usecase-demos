@@ -1,6 +1,6 @@
 using System.Globalization;
 
-namespace AIChatSample.Models;
+namespace AIChatSample;
 
 /// <summary>
 /// Maps a boolean (loading-done flag) to a 0.85 / 1.0 scale factor so the

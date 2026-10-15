@@ -1,8 +1,6 @@
 using AIChatSample.Controls;
-using AIChatSample.Services;
-using AIChatSample.ViewModel;
 
-namespace AIChatSample.Views.AIChat;
+namespace AIChatSample;
 
 public partial class LibraryPage : ContentPage
 {

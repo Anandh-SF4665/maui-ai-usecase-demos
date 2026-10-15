@@ -1,11 +1,11 @@
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Windows.Input;
-using AIChatSample.Models;
+
 using CommunityToolkit.Mvvm.ComponentModel;
 using Microsoft.Maui.Controls;
 
-namespace AIChatSample.ViewModel
+namespace AIChatSample
 {
 
     public partial class AgentLogoPopupViewModel : ObservableObject

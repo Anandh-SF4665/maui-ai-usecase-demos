@@ -1,10 +1,7 @@
-using System.Collections.ObjectModel;
 using System.Windows.Input;
-using AIChatSample.Models;
-using AIChatSample.Services;
 using CommunityToolkit.Mvvm.ComponentModel;
 
-namespace AIChatSample.ViewModel;
+namespace AIChatSample;
 
 /// <summary>
 /// Composite view-model for the right-pane of <c>AgentConfigurePage</c>:

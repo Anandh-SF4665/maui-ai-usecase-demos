@@ -1,20 +1,16 @@
-﻿using AIChatSample.Views.AIChat;
-using Microsoft.Maui.Controls;
+﻿namespace AIChatSample;
 
-namespace AIChatSample
+public partial class App : Application
 {
-    public partial class App : Application
+    public App()
     {
-        public App()
-        {
-            InitializeComponent();
-        }
+        InitializeComponent();
+    }
 
-        protected override Window CreateWindow(IActivationState? activationState)
-        {
-            // Initial route: NewChat wrapped in a NavigationPage so Profile,
-            // Library, CreateAgent, etc. can be pushed onto the stack.
-            return new Window(new AppShell());
-        }
+    protected override Window CreateWindow(IActivationState? activationState)
+    {
+        // Initial route: NewChat wrapped in a NavigationPage so Profile,
+        // Library, CreateAgent, etc. can be pushed onto the stack.
+        return new Window(new AppShell());
     }
 }

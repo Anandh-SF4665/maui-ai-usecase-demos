@@ -3,7 +3,7 @@ using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using Syncfusion.Maui.AIAssistView;
 
-namespace AIChatSample.Models;
+namespace AIChatSample;
 
 /// <summary>
 /// Single conversation between the user and the AI. Holds the message

@@ -1,4 +1,4 @@
-namespace AIChatSample.Models;
+namespace AIChatSample;
 
 /// <summary>One row in the Connected Services card on the Profile page.</summary>
 public sealed class ConnectedService

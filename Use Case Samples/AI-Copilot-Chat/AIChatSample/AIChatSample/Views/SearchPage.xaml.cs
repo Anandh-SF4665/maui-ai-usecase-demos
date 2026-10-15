@@ -1,11 +1,7 @@
 using AIChatSample.Controls;
-using AIChatSample.Models;
-using AIChatSample.Services;
-using AIChatSample.ViewModel;
-using Syncfusion.Maui.ListView;
 using Syncfusion.Maui.Toolkit.Popup;
 
-namespace AIChatSample.Views.AIChat;
+namespace AIChatSample;
 
 public partial class SearchPage : ContentPage
 {

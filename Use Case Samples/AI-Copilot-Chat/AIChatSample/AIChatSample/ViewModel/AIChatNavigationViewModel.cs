@@ -1,7 +1,7 @@
 using System.Collections.ObjectModel;
-using AIChatSample.Models;
 
-namespace AIChatSample.ViewModel;
+
+namespace AIChatSample;
 
 /// <summary>
 /// Backing data for the primary items in the <c>AIChatNavigationPanel</c>

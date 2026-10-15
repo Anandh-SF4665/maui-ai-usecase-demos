@@ -1,7 +1,6 @@
 using System.ComponentModel;
-using Microsoft.Maui.Graphics;
 
-namespace AIChatSample.Models;
+namespace AIChatSample;
 
 /// <summary>
 /// One row in the <c>AIChatNavigationPanel</c> primary-items list (e.g.

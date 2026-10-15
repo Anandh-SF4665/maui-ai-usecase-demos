@@ -2,13 +2,13 @@ using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Threading.Tasks;
 using System.Windows.Input;
-using AIChatSample.AIService;
-using AIChatSample.Models;
-using AIChatSample.Services;
+
+
+
 using CommunityToolkit.Mvvm.ComponentModel;
 using Syncfusion.Maui.AIAssistView;
 
-namespace AIChatSample.ViewModel;
+namespace AIChatSample;
 
 /// <summary>
 /// View-model for the Copilot-style "create new agent" prompt page.
@@ -161,7 +161,7 @@ public partial class CreateAgentViewModel : ObservableObject
         }
     }
 
-    private void OnAgentAddedToStore(object? sender, Models.AgentConfiguration e) => SyncAgentsFromStore();
+    private void OnAgentAddedToStore(object? sender, AgentConfiguration e) => SyncAgentsFromStore();
 
     #region Properties
 

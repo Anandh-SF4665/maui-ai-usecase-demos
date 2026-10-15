@@ -1,6 +1,6 @@
 using System.Text.Json.Serialization;
 
-namespace AIChatSample.AIService;
+namespace AIChatSample;
 
 /// <summary>
 /// Represents the AI-generated response returned from the AI service.

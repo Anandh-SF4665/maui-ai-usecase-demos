@@ -4,7 +4,7 @@
     xmlns:expander="clr-namespace:Syncfusion.Maui.Expander;assembly=Syncfusion.Maui.Expander"
     xmlns:listView="clr-namespace:Syncfusion.Maui.ListView;assembly=Syncfusion.Maui.ListView"
     xmlns:core="clr-namespace:Syncfusion.Maui.Core;assembly=Syncfusion.Maui.Core"
-    xmlns:model="clr-namespace:AIChatSample.Models"
+    xmlns:model="clr-namespace:AIChatSample"
     xmlns:buttons="clr-namespace:Syncfusion.Maui.Toolkit.Buttons;assembly=Syncfusion.Maui.Toolkit"
     xmlns:converters="clr-namespace:AIChatSample.Converters"
     x:Class="AIChatSample.Controls.AIChatNavigationPanel" x:Name="Root">

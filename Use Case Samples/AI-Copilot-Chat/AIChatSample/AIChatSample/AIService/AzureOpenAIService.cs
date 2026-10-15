@@ -2,9 +2,9 @@ using System.Text.Json;
 using Azure;
 using Azure.AI.OpenAI;
 using OpenAI.Chat;
-using AIChatSample.Models;
 
-namespace AIChatSample.AIService;
+
+namespace AIChatSample;
 
 /// <summary>
 /// Real Azure OpenAI implementation of <see cref="IAIService"/>.

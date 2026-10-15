@@ -1,7 +1,7 @@
-using AIChatSample.Models;
+
 using System.Text;
 
-namespace AIChatSample.AIService;
+namespace AIChatSample;
 
 /// <summary>
 /// Deterministic offline implementation of <see cref="IAIService"/> used

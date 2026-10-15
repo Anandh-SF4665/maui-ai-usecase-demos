@@ -1,8 +1,7 @@
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
-using Syncfusion.Maui.AIAssistView;
 
-namespace AIChatSample.Models;
+namespace AIChatSample;
 
 /// <summary>
 /// View-model-friendly wrapper around an <see cref="AgentConfiguration"/>
@@ -153,4 +152,19 @@ public class AgentItem : INotifyPropertyChanged
     /// <summary>Raises <see cref="PropertyChanged"/> for the supplied property name.</summary>
     protected void OnPropertyChanged([CallerMemberName] string? p = null) =>
         this.PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(p));
+}
+
+public class RecentChatItem
+{
+    public string? Title { get; set; }
+    public string? Time { get; set; }
+    public string? Glyph { get; set; }
+
+    /// <summary>
+    /// Carries the underlying <see cref="ChatSession"/> (or its id as a
+    /// string) so the host view-model can resolve the row back to a
+    /// stored session. Set by <c>AIMainLayoutViewModel</c> when
+    /// materialising the Recent chats list (FR-0.4).
+    /// </summary>
+    public object? Tag { get; set; }
 }

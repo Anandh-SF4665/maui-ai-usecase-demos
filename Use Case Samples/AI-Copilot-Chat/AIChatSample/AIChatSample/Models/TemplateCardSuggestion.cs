@@ -1,7 +1,7 @@
 using System.ComponentModel;
 using Syncfusion.Maui.AIAssistView;
 
-namespace AIChatSample.Models;
+namespace AIChatSample;
 
 /// <summary>
 /// A suggestion card rendered inside the <c>SfAIAssistView</c> on

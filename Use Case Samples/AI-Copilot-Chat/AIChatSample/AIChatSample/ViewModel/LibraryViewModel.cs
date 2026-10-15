@@ -1,9 +1,9 @@
 using System.Collections.ObjectModel;
 using System.Windows.Input;
-using AIChatSample.Models;
+
 using CommunityToolkit.Mvvm.ComponentModel;
 
-namespace AIChatSample.ViewModel;
+namespace AIChatSample;
 
 /// <summary>
 /// View-model for the Library / Knowledge Hub page. Owns the chat and

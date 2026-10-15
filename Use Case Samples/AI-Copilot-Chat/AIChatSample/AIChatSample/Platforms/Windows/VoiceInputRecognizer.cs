@@ -1,7 +1,7 @@
 #if WINDOWS
 using Windows.Media.SpeechRecognition;
 
-namespace AIChatSample.Services;
+namespace AIChatSample;
 
 /// <summary>
 /// Windows-specific voice input backed by

@@ -1,4 +1,4 @@
-namespace AIChatSample.Models;
+namespace AIChatSample;
 
 /// <summary>
 /// Stable identifiers for the agents that ship with the app. Used so the

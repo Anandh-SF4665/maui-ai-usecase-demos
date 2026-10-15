@@ -1,7 +1,7 @@
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 
-namespace AIChatSample.Models;
+namespace AIChatSample;
 
 /// <summary>One row in the legacy sidebar list (New chat, Search, Library, …).</summary>
 public class SidebarItem : INotifyPropertyChanged

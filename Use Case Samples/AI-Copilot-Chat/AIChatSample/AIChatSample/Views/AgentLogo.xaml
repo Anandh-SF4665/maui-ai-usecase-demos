@@ -3,10 +3,10 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     xmlns:buttons="clr-namespace:Syncfusion.Maui.Toolkit.Buttons;assembly=Syncfusion.Maui.Toolkit"
     xmlns:popup="clr-namespace:Syncfusion.Maui.Toolkit.Popup;assembly=Syncfusion.Maui.Toolkit"
-    xmlns:viewModel="clr-namespace:AIChatSample.ViewModel"
-    xmlns:model="clr-namespace:AIChatSample.Models"
+    xmlns:viewModel="clr-namespace:AIChatSample"
+    xmlns:model="clr-namespace:AIChatSample"
     xmlns:convertor="clr-namespace:AIChatSample.Converters"
-    x:Class="AIChatSample.Views.AIChat.AgentLogoPage"
+    x:Class="AIChatSample.AgentLogoPage"
     x:DataType="viewModel:AgentLogoPopupViewModel"
     x:Name="root"
     BackgroundColor="Transparent">

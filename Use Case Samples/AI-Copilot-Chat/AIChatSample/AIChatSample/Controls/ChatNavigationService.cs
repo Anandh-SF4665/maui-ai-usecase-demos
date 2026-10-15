@@ -1,8 +1,8 @@
-using AIChatSample.Models;
-using AIChatSample.Models;
-using AIChatSample.Services;
-using AIChatSample.ViewModel;
-using AIChatSample.Views.AIChat;
+
+
+
+
+using AIChatSample;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Maui.Controls;
 

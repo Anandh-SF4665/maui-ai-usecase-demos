@@ -1,4 +1,4 @@
-namespace AIChatSample.Models;
+namespace AIChatSample;
 
 /// <summary>
 /// Lightweight proposal returned by the AI for the agent-creation

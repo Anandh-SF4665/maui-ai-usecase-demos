@@ -1,11 +1,9 @@
 using System.Collections.ObjectModel;
 using System.Windows.Input;
-using AIChatSample.AIService;
-using AIChatSample.Services;
 using CommunityToolkit.Mvvm.ComponentModel;
 using Syncfusion.Maui.AIAssistView;
 
-namespace AIChatSample.ViewModel;
+namespace AIChatSample;
 
 /// <summary>
 /// Tiny Copilot view-model for the chat that sits at the bottom of the
