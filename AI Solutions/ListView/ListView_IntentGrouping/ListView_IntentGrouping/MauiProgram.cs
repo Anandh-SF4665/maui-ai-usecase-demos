@@ -17,7 +17,6 @@ namespace ListView_IntentGrouping
                 {
                     fonts.AddFont("OpenSans-Regular.ttf", "OpenSansRegular");
                     fonts.AddFont("OpenSans-Semibold.ttf", "OpenSansSemibold");
-                    fonts.AddFont("MauiMaterialAssets.ttf", "MaterialAssets");
                 });
 
             if (AzureBaseService.IsConfigured)
@@ -31,7 +30,6 @@ namespace ListView_IntentGrouping
                 builder.Services.AddSingleton<IIntentAnalyzer, IntentAnalyzerService>();
             }
 
-            builder.Services.AddSingleton<IntentAnalyzerService>();
             builder.Services.AddSingleton<MainPageViewModel>();
             builder.Services.AddSingleton<MainPage>();
 

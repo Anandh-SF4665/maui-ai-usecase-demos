@@ -20,7 +20,6 @@ public sealed class EducationEntryViewModel : INotifyPropertyChanged
     private bool isExpanded = true;
     private string? errorMessage;
     private string header;
-    private bool isSaved;
     private bool isDone;
     private bool hasValidationError;
     private string validationTitle = string.Empty;

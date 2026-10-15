@@ -143,6 +143,35 @@ public static class EducationFormCatalog
             || normalizedNoApostrophe == "masters";
     }
 
+    /// <summary>
+    /// Returns a fresh, strongly-typed POCO for the given education level
+    /// (the type SfDataForm renders). Falls back to <see cref="HighSchoolEntry"/>
+    /// for unknown values.
+    /// </summary>
+    public static object CreateEntry(string educationType)
+    {
+        var normalized = (educationType ?? string.Empty).Trim().ToLowerInvariant();
+        var normalizedNoApostrophe = normalized.Replace("'", string.Empty);
+
+        if (normalized == Diploma.ToLowerInvariant())
+        {
+            return new DiplomaEntry();
+        }
+        if (normalized == AssociateDegree.ToLowerInvariant() || normalizedNoApostrophe == "associate")
+        {
+            return new AssociateEntry();
+        }
+        if (normalized == BachelorsDegree.ToLowerInvariant() || normalizedNoApostrophe == "bachelors")
+        {
+            return new BachelorsEntry();
+        }
+        if (normalized == MastersDegree.ToLowerInvariant() || normalizedNoApostrophe == "masters")
+        {
+            return new MasterEntry();
+        }
+        return new HighSchoolEntry();
+    }
+
     private static EducationFieldDefinition Field(
         string name,
         string label,

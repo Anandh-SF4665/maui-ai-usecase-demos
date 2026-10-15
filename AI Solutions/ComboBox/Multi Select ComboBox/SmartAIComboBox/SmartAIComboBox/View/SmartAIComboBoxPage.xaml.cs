@@ -74,6 +74,6 @@ public partial class SmartAIComboBoxPage : ContentPage
     private void OnDropDownItemCheckBoxChanged(object? sender, CheckedChangedEventArgs e)
     {
         if (sender is CheckBox cb && cb.BindingContext is FruitModel item)
-            _viewModel.ToggleSelection(item);
+            _viewModel.SetSelection(item, e.Value);
     }
 }
