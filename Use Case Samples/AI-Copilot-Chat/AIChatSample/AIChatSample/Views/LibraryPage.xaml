@@ -61,8 +61,8 @@
                                 Stroke="{AppThemeBinding Light={DynamicResource ContentTextColorDark}, Dark={DynamicResource SecondaryTextColorLight}}"
                                 VerticalOptions="Fill">
                                 <core:SfTextInputLayout.LeadingView>
-                                    <Image Source="{StaticResource IL_SearchGlyph}" WidthRequest="18" HeightRequest="18"
-                                        VerticalOptions="Center" Margin="0,5,0,0" />
+                                    <Image Source="{StaticResource IL_SearchGlyph}" WidthRequest="14" HeightRequest="14"
+                                        VerticalOptions="Center" Margin="12,5,0,0" />
                                 </core:SfTextInputLayout.LeadingView>
                                 <core:SfTextInputLayout.HintLabelStyle>
                                     <core:LabelStyle FontSize="14" FontFamily="Roboto-Regular"

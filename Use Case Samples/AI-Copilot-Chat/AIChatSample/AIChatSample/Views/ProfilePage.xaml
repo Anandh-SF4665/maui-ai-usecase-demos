@@ -62,12 +62,12 @@
 
                                 <VerticalStackLayout Spacing="6">
                                     <Label Text="Display Name" Style="{StaticResource AC_FieldLabel}" />
-                                    <Entry Text="{Binding ProfileName}" Placeholder="Enter your display name" />
+                                    <controls:BorderlessEntry Text="{Binding ProfileName}" Placeholder="Enter your display name" />
                                 </VerticalStackLayout>
 
                                 <VerticalStackLayout Spacing="6">
                                     <Label Text="Email Address" Style="{StaticResource AC_FieldLabel}" />
-                                    <Entry Text="{Binding ProfileEmail}" Placeholder="name@example.com" Keyboard="Email" />
+                                    <controls:BorderlessEntry Text="{Binding ProfileEmail}" Placeholder="name@example.com" Keyboard="Email" />
                                 </VerticalStackLayout>
 
                                 <Label Text="{Binding ProfileErrorMessage}" TextColor="#D93025" />

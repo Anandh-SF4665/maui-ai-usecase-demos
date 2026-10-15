@@ -82,7 +82,7 @@
 
             <ScrollView Grid.Row="0" VerticalScrollBarVisibility="Never"
                 BackgroundColor="{AppThemeBinding Light={DynamicResource BackgroundColorLight}, Dark={DynamicResource BackgroundColorDark}}">
-                <VerticalStackLayout Padding="8,0" Spacing="0">
+                <VerticalStackLayout Padding="0" Spacing="0">
 
                     <listView:SfListView ItemsSource="{Binding chatVM.PrimaryItems}" ItemSize="44"
                                          SelectionBackground="Transparent"
@@ -91,7 +91,7 @@
                                          Margin="0,4,0,0">
                         <listView:SfListView.ItemTemplate>
                             <DataTemplate>
-                                <Border HeightRequest="44" Margin="8,0" BackgroundColor="{Binding BackgroundColor}"
+                                <Border HeightRequest="44" BackgroundColor="{Binding BackgroundColor}"
                                     StrokeThickness="0">
                                     <Border.StrokeShape>
                                         <RoundRectangle CornerRadius="10" />
@@ -155,8 +155,7 @@
                                                 <Border WidthRequest="28" HeightRequest="28" StrokeThickness="0" StrokeShape="RoundRectangle 14" BackgroundColor="{Binding Color}">
                                                     <Grid>
                                                         <Image Source="{Binding AvatarSource, Converter={StaticResource StringToImageSource}}" Aspect="AspectFill" IsVisible="{Binding AvatarSource, Converter={StaticResource StringNotEmpty}}" />
-                                                        <Image Source="{Binding IconAvatar}" WidthRequest="18" HeightRequest="18" HorizontalOptions="Center" VerticalOptions="Center" IsVisible="{Binding ShowIconAvatar}" />
-                                                        <Label Text="{Binding Initial}" FontSize="14" FontFamily="Roboto-Medium" TextColor="White" HorizontalOptions="Center" VerticalOptions="Center" IsVisible="{Binding ShowInitial}" />
+                                                        <Image Source="{Binding IconAvatar}" WidthRequest="16" Margin="-3,0,0,0" HeightRequest="16" HorizontalOptions="Center" VerticalOptions="Center" IsVisible="{Binding ShowIconAvatar}" />
                                                     </Grid>
                                                 </Border>
                                                 <Label Grid.Column="1" Style="{StaticResource DrawerSubItemLabel}"

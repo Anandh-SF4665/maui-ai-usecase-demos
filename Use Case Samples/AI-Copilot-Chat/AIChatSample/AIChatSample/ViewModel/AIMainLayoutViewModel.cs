@@ -143,7 +143,7 @@ namespace AIChatSample.ViewModel
                     Name = "Code Reviewer",
                     Initial = "C",
                     Color = Microsoft.Maui.Graphics.Color.FromArgb("#7633DA"),
-                    AvatarGlyph = "UIKitIcons;\ue72b;#FFFFFF",
+                    AvatarGlyph = "UIKitIcons;\ue70b;#FFFFFF",
                 },
                 new()
                 {
@@ -151,7 +151,7 @@ namespace AIChatSample.ViewModel
                     Name = "Social Media Writer",
                     Initial = "S",
                     Color = Microsoft.Maui.Graphics.Color.FromArgb("#D55E2C"),
-                    AvatarGlyph = "UIKitIcons;\ue733;#FFFFFF",
+                    AvatarGlyph = "UIKitIcons;\ue703;#FFFFFF",
                 },
             };
 

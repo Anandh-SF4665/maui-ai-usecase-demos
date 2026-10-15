@@ -29,8 +29,8 @@ public partial class CreateAgentViewModel : ObservableObject
             new TemplateCardSuggestion
             {
                 Text = "Research agent",
-                IconGlyph = "\ue736",
-                IconFontFamily = "MaterialAssets",
+                IconGlyph = "\ue707",
+                IconFontFamily = "FontIcons",
                 IconBackground = "#F1ECFE",
                 TitleText = "Research agent",
                 DescriptionText = "Finds and synthesizes information from multiple sources automatically.",
@@ -40,8 +40,8 @@ public partial class CreateAgentViewModel : ObservableObject
             new TemplateCardSuggestion
             {
                 Text = "Customer support agent",
-                IconGlyph = "\ue736",
-                IconFontFamily = "MaterialAssets",
+                IconGlyph = "\ue723",
+                IconFontFamily = "FontIcons",
                 IconBackground = "#F1ECFE",
                 TitleText = "Customer support agent",
                 DescriptionText = "Handles common inquiries and routes complex issues to your team.",
@@ -51,8 +51,8 @@ public partial class CreateAgentViewModel : ObservableObject
             new TemplateCardSuggestion
             {
                 Text = "Data analysis agent",
-                IconGlyph = "\ue736",
-                IconFontFamily = "MaterialAssets",
+                IconGlyph = "\ue745",
+                IconFontFamily = "FontIcons",
                 IconBackground = "#F1ECFE",
                 TitleText = "Data analysis agent",
                 DescriptionText = "Interprets datasets, spots trends, and generates visual reports.",
@@ -66,8 +66,8 @@ public partial class CreateAgentViewModel : ObservableObject
             new()
             {
                 Text = "Meeting notes assistant",
-                IconGlyph = "\ue736",
-                IconFontFamily = "MaterialAssets",
+                IconGlyph = "\ue752",
+                IconFontFamily = "FontIcons",
                 IconBackground = "#F1ECFE",
                 TitleText = "Meeting notes assistant",
                 DescriptionText = "Turns raw meeting transcripts into structured action items.",
@@ -77,8 +77,8 @@ public partial class CreateAgentViewModel : ObservableObject
             new()
             {
                 Text = "Code reviewer",
-                IconGlyph = "\ue736",
-                IconFontFamily = "MaterialAssets",
+                IconGlyph = "\ue737",
+                IconFontFamily = "FontIcons",
                 IconBackground = "#F1ECFE",
                 TitleText = "Code reviewer",
                 DescriptionText = "Reviews pull requests and suggests improvements to your code.",
@@ -88,8 +88,8 @@ public partial class CreateAgentViewModel : ObservableObject
             new()
             {
                 Text = "Social media writer",
-                IconGlyph = "\ue736",
-                IconFontFamily = "MaterialAssets",
+                IconGlyph = "\ue73B",
+                IconFontFamily = "FontIcons",
                 IconBackground = "#F1ECFE",
                 TitleText = "Social media writer",
                 DescriptionText = "Creates engaging posts tailored to each platform's audience.",

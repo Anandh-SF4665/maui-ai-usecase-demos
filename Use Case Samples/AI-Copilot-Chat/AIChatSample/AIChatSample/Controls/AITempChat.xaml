@@ -47,6 +47,7 @@
 
             <ScrollView Grid.Row="1" VerticalOptions="Fill" HorizontalOptions="Fill">
                 <assistView:SfAIAssistView x:Name="sfAIAssistView" HeaderTemplate="{StaticResource headerTemplate}"
+                                           Background="{AppThemeBinding Light=white,Dark=#1C1B1D}"
                     ShowToolbar="False" EnableConversationHistory="False" Padding="20" HorizontalOptions="Fill"
                     VerticalOptions="Fill">
 

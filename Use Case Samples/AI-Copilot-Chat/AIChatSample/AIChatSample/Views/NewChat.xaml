@@ -16,7 +16,7 @@
         <ResourceDictionary>
             <converters:InverseBooleanConverter x:Key="InvertedBoolConverter" />
             <DataTemplate x:Key="headerTemplate">
-                <Grid RowDefinitions="45,30,45" HorizontalOptions="Center"
+                <Grid RowDefinitions="48,30,45" HorizontalOptions="Center"
                     VerticalOptions="{OnPlatform Android=Start, Default=Center}"
                     Margin="{OnPlatform Android='0,0,0,0', Default='0'}"
                     Padding="{OnPlatform Android='0', Default='0,0,0,32'}"
@@ -80,6 +80,7 @@
 
                 <assistView:SfAIAssistView x:Name="sfAIAssistView" 
                                            HeaderTemplate="{StaticResource headerTemplate}"
+                                           Background="{AppThemeBinding Light=white,Dark=#1C1B1D}"
                                            ShowToolbar="False" 
                                            EnableConversationHistory="False" 
                                            Padding="20"
@@ -167,11 +168,8 @@
                             </VerticalStackLayout>
                         </DataTemplate>
                     </assistView:SfAIAssistView.EditorViewTemplate>
-
                 </assistView:SfAIAssistView>
-
             </Grid>
-
         </Grid>
 
         <controls:AIChatNavigationPanel Grid.Column="0" x:Name="AIChatNavigationPanel" HorizontalOptions="Start"

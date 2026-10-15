@@ -232,13 +232,12 @@
                         <VerticalStackLayout Spacing="12" IsVisible="{Binding IsUploadMode}" HorizontalOptions="Center">
 
                             <!-- LIVE IMAGE PREVIEW (large so the picked image is clearly visible) -->
-                            <Border WidthRequest="160" HeightRequest="160" StrokeThickness="1"
+                            <Border WidthRequest="100" HeightRequest="100" StrokeThickness="1"
                                 Stroke="{AppThemeBinding Light=#C9C6C8, Dark=#858385}" StrokeShape="RoundRectangle 16"
                                 BackgroundColor="Transparent" HorizontalOptions="Center" Margin="0,4,0,0">
                                 <Grid>
                                     <Image Source="{Binding SelectedImage, Converter={StaticResource StringToImageSource}}"
-                                        Aspect="AspectFill"
-                                        IsVisible="{Binding HasSelectedImage}" />
+                                           Aspect="AspectFill" IsVisible="{Binding HasSelectedImage}" />
                                     <Image Source="{AppThemeBinding Light=photolight.png, Dark=photodark.png}"
                                         WidthRequest="40" HeightRequest="40" HorizontalOptions="Center"
                                         VerticalOptions="Center"

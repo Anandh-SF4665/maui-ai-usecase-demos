@@ -33,11 +33,7 @@ public sealed class AzureOpenAIService : IAIService
     /// <c>AZURE_OPENAI_TIMEOUT_SECONDS</c> (default 60).
     /// </summary>
     //public AzureOpenAIService()
-    // : this(
-    //     endpoint: "https://ai284466.openai.azure.com/",
-    //     apiKey: "6lKtUfLBBF9uYBfudVmHEcAD8VS9jh96J43cZbj6ki2F1ox2cSILJQQJ99CJACYeBjFXJ3w3AAABACOGeWPi",
-    //     deployment: "gpt-5.1",
-    //     timeoutSeconds: 100)
+    //     : this()
     //{
     //}
 

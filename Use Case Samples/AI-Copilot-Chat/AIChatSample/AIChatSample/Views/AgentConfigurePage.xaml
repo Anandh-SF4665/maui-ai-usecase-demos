@@ -58,6 +58,7 @@
                 <Setter Property="FontSize" Value="14" />
                 <Setter Property="CornerRadius" Value="16" />
                 <Setter Property="HeightRequest" Value="34" />
+                <Setter Property="WidthRequest" Value="164" />
                 <Setter Property="Padding" Value="14,0" />
                 <Setter Property="ShowIcon" Value="True" />
                 <Setter Property="ImageAlignment" Value="Left" />
@@ -143,7 +144,6 @@
                                     ChipTextColor="{AppThemeBinding Light=#313032, Dark=#FFFFFF}"
                                     ChipFontFamily="Roboto-Medium"
                                     ChipTextSize="14"
-                                    ChipPadding="14,0,12,0"
                                     ChipCornerRadius="16"
                                     SelectedChipBackground="{AppThemeBinding Light=#EBDCFF, Dark=#3C3B3D}"
                                     SelectedChipTextColor="{AppThemeBinding Light=#313032, Dark=#FFFFFF}"
@@ -151,13 +151,15 @@
                                     HorizontalOptions="Start" VerticalOptions="Center" />
                             </HorizontalStackLayout>
 
-                            <buttons:SfButton Grid.Column="2" Style="{StaticResource CA_CreateAgentButton}"
-                                SemanticProperties.Description="Create Agent"
-                                SemanticProperties.Hint="Saves the specialist agent and opens it"
-                                ImageSource="{StaticResource CA_PlusGlyph}"
-                                Text="Create Agent"
-                                IsEnabled="{Binding IsCreateEnabled}"
-                                Clicked="OnCreateAgentClicked">
+                            <buttons:SfButton Grid.Column="2" 
+                                              Style="{StaticResource CA_CreateAgentButton}"
+                                              SemanticProperties.Description="Create Agent"
+                                              SemanticProperties.Hint="Saves the specialist agent and opens it"
+                                              ImageSource="{StaticResource CA_PlusGlyph}"
+                                              Text="Create Agent"
+                                              HorizontalTextAlignment="Start"
+                                              IsEnabled="{Binding IsCreateEnabled}"
+                                              Clicked="OnCreateAgentClicked">
                                 <buttons:SfButton.Triggers>
                                     <DataTrigger TargetType="buttons:SfButton"
                                         Binding="{Binding IsBusy}" Value="True">

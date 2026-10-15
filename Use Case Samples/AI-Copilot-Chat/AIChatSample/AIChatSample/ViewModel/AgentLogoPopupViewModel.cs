@@ -164,14 +164,14 @@ namespace AIChatSample.ViewModel
         public AgentLogoPopupViewModel()
         {
             // ---- Icons ----
-            AvailableIcons.Add(new LogoIconModel { Id = "1", IconName = "Image", IconGlyph = "\ue71d", IconFontFamily = "UIKitIcons" });
-            AvailableIcons.Add(new LogoIconModel { Id = "2", IconName = "Idea", IconGlyph = "\ue730", IconFontFamily = "UIKitIcons" });
-            AvailableIcons.Add(new LogoIconModel { Id = "3", IconName = "Information", IconGlyph = "\ue731", IconFontFamily = "UIKitIcons" });
-            AvailableIcons.Add(new LogoIconModel { Id = "4", IconName = "Checklist", IconGlyph = "\ue72b", IconFontFamily = "UIKitIcons" });
-            AvailableIcons.Add(new LogoIconModel { Id = "5", IconName = "Document", IconGlyph = "\ue732", IconFontFamily = "UIKitIcons" });
-            AvailableIcons.Add(new LogoIconModel { Id = "6", IconName = "Institution", IconGlyph = "\ue70e", IconFontFamily = "UIKitIcons" });
-            AvailableIcons.Add(new LogoIconModel { Id = "7", IconName = "Puzzle", IconGlyph = "\ue733", IconFontFamily = "UIKitIcons" });
-            AvailableIcons.Add(new LogoIconModel { Id = "8", IconName = "Headset", IconGlyph = "\ue722", IconFontFamily = "UIKitIcons" });
+            AvailableIcons.Add(new LogoIconModel { Id = "1", IconName = "Image", IconGlyph = "\ue700", IconFontFamily = "UIKitIcons" });
+            AvailableIcons.Add(new LogoIconModel { Id = "2", IconName = "Idea", IconGlyph = "\ue701", IconFontFamily = "UIKitIcons" });
+            AvailableIcons.Add(new LogoIconModel { Id = "3", IconName = "Information", IconGlyph = "\ue703", IconFontFamily = "UIKitIcons" });
+            AvailableIcons.Add(new LogoIconModel { Id = "4", IconName = "Checklist", IconGlyph = "\ue70d", IconFontFamily = "UIKitIcons" });
+            AvailableIcons.Add(new LogoIconModel { Id = "5", IconName = "Document", IconGlyph = "\ue716", IconFontFamily = "UIKitIcons" });
+            AvailableIcons.Add(new LogoIconModel { Id = "6", IconName = "Institution", IconGlyph = "\ue72d", IconFontFamily = "UIKitIcons" });
+            AvailableIcons.Add(new LogoIconModel { Id = "7", IconName = "Puzzle", IconGlyph = "\ue72e", IconFontFamily = "UIKitIcons" });
+            AvailableIcons.Add(new LogoIconModel { Id = "8", IconName = "Headset", IconGlyph = "\ue71e", IconFontFamily = "UIKitIcons" });
             AvailableIcons.Add(new LogoIconModel { Id = "9", IconName = "Flow", IconGlyph = "\ue715", IconFontFamily = "UIKitIcons" });
             AvailableIcons.Add(new LogoIconModel { Id = "10", IconName = "Users", IconGlyph = "\ue714", IconFontFamily = "UIKitIcons" });
             AvailableIcons[0].IsSelected = true;
