@@ -15,14 +15,11 @@ public sealed class ImagePickerService : IImagePickerService
     public async Task<FileResult?> CapturePhotoAsync(
         CancellationToken cancellationToken = default)
     {
-        // Unpackaged Windows apps (WindowsPackageType=None) cannot launch the
-        // WinRT CameraCaptureUI because it requires package identity. Fall back
-        // to the gallery picker on WinUI.
-        if (DeviceInfo.Platform == DevicePlatform.WinUI)
-            return await PickPhotoAsync(cancellationToken);
+        if (IsDesktop)
+            return await PickImageFileAsync();
 
         if (!MediaPicker.Default.IsCaptureSupported)
-            return await PickPhotoAsync(cancellationToken);
+            throw new InvalidOperationException("Camera capture is not available on this device.");
 
         var photo = await MediaPicker.Default.CapturePhotoAsync(
             new MediaPickerOptions { Title = "Capture food label" });
@@ -33,10 +30,29 @@ public sealed class ImagePickerService : IImagePickerService
     public async Task<FileResult?> PickPhotoAsync(
         CancellationToken cancellationToken = default)
     {
-        var photo = await MediaPicker.Default.PickPhotoAsync(
+        if (IsDesktop)
+            return await PickImageFileAsync();
+
+        var photos = await MediaPicker.Default.PickPhotosAsync(
             new MediaPickerOptions { Title = "Select food label" });
 
+        var photo = photos.FirstOrDefault();
         return await CopyToAppCacheAsync(photo);
+    }
+
+    private static bool IsDesktop =>
+        DeviceInfo.Platform == DevicePlatform.WinUI ||
+        DeviceInfo.Platform == DevicePlatform.MacCatalyst;
+
+    private static async Task<FileResult?> PickImageFileAsync()
+    {
+        var file = await FilePicker.Default.PickAsync(new PickOptions
+        {
+            PickerTitle = "Attach food label image",
+            FileTypes = FilePickerFileType.Images
+        });
+
+        return await CopyToAppCacheAsync(file);
     }
 
     // MAUI deletes the temp capture files once the picker closes. Copy to a

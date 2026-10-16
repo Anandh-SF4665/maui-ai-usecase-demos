@@ -434,7 +434,7 @@
 
                                         <Label
                                             Grid.Column="2"
-                                            Text="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.ChevronIcon}"
+                                            Text="&#xE5CC;"
                                             Style="{StaticResource ProfileIconStyle}"
                                             FontSize="20"
                                             TextColor="#94A3B8" />
@@ -508,7 +508,7 @@
                     </Border.Shadow>
 
                     <Border.GestureRecognizers>
-                        <TapGestureRecognizer Command="{Binding ScanCommand}" />
+                        <TapGestureRecognizer Command="{Binding OpenScanCommand}" />
                     </Border.GestureRecognizers>
 
                     <Grid

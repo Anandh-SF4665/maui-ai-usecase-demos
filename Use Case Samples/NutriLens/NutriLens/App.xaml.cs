@@ -1,20 +1,22 @@
+using Microsoft.Extensions.DependencyInjection;
 using NutriLens.Views;
 
 namespace NutriLens
 {
     public partial class App : Application
     {
-        public App()
+            private readonly IServiceProvider services;
+
+            public App(IServiceProvider services)
         {
             InitializeComponent();
-
+                this.services = services;
         }
 
         protected override Window CreateWindow(IActivationState? activationState)
         {
-            // Splash screen delays 3s then pushes the real Dashboard.
-            // AppNavigator expects the root to be a NavigationPage.
-            return new Window(new NavigationPage(new MainPage()));
+            return new Window(new NavigationPage(
+                services.GetRequiredService<NutriLensDashboardPage>()));
         }
     }
 }

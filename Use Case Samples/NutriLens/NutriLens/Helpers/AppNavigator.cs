@@ -29,21 +29,6 @@ namespace NutriLens.Helpers
             => throw new NotSupportedException();
     }
 
-    public class TierToIconConverter : IValueConverter
-    {
-        public object? Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
-            => value is ScoreTier tier ? tier switch
-            {
-                ScoreTier.Excellent => "✔",
-                ScoreTier.Moderate => "⚠",
-                ScoreTier.Poor => "⚠",
-                _ => "•"
-            } : "•";
-
-        public object? ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture)
-            => throw new NotSupportedException();
-    }
-
     /// <summary>
     /// Centralized navigation so Commands remain View-agnostic.
     /// Backed by the NavigationPage set as the root Window page (no Shell).
@@ -58,11 +43,11 @@ namespace NutriLens.Helpers
             ?? throw new InvalidOperationException(
                 "NavigationPage is not set as the root page.");
 
-        public static Task GoDashboardAsync() => PushAsync<NutriLensDashboardPage>();
-        public static Task GoHistoryAsync() => PushAsync<HistoryPage>();
-        public static Task GoProfileAsync() => PushAsync<ProfilePage>();
-        public static Task GoTrendAsync() => PushAsync<TrendsPage>();
-        public static Task GoScanAsync() => PushAsync<ScanIngredientsPage>();
+        public static Task GoDashboardAsync() => NavigateTopLevelAsync<NutriLensDashboardPage>();
+        public static Task GoHistoryAsync() => NavigateTopLevelAsync<HistoryPage>();
+        public static Task GoProfileAsync() => NavigateTopLevelAsync<ProfilePage>();
+        public static Task GoTrendAsync() => NavigateTopLevelAsync<TrendsPage>();
+        public static Task GoScanAsync() => NavigateTopLevelAsync<ScanIngredientsPage>();
         public static Task GoAnalyzeIngredientsAsync() => PushAsync<AnalyzeIngredientsResultPage>();
 
         public static Task PopAsync() => Nav.PopAsync();
@@ -78,12 +63,26 @@ namespace NutriLens.Helpers
             return page.DisplayAlertAsync(title, message, cancel);
         }
 
-        private static Task PushAsync<T>() where T : Page, new()
+        private static async Task NavigateTopLevelAsync<T>() where T : Page
         {
             var nav = Nav;
-            if (nav.NavigationStack.LastOrDefault() is T)
-                return Task.CompletedTask;
-            return nav.PushAsync(new T());
+            await nav.PopToRootAsync(false);
+
+            if (nav.NavigationStack.FirstOrDefault() is T)
+                return;
+
+            await nav.PushAsync(CreatePage<T>(), false);
+        }
+
+        private static Task PushAsync<T>() where T : Page
+            => Nav.PushAsync(CreatePage<T>());
+
+        private static T CreatePage<T>() where T : Page
+        {
+            var services = Application.Current?.Handler?.MauiContext?.Services;
+            return services?.GetService<T>()
+                ?? Activator.CreateInstance<T>()
+                ?? throw new InvalidOperationException($"Unable to create page {typeof(T).Name}.");
         }
 
         /// <summary>
@@ -92,10 +91,16 @@ namespace NutriLens.Helpers
         /// any downstream page reads the exact same instance.
         /// </summary>
         public static Task GoAnalyzeIngredientsAsync(IngredientAnalysisResult result)
+            => GoAnalyzeIngredientsAsync(result, imagePath: null);
+
+        public static Task GoAnalyzeIngredientsAsync(
+            IngredientAnalysisResult result,
+            string? imagePath)
         {
             ArgumentNullException.ThrowIfNull(result);
 
             AnalysisNavigationData.CurrentResult = result;
+            AnalysisNavigationData.CurrentImagePath = imagePath;
             return Nav.PushAsync(new AnalyzeIngredientsResultPage(result));
         }
         public static Task<bool> ShowConfirmAsync(string message, string accept, string cancel)
@@ -123,7 +128,7 @@ namespace NutriLens.Helpers
             var nav = Nav;
             if (nav.NavigationStack.LastOrDefault() is ReviewIngredientsPage)
                 return Task.CompletedTask;
-            return nav.PushAsync(new ReviewIngredientsPage());
+            return nav.PushAsync(CreatePage<ReviewIngredientsPage>());
         }
     }
 }

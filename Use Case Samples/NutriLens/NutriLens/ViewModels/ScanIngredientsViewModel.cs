@@ -12,6 +12,7 @@ public partial class ScanIngredientsViewModel : ObservableObject
     private readonly IImagePickerService imagePickerService;
     private readonly IIngredientImageExtractionService imageExtractionService;
     private bool isBusy;
+    private FileResult? selectedImage;
 
     [ObservableProperty]
     private bool isExtracting;
@@ -90,7 +91,7 @@ public partial class ScanIngredientsViewModel : ObservableObject
         if (isBusy)
             return;
 
-        FileResult? image = SelectedImageHolder.Current;
+        var image = selectedImage;
 
         try
         {
@@ -106,7 +107,7 @@ public partial class ScanIngredientsViewModel : ObservableObject
                     return;
                 }
 
-                SelectedImageHolder.Current = image;
+                selectedImage = image;
                 CapturedImage = ImageSource.FromFile(image.FullPath);
             }
 
@@ -132,7 +133,7 @@ public partial class ScanIngredientsViewModel : ObservableObject
             await Task.Delay(250);
 
             // Hand off to Review page and clear the scan-side image slot.
-            SelectedImageHolder.Current = null;
+            selectedImage = null;
             await AppNavigator.GoReviewIngredientsAsync(extractedText, image);
         }
         catch (InvalidOperationException ex)
@@ -175,7 +176,7 @@ public partial class ScanIngredientsViewModel : ObservableObject
                 return;
             }
 
-            SelectedImageHolder.Current = image;
+            selectedImage = image;
             CapturedImage = ImageSource.FromFile(image.FullPath);
             StatusMessage = "Image ready — tap Scan to extract ingredients";
         }

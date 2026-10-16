@@ -6,22 +6,29 @@ namespace NutriLens.Views;
 public partial class TrendsPage : ContentPage
 {
     public TrendsPage()
+        : this(new TrendsViewModel())
+    {
+    }
+
+    public TrendsPage(TrendsViewModel viewModel)
     {
         InitializeComponent();
-
-        BindingContext =
-            new TrendsViewModel();
+        BindingContext = viewModel;
     }
 
     protected override async void OnAppearing()
     {
         base.OnAppearing();
 
-        // Recompute trends from the saved scan history every time the
-        // page appears, so new saved scans update the chart automatically.
-        if (BindingContext is TrendsViewModel vm)
+        try
         {
-            await vm.LoadAsync();
+            if (BindingContext is TrendsViewModel vm)
+                await vm.LoadAsync();
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"[Trends] Load failed: {ex}");
+            await DisplayAlertAsync("Trends", "Scan trends could not be loaded.", "OK");
         }
     }
 

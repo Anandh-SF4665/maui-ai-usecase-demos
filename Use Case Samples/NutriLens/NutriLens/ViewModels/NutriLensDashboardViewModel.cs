@@ -117,7 +117,7 @@ public partial class NutriLensDashboardViewModel : ObservableObject
 
             if (match?.Result is not null)
             {
-                await AppNavigator.GoAnalyzeIngredientsAsync(match.Result);
+                await AppNavigator.GoAnalyzeIngredientsAsync(match.Result, match.ImagePath);
                 return;
             }
         }
@@ -187,12 +187,7 @@ public partial class NutriLensDashboardViewModel : ObservableObject
     {
         var score = Math.Clamp(scan.Result.Score, 0, 100);
 
-        var (rating, ratingColor) = score switch
-        {
-            >= 70 => ("Excellent", "#047857"),
-            >= 40 => ("Moderate", "#D99024"),
-            _ => ("Poor", "#DC2626")
-        };
+        var rating = ScoreRating.GetCategory(score);
 
         return new RecentScanItem
         {
@@ -202,7 +197,7 @@ public partial class NutriLensDashboardViewModel : ObservableObject
                 : scan.ImagePath,
             Score = score,
             Rating = rating,
-            RatingColor = ratingColor,
+            RatingColor = ScoreRating.GetColor(score),
             ScanTime = FormatScanDate(scan.SavedAtUtc)
         };
     }

@@ -52,6 +52,8 @@ namespace NutriLens
             builder.Services.AddTransient<ReviewIngredientsViewModel>();
             builder.Services.AddTransient<ReviewIngredientsPage>();
             builder.Services.AddTransient<AnalyzeIngredientsResultPage>();
+            builder.Services.AddTransient<HistoryViewModel>();
+            builder.Services.AddTransient<HistoryPage>();
             builder.Services.AddTransient<TrendsViewModel>();
             builder.Services.AddTransient<TrendsPage>();
             builder.Services.AddTransient<ProfileViewModel>();

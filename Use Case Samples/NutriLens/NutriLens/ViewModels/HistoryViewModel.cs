@@ -155,7 +155,7 @@ public partial class HistoryViewModel : ObservableObject
 
         if (match?.Result is not null)
         {
-            await AppNavigator.GoAnalyzeIngredientsAsync(match.Result);
+            await AppNavigator.GoAnalyzeIngredientsAsync(match.Result, match.ImagePath);
             return;
         }
 
@@ -169,12 +169,10 @@ public partial class HistoryViewModel : ObservableObject
     {
         var score = Math.Clamp(scan.Result.Score, 0, 100);
 
-        var (scoreColor, statusIcon) = score switch
-        {
-            >= 80 => ("#10b981", MaterialIcons.Verified),  // Excellent
-            >= 50 => ("#fea619", MaterialIcons.Verified),  // Good
-            _ => ("#ff7a73", MaterialIcons.Warning),   // Moderate 
-        };
+        var scoreColor = ScoreRating.GetColor(score);
+        var statusIcon = ScoreRating.IsHealthyChoice(score)
+            ? MaterialIcons.Verified
+            : MaterialIcons.Warning;
 
         return new HistoryItem
         {

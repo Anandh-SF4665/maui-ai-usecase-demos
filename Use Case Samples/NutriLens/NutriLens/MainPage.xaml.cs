@@ -9,10 +9,4 @@ public partial class MainPage : ContentPage
     {
         InitializeComponent();
     }
-    protected override async void OnAppearing()
-    {
-        base.OnAppearing();
-        await Task.Delay(3000);
-        await Navigation.PushAsync(new NutriLensDashboardPage());
-    }
 }

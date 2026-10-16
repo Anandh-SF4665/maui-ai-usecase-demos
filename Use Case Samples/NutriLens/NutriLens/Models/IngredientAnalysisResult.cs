@@ -246,4 +246,14 @@ public sealed class IngredientBreakdown
             "low" => "#E7F7F1",
             _ => "#E5E7EB"
         };
+
+    [JsonIgnore]
+    public string BadgeTextColor =>
+        RiskLevel.ToLowerInvariant() switch
+        {
+            "high" => "#9F1239",
+            "moderate" => "#92400E",
+            "low" => "#065F46",
+            _ => "#374151"
+        };
 }

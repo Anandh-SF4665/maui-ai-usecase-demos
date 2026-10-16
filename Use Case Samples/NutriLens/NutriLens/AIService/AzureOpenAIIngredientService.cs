@@ -7,10 +7,6 @@ namespace NutriLens.Services;
 
 public sealed class AzureOpenAIIngredientService : IAzureOpenAIIngredientService
 {
-    private const string BaseEndpoint = AzureOpenAIConfig.BaseEndpoint;
-    private const string DeploymentName = AzureOpenAIConfig.DeploymentName;
-    private const string ApiKey = AzureOpenAIConfig.ApiKey;
-
     private static readonly HttpClient Http = new()
     {
         Timeout = TimeSpan.FromSeconds(90)
@@ -34,11 +30,13 @@ public sealed class AzureOpenAIIngredientService : IAzureOpenAIIngredientService
         if (string.IsNullOrWhiteSpace(extractedText))
             throw new InvalidOperationException("No label content was extracted from the image.");
 
+        AzureOpenAIConfig.EnsureConfigured();
+
         var prompt = BuildPrompt(extractedText, preferences);
 
         var requestBody = new
         {
-            model = DeploymentName,
+            model = AzureOpenAIConfig.ConfiguredDeploymentName,
             messages = new object[]
             {
                 new
@@ -55,15 +53,15 @@ public sealed class AzureOpenAIIngredientService : IAzureOpenAIIngredientService
                 },
                 new { role = "user", content = prompt }
             },
-            max_completion_tokens = 1800,
+            max_completion_tokens = 6000,
             reasoning_effort = "minimal"
         };
 
         using var request = new HttpRequestMessage(
             HttpMethod.Post,
-            $"{BaseEndpoint.TrimEnd('/')}/chat/completions");
+            AzureOpenAIConfig.GetChatCompletionsUri());
 
-        request.Headers.Add("api-key", ApiKey);
+        request.Headers.Add("api-key", AzureOpenAIConfig.ConfiguredApiKey);
         request.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
 
         request.Content = new StringContent(
@@ -79,8 +77,12 @@ public sealed class AzureOpenAIIngredientService : IAzureOpenAIIngredientService
         var rawResponse = await response.Content.ReadAsStringAsync(cancellationToken);
 
         if (!response.IsSuccessStatusCode)
+        {
+            System.Diagnostics.Debug.WriteLine(
+                $"[Ingredient AI] Request failed with HTTP {(int)response.StatusCode}.");
             throw new HttpRequestException(
-                $"Azure OpenAI request failed. HTTP {(int)response.StatusCode}: {rawResponse}");
+                $"Azure OpenAI request failed (HTTP {(int)response.StatusCode}). Check the deployment, credentials, and service availability.");
+        }
 
         return ParseResponse(rawResponse, extractedText);
     }
@@ -176,17 +178,42 @@ Requirements:
 
     private static IngredientAnalysisResult ParseResponse(string rawResponse, string extractedText)
     {
-        using var document = JsonDocument.Parse(rawResponse);
+        JsonDocument document;
+        try
+        {
+            document = JsonDocument.Parse(rawResponse);
+        }
+        catch (JsonException)
+        {
+            throw new InvalidOperationException("Azure OpenAI returned an invalid response.");
+        }
 
-        if (!document.RootElement.TryGetProperty("choices", out var choices) ||
+        using (document)
+        {
+            return ParseAnalysis(document.RootElement, extractedText);
+        }
+    }
+
+    private static IngredientAnalysisResult ParseAnalysis(
+        JsonElement root,
+        string extractedText)
+    {
+
+        if (!root.TryGetProperty("choices", out var choices) ||
             choices.ValueKind != JsonValueKind.Array ||
             choices.GetArrayLength() == 0)
         {
             throw new InvalidOperationException("Azure response did not contain a valid choices array.");
         }
 
-        var message = choices[0].GetProperty("message");
-        var contentElement = message.GetProperty("content");
+        var choice = choices[0];
+        if (!choice.TryGetProperty("message", out var message) ||
+            message.ValueKind != JsonValueKind.Object ||
+            !message.TryGetProperty("content", out var contentElement))
+        {
+            throw new InvalidOperationException(
+                "Azure OpenAI returned no analysis content. The response may have been filtered; revise the label text and try again.");
+        }
 
         string resultJson;
 
@@ -194,36 +221,70 @@ Requirements:
         {
             resultJson = string.Concat(
                 contentElement.EnumerateArray()
-                    .Where(x => x.TryGetProperty("text", out _))
+                    .Where(x => x.ValueKind == JsonValueKind.Object &&
+                        x.TryGetProperty("text", out _))
                     .Select(x => x.GetProperty("text").GetString() ?? string.Empty));
         }
-        else
+        else if (contentElement.ValueKind == JsonValueKind.String)
         {
             resultJson = contentElement.GetString() ?? string.Empty;
         }
+        else
+        {
+            resultJson = string.Empty;
+        }
 
         if (string.IsNullOrWhiteSpace(resultJson))
-            throw new InvalidOperationException("Azure OpenAI returned empty analysis content.");
+            throw new InvalidOperationException(
+                "Azure OpenAI returned no analysis content. The response may have been filtered; revise the label text and try again.");
 
-        var result = JsonSerializer.Deserialize<IngredientAnalysisResult>(resultJson, JsonOptions);
+        resultJson = StripJsonCodeFence(resultJson);
+
+        IngredientAnalysisResult? result;
+        try
+        {
+            result = JsonSerializer.Deserialize<IngredientAnalysisResult>(resultJson, JsonOptions);
+        }
+        catch (JsonException)
+        {
+            throw new InvalidOperationException("Azure OpenAI returned malformed analysis JSON. Please try again.");
+        }
+
         if (result is null)
             throw new InvalidOperationException("Azure returned invalid NutriLens JSON.");
 
         result.ExtractedText = extractedText;
         result.Profile = string.IsNullOrWhiteSpace(result.Profile) ? "Standard" : result.Profile;
         result.Score = Math.Clamp(result.Score, 0, 100);
-        result.Category = string.IsNullOrWhiteSpace(result.Category) ? GetCategory(result.Score) : result.Category;
+        result.Category = ScoreRating.GetCategory(result.Score);
+        result.PositiveAttributes ??= [];
+        result.NegativeAttributes ??= [];
+        result.AlternativeRecommendations ??= [];
+        result.Allergens ??= [];
+        result.ArtificialColors ??= [];
+        result.Additives ??= [];
+        result.Preservatives ??= [];
+        result.IngredientBreakdown ??= [];
+        result.Nutrition ??= new NutritionInfo();
 
         return result;
     }
 
-    private static string GetCategory(int score)
-        => score switch
-        {
-            >= 80 => "Excellent",
-            >= 60 => "Good",
-            >= 40 => "Moderate",
-            >= 20 => "Poor",
-            _ => "Unknown"
-        };
+    private static string StripJsonCodeFence(string content)
+    {
+        var trimmed = content.Trim();
+        if (!trimmed.StartsWith("```", StringComparison.Ordinal))
+            return trimmed;
+
+        var firstLineEnd = trimmed.IndexOf('\n');
+        if (firstLineEnd < 0)
+            return trimmed;
+
+        var json = trimmed[(firstLineEnd + 1)..].Trim();
+        if (json.EndsWith("```", StringComparison.Ordinal))
+            json = json[..^3].TrimEnd();
+
+        return json;
+    }
+
 }

@@ -9,9 +9,14 @@ public partial class ReviewIngredientsPage : ContentPage
     private bool isDesktopLayout;
 
     public ReviewIngredientsPage()
+        : this(new ReviewIngredientsViewModel())
+    {
+    }
+
+    public ReviewIngredientsPage(ReviewIngredientsViewModel viewModel)
     {
         InitializeComponent();
-        BindingContext = new ReviewIngredientsViewModel();
+        BindingContext = viewModel;
 
         ApplyResponsiveLayout();
     }

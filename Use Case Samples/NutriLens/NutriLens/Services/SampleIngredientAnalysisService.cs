@@ -222,7 +222,7 @@ public sealed class SampleIngredientAnalysisService
     };
 
     // -----------------------------------------------------------------
-    // Sample 3 — CHIPS (Score 40)
+    // Sample 3 — CHIPS (Score 50)
     // -----------------------------------------------------------------
     private static IngredientAnalysisResult BuildChips() => new()
     {

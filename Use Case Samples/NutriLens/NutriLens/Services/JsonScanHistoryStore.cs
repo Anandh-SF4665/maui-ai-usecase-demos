@@ -1,38 +1,23 @@
-﻿using System.Text.Json;
+using System.Text.Json;
 using NutriLens.Models;
 
 namespace NutriLens.Services;
 
-/// <summary>One persisted AI scan: the full AI analysis + save metadata.</summary>
 public sealed class SavedScan
 {
     public Guid Id { get; set; } = Guid.NewGuid();
-
     public DateTime SavedAtUtc { get; set; } = DateTime.UtcNow;
-
-    /// <summary>Path of the captured label image (may be empty).</summary>
     public string ImagePath { get; set; } = string.Empty;
-
     public IngredientAnalysisResult Result { get; set; } = new();
 }
 
 public interface IScanHistoryStore
 {
     Task<IReadOnlyList<SavedScan>> GetAllAsync();
-
-    /// <summary>Adds a scan (newest first). Deduplicates the same product+score.</summary>
-    Task<SavedScan> AddAsync(
-        IngredientAnalysisResult result,
-        string? imagePath = null);
-
+    Task<SavedScan> AddAsync(IngredientAnalysisResult result, string? imagePath = null);
     Task ClearAsync();
 }
 
-/// <summary>
-/// JSON-file-backed scan history stored in FileSystem.AppDataDirectory.
-/// Same persistence pattern the app already uses (JSON serialization);
-/// swappable for a SQLite implementation behind IScanHistoryStore later.
-/// </summary>
 public sealed class JsonScanHistoryStore : IScanHistoryStore
 {
     private static readonly string FilePath =
@@ -51,7 +36,7 @@ public sealed class JsonScanHistoryStore : IScanHistoryStore
         await gate.WaitAsync();
         try
         {
-            return (await LoadAsync()).AsReadOnly();
+            return (await LoadAsync()).ToList().AsReadOnly();
         }
         finally
         {
@@ -63,40 +48,37 @@ public sealed class JsonScanHistoryStore : IScanHistoryStore
         IngredientAnalysisResult result,
         string? imagePath = null)
     {
-        if (result is null)
-            throw new ArgumentNullException(nameof(result));
+        ArgumentNullException.ThrowIfNull(result);
 
         await gate.WaitAsync();
         try
         {
             var list = await LoadAsync();
+            var persistedImagePath = await PersistImageAsync(imagePath);
 
-            // Deduplicate: saving the same product with the same score again
-            // just refreshes its timestamp instead of spamming duplicates.
-            var existing = list.FirstOrDefault(s =>
-                string.Equals(s.Result.ProductName, result.ProductName,
+            var existing = list.FirstOrDefault(scan =>
+                string.Equals(scan.Result.ProductName, result.ProductName,
                     StringComparison.OrdinalIgnoreCase) &&
-                s.Result.Score == result.Score);
+                scan.Result.Score == result.Score);
 
-            SavedScan scan;
-
+            SavedScan savedScan;
             if (existing is not null)
             {
                 existing.SavedAtUtc = DateTime.UtcNow;
-                existing.ImagePath = imagePath ?? existing.ImagePath;
+                existing.ImagePath = persistedImagePath ?? existing.ImagePath;
                 existing.Result = result;
                 list.Remove(existing);
                 list.Insert(0, existing);
-                scan = existing;
+                savedScan = existing;
             }
             else
             {
-                scan = new SavedScan
+                savedScan = new SavedScan
                 {
                     Result = result,
-                    ImagePath = imagePath ?? string.Empty
+                    ImagePath = persistedImagePath ?? string.Empty
                 };
-                list.Insert(0, scan);
+                list.Insert(0, savedScan);
             }
 
             await File.WriteAllTextAsync(
@@ -104,7 +86,7 @@ public sealed class JsonScanHistoryStore : IScanHistoryStore
                 JsonSerializer.Serialize(list, JsonOptions));
 
             cached = list;
-            return scan;
+            return savedScan;
         }
         finally
         {
@@ -144,10 +126,28 @@ public sealed class JsonScanHistoryStore : IScanHistoryStore
         }
         catch
         {
-            // Corrupt file: start fresh rather than crash.
             cached = [];
         }
 
         return cached;
+    }
+
+    private static async Task<string?> PersistImageAsync(string? imagePath)
+    {
+        if (string.IsNullOrWhiteSpace(imagePath) || !File.Exists(imagePath))
+            return null;
+
+        var imageDirectory = Path.Combine(FileSystem.AppDataDirectory, "scan-images");
+        Directory.CreateDirectory(imageDirectory);
+
+        var destination = Path.Combine(
+            imageDirectory,
+            $"{Guid.NewGuid():N}{Path.GetExtension(imagePath)}");
+
+        await using var source = File.OpenRead(imagePath);
+        await using var target = File.Create(destination);
+        await source.CopyToAsync(target);
+
+        return destination;
     }
 }

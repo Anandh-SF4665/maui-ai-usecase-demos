@@ -168,8 +168,8 @@ public sealed class DailyInsightGenerator : IDailyInsightGenerator
             builder.AppendLine($"""
             The user has scanned {context.TotalScans} food products with this app.
             Average health score of scanned products: {context.AverageScore}/100
-            Healthiest scan: {context.BestProduct.Result.ProductName} (score {context.BestProduct.Result.Score})
-            Least healthy scan: {context.WorstProduct.Result.ProductName} (score {context.WorstProduct.Result.Score})
+            Healthiest scan: {context.BestProduct?.Result?.ProductName ?? "Unknown product"} (score {context.BestProduct?.Result?.Score ?? 0})
+            Least healthy scan: {context.WorstProduct?.Result?.ProductName ?? "Unknown product"} (score {context.WorstProduct?.Result?.Score ?? 0})
             """);
 
             if (context.RecentProducts.Length > 0)

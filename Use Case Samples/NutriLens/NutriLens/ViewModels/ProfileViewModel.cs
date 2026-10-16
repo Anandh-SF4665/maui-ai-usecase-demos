@@ -10,7 +10,7 @@ namespace NutriLens.ViewModels;
 
 public partial class ProfileViewModel : ObservableObject
 {
-    private readonly IScanHistoryStore scanStore;
+    private readonly ICombinedScanHistory combinedHistory;
     private readonly IUserPreferenceStore preferenceStore;
 
     [ObservableProperty]
@@ -89,16 +89,18 @@ public partial class ProfileViewModel : ObservableObject
 
     public ProfileViewModel()
         : this(
-            Resolve<IScanHistoryStore>() ?? new JsonScanHistoryStore(),
+            Resolve<ICombinedScanHistory>()
+                ?? new CombinedScanHistory(
+                    Resolve<IScanHistoryStore>() ?? new JsonScanHistoryStore()),
             Resolve<IUserPreferenceStore>() ?? new UserPreferenceStore())
     {
     }
 
     public ProfileViewModel(
-        IScanHistoryStore scanStore,
+        ICombinedScanHistory combinedHistory,
         IUserPreferenceStore preferenceStore)
     {
-        this.scanStore = scanStore ?? throw new ArgumentNullException(nameof(scanStore));
+        this.combinedHistory = combinedHistory ?? throw new ArgumentNullException(nameof(combinedHistory));
         this.preferenceStore = preferenceStore ?? throw new ArgumentNullException(nameof(preferenceStore));
 
         var saved = preferenceStore.Load();
@@ -188,7 +190,7 @@ public partial class ProfileViewModel : ObservableObject
 
     public async Task LoadScanInsightsAsync()
     {
-        var scans = await scanStore.GetAllAsync();
+        var scans = await combinedHistory.GetCombinedAsync();
         if (scans.Count == 0)
         {
             TotalScansText = "0";
@@ -202,7 +204,7 @@ public partial class ProfileViewModel : ObservableObject
 
         var scores = scans.Select(s => s.Result.Score).ToList();
         var avg = scores.Average();
-        var healthy = scores.Count(s => s >= 70);
+        var healthy = scores.Count(ScoreRating.IsHealthyChoice);
 
         TotalScansText = scans.Count.ToString();
         AverageScoreText = $"{(int)Math.Round(avg)}/100";
@@ -233,8 +235,11 @@ public partial class ProfileViewModel : ObservableObject
             }
             else if (newer < older)
             {
+                var risk = MostCommonRiskText == "None identified"
+                    ? "potential ingredient risks"
+                    : MostCommonRiskText.ToLowerInvariant();
                 ScanInsightText =
-                    $"Your recent scans average {(int)Math.Round(older - newer)} points lower than earlier ones. Watch out for {MostCommonRiskText.ToLowerInvariant()} in upcoming labels.";
+                    $"Your recent scans average {(int)Math.Round(older - newer)} points lower than earlier ones. Watch out for {risk} in upcoming labels.";
             }
             else
             {
@@ -264,7 +269,8 @@ public partial class ProfileViewModel : ObservableObject
     {
         try
         {
-            var photo = await MediaPicker.Default.PickPhotoAsync();
+            var photos = await MediaPicker.Default.PickPhotosAsync();
+            var photo = photos.FirstOrDefault();
 
             if (photo is null)
                 return;

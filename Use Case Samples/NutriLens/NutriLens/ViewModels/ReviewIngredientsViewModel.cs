@@ -13,6 +13,7 @@ public partial class ReviewIngredientsViewModel : ObservableObject
 {
     private readonly IAzureOpenAIIngredientService analysisService;
     private readonly IUserPreferenceStore preferenceStore;
+    private string? scannedImagePath;
 
     public ObservableCollection<IngredientItem> Ingredients { get; } = new();
 
@@ -64,6 +65,7 @@ public partial class ReviewIngredientsViewModel : ObservableObject
         var pending = AnalysisNavigationData.PendingReview;
         if (pending is null)
             return;
+        scannedImagePath = pending.Image.FullPath;
         ScannedImage = CreateImageSource(pending.Image);
         OnPropertyChanged(nameof(ScannedImage));
         AnalysisNavigationData.PendingReview = null;
@@ -327,7 +329,7 @@ public partial class ReviewIngredientsViewModel : ObservableObject
             if (result is null)
                 throw new InvalidOperationException("The AI analysis returned no result.");
 
-            await AppNavigator.GoAnalyzeIngredientsAsync(result);
+            await AppNavigator.GoAnalyzeIngredientsAsync(result, scannedImagePath);
         }
         catch (Exception ex)
         {

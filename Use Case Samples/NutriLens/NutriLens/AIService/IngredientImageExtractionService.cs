@@ -8,12 +8,6 @@ namespace NutriLens.Services;
 
 public sealed class IngredientImageExtractionService : IIngredientImageExtractionService
 {
-    private const string Endpoint = AzureOpenAIConfig.BaseEndpoint;
-
-    private const string DeploymentName = AzureOpenAIConfig.DeploymentName;
-
-    private const string ApiKey = AzureOpenAIConfig.ApiKey;
-
     private static readonly HttpClient Http = new()
     {
         Timeout = TimeSpan.FromSeconds(120)
@@ -31,6 +25,8 @@ public sealed class IngredientImageExtractionService : IIngredientImageExtractio
         if (image is null)
             throw new ArgumentNullException(nameof(image));
 
+        AzureOpenAIConfig.EnsureConfigured();
+
         var filePath = image.FullPath;
 
         if (string.IsNullOrWhiteSpace(filePath))
@@ -47,14 +43,14 @@ public sealed class IngredientImageExtractionService : IIngredientImageExtractio
 
         var options = new OpenAI.OpenAIClientOptions
         {
-            Endpoint = new Uri(Endpoint)
+            Endpoint = AzureOpenAIConfig.GetOpenAIClientEndpoint()
         };
 
         var client = new OpenAI.OpenAIClient(
-            new System.ClientModel.ApiKeyCredential(ApiKey),
+            new System.ClientModel.ApiKeyCredential(AzureOpenAIConfig.ConfiguredApiKey),
             options);
 
-        var chatClient = client.GetChatClient(DeploymentName);
+        var chatClient = client.GetChatClient(AzureOpenAIConfig.ConfiguredDeploymentName);
 
         var messages = new List<ChatMessage>
         {

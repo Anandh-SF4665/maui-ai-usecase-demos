@@ -1,6 +1,6 @@
 # Build a Smart Food-Label Scanner with .NET MAUI and Azure OpenAI
 
-A cross-platform .NET MAUI app that turns a phone camera (or a photo from your gallery) into a personalized ingredient analysis. It uses **Azure OpenAI** to grade products 0–100, explain every flagged ingredient, and generate a daily nutrition insight tailored to the user's saved scan history.
+A cross-platform .NET MAUI app that turns a mobile camera scan or desktop image attachment into a personalized ingredient analysis. It uses **Azure OpenAI** to grade products 0–100, explain every flagged ingredient, and generate a daily nutrition insight tailored to the user's saved scan history.
 
 ## Highlights
 
@@ -18,13 +18,12 @@ A cross-platform .NET MAUI app that turns a phone camera (or a photo from your g
 - **SfCharts** — Trends page health-score spark line
 - **SfGauges** / **SfProgressBar** — score rings and progress on result page
 - **SfButtons** — scan / save / nav actions
-- **SfExpander** — collapsible ingredient breakdown on result page
-- **SfTabView** — segmented controls for trend period and history filters
+- **SfPopup** — add-ingredient dialog on the Review page
 
 ## Technologies used
 
 - .NET MAUI (net10.0)
-- Syncfusion .NET MAUI 34.2.6 (Buttons, Charts, Core, Expander, Gauges, ListView, ProgressBar, TabView)
+- Syncfusion .NET MAUI 34.2.6 (Buttons, Charts, Core, Gauges, ListView, Popup, ProgressBar)
 - CommunityToolkit.Mvvm 8.4.0
 - OpenAI 2.13.0 (used by the image-extraction service)
 - Azure OpenAI (chat completions endpoint)
@@ -32,7 +31,7 @@ A cross-platform .NET MAUI app that turns a phone camera (or a photo from your g
 ## Features
 
 ### Scan flow
-1. **Scan** page captures a photo of a food label (camera or gallery) and copies it into the app's cache directory so the FileResult survives the picker closing.
+1. **Scan** opens the camera on Android/iOS and an image-file picker on Windows/macOS. The image is copied into app cache for extraction and into app data when the analysis is saved.
 2. The label image is sent to an **ingredient-extraction** service that returns plain text.
 3. The extracted text is sent to **Azure OpenAI** with the user's dietary profile; the response is deserialised into `IngredientAnalysisResult` (score 0–100, per-ingredient risk levels, additives, allergens, nutrition).
 4. The user lands on a **Review** page where they can edit the ingredient list before the AI analysis, and an **Analyze Result** page with the full breakdown.
@@ -58,7 +57,7 @@ A cross-platform .NET MAUI app that turns a phone camera (or a photo from your g
 - Syncfusion .NET MAUI components (Community / Commercial)
 - An **Azure OpenAI** resource with a deployed chat model
 
-> The sample is configured to target a `gpt-5-mini` (or equivalent reasoning) deployment for chat completions, with `max_completion_tokens = 800` and `reasoning_effort = "minimal"`. Smaller reasoning budgets are entirely consumed by the internal reasoning step and return empty content.
+> Daily insights use `max_completion_tokens = 800`; label analysis uses `6000`. Both use `reasoning_effort = "minimal"` for reasoning deployments such as `gpt-5-mini`.
 
 ## Quick install
 
@@ -69,7 +68,7 @@ git clone https://github.com/syncfusion/maui-ai-usecase-demos
 cd "Use Case Samples/NutriLens"
 ```
 
-**Configure Azure OpenAI credentials** in `NutriLens/AIService/AzureOpenAIConfig.cs`:
+**Configure Azure OpenAI credentials** in `NutriLens/AIService/AzureOpenAIConfig.cs`, or provide `NUTRILENS_AZURE_OPENAI_ENDPOINT`, `NUTRILENS_AZURE_OPENAI_DEPLOYMENT`, and `NUTRILENS_AZURE_OPENAI_API_KEY` in the app process environment:
 
 ```csharp
 public const string BaseEndpoint   = "https://YOUR-RESOURCE.openai.azure.com/";
@@ -77,7 +76,7 @@ public const string DeploymentName = "YOUR-DEPLOYMENT-NAME";
 public const string ApiKey         = "YOUR-AZURE-OPENAI-API-KEY";
 ```
 
-> The values shipped in the repo are **placeholders** — no real key is committed. Replace them with your own endpoint, deployment, and key before running.
+> The values shipped in the repo are **placeholders** — no real key is committed. The service appends Azure's `/openai/v1/chat/completions` route to a resource-root endpoint. Never commit a real key; production mobile apps should call a trusted backend instead of embedding an Azure key in the client.
 
 **Register Syncfusion license** in `NutriLens/MauiProgram.cs` (uncomment and add your key):
 
@@ -108,11 +107,11 @@ dotnet build -t:Run -f net10.0-android
 
 ### Navigation
 
-The app uses a single `NavigationPage` (set in `App.CreateWindow`) rooted at a 3-second splash (`MainPage`) that then pushes `NutriLensDashboardPage`. All other pages are pushed on top of that. There is no Shell — `AppNavigator` resolves the root `NavigationPage` from `Application.Current.Windows[0].Page`.
+The app uses a single `NavigationPage` rooted at `NutriLensDashboardPage`. Top-level navigation returns to the dashboard before opening another section, while review and analysis pages are pushed for the scan flow. There is no Shell — `AppNavigator` resolves the root `NavigationPage` from `Application.Current.Windows[0].Page`.
 
 ### Scan → Review → Analyze → Save
 
-1. `ScanIngredientsViewModel` calls `IImagePickerService` to capture or pick a photo (gallery picker on unpackaged Windows — see Troubleshooting).
+1. `ScanIngredientsViewModel` calls `IImagePickerService` to capture on mobile or attach an image file on desktop.
 2. `IIngredientImageExtractionService.ExtractContentAsync` returns the raw text.
 3. Both the image and the text are stashed in the static `AnalysisNavigationData.PendingReview` slot (a short-lived handoff bucket; read once and cleared by the Review page).
 4. `ReviewIngredientsViewModel.AnalyzeNowAsync` calls `IAzureOpenAIIngredientService.AnalyzeAsync(text, preferences)`.
@@ -129,13 +128,13 @@ The app uses a single `NavigationPage` (set in `App.CreateWindow`) rooted at a 3
 
 ## Troubleshooting
 
-### Windows camera crashes with 0xC0000005
+### Desktop image selection
 
-On **unpackaged** Windows apps (`WindowsPackageType=None`) the `MediaPicker.CapturePhotoAsync` API launches the WinRT `CameraCaptureUI`, which requires package identity and crashes the process. `ImagePickerService` works around this by detecting `DevicePlatform.WinUI` and falling back to the gallery picker. If you want to use the camera on Windows, package the app (remove `<WindowsPackageType>None</WindowsPackageType>` from the `.csproj`) and add the **webcam** capability to `Package.appxmanifest`.
+On Windows and MacCatalyst, **Scan** opens the system image-file picker. Mobile camera capture uses the native platform permissions declared in each platform manifest.
 
 ### Empty AI response on a reasoning model
 
-If your deployment is a reasoning model (e.g. `gpt-5-mini`), a small `max_completion_tokens` value is entirely consumed by the internal reasoning step and returns empty content. The sample uses `max_completion_tokens = 800` and `reasoning_effort = "minimal"`. Match the same pattern for any new chat-completion calls you add.
+If your deployment is a reasoning model (e.g. `gpt-5-mini`), a small `max_completion_tokens` value can be consumed by the internal reasoning step and return empty content. The sample uses 800 tokens for daily insights and 6000 for ingredient analysis, with `reasoning_effort = "minimal"`.
 
 ### Cached fallback stuck all day
 

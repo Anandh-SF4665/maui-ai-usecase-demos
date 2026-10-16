@@ -8,13 +8,6 @@ namespace NutriLens.Services;
 
 public sealed class AzureOpenAIChatService : IAzureOpenAIChatService
 {
-    // Keep secrets outside the app binary and configure them in the runtime environment.
-    private const string BaseEndpoint = AzureOpenAIConfig.BaseEndpoint;
-
-    private const string DeploymentName = AzureOpenAIConfig.DeploymentName;
-
-    private const string ApiKey = AzureOpenAIConfig.ApiKey;
-
     private static readonly HttpClient HttpClient =
         new()
         {
@@ -30,9 +23,11 @@ public sealed class AzureOpenAIChatService : IAzureOpenAIChatService
 
         try
         {
+            AzureOpenAIConfig.EnsureConfigured();
+
             var payload = new
             {
-                model = DeploymentName,
+                model = AzureOpenAIConfig.ConfiguredDeploymentName,
                 messages = new object[]
                 {
                     new
@@ -62,9 +57,9 @@ public sealed class AzureOpenAIChatService : IAzureOpenAIChatService
             using var request =
                 new HttpRequestMessage(
                     HttpMethod.Post,
-                    $"{BaseEndpoint.TrimEnd('/')}/chat/completions");
+                        AzureOpenAIConfig.GetChatCompletionsUri());
 
-            request.Headers.Add("api-key", ApiKey);
+                    request.Headers.Add("api-key", AzureOpenAIConfig.ConfiguredApiKey);
             request.Headers.Accept.Add(
                 new MediaTypeWithQualityHeaderValue("application/json"));
 

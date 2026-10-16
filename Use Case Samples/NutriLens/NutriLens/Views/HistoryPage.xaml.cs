@@ -9,10 +9,14 @@ public partial class HistoryPage : ContentPage
     private HistoryViewModel? ViewModel => BindingContext as HistoryViewModel;
 
     public HistoryPage()
+        : this(new HistoryViewModel())
+    {
+    }
+
+    public HistoryPage(HistoryViewModel viewModel)
     {
         InitializeComponent();
-
-        BindingContext = new HistoryViewModel();
+        BindingContext = viewModel;
     }
 
     protected override async void OnAppearing()
@@ -21,9 +25,15 @@ public partial class HistoryPage : ContentPage
 
         // Refresh from the store every time the page appears so a scan
         // saved moments ago shows up immediately — no restart required.
-        if (ViewModel is not null)
+        try
         {
-            await ViewModel.LoadAsync();
+            if (ViewModel is not null)
+                await ViewModel.LoadAsync();
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"[History] Load failed: {ex}");
+            await DisplayAlertAsync("History", "Saved scans could not be loaded.", "OK");
         }
     }
 
@@ -50,12 +60,12 @@ public partial class HistoryPage : ContentPage
 
     private async void OnHomeClicked(object? sender, EventArgs e)
     {
-        await Navigation.PushAsync(new NutriLensDashboardPage());
+        await AppNavigator.GoDashboardAsync();
     }
 
     private async void OnScanClicked(object? sender, EventArgs e)
     {
-        await Navigation.PushAsync(new ScanIngredientsPage());
+        await AppNavigator.GoScanAsync();
     }
 
     private async void OnProfileClicked(object? sender, EventArgs e)

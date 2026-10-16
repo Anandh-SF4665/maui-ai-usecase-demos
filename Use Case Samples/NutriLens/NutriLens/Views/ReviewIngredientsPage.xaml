@@ -273,7 +273,7 @@
         Padding="0"
         Command="{Binding RetakeCommand}">
                 <buttons:SfButton.Content>
-                    <DataTemplate>
+                            <DataTemplate x:DataType="models:IngredientItem">
                         <HorizontalStackLayout
             HorizontalOptions="Center"
             VerticalOptions="Center"

@@ -56,7 +56,8 @@ public partial class AnalyzeIngredientsResultPage : ContentPage
         try
         {
             var store = Resolve<IScanHistoryStore>() ?? new JsonScanHistoryStore();
-            await store.AddAsync(currentResult, SelectedImageHolder.Current?.FullPath);
+            await store.AddAsync(currentResult, AnalysisNavigationData.CurrentImagePath);
+            AnalysisNavigationData.CurrentImagePath = null;
 
             await DisplayAlertAsync(
                 "Save Result",
