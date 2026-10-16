@@ -14,4 +14,7 @@ public static class DefaultAgentIds
 
     /// <summary>Identifier of the default "Social Media Writer" agent.</summary>
     public const string SocialMediaWriter = "default-agent-social-media-writer";
+
+    /// <summary>Identifier of the default "Meeting Notes Assistant" agent.</summary>
+    public const string MeetingNotesAssistant = "default-agent-meeting-notes-assistant";
 }

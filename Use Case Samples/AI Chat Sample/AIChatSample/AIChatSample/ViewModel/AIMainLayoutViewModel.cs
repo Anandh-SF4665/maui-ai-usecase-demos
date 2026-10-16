@@ -47,13 +47,6 @@ public partial class AIMainLayoutViewModel : ObservableObject
     private ICommand? newChatCommand;
     private ICommand? openChatCommand;
     private ICommand? openAgentChatCommand;
-    private ICommand? searchCommand;
-    private ICommand? libraryCommand;
-    private ICommand? newAgentCommand;
-    private ICommand? profileCommand;
-    private ICommand? expandCommand;
-    private ICommand? configureCommand;
-    private ICommand? createAgentCommand;
     /// <summary>Shared in-memory store (NFR-3, ARCHITECTURE §5). May be null in design-time contexts.</summary>
     private readonly IChatDataService? _chatDataService;
 
@@ -135,7 +128,7 @@ public partial class AIMainLayoutViewModel : ObservableObject
         {
             new()
             {
-                Id = DefaultAgentIds.CodeReviewer,
+                Id = DefaultAgentIds.MeetingNotesAssistant,
                 Name = "Meeting notes assistant",
                 Initial = "M",
                 Color = Microsoft.Maui.Graphics.Color.FromArgb("#FF33DA"),
@@ -376,34 +369,6 @@ public partial class AIMainLayoutViewModel : ObservableObject
     }
     private ChatSession? _currentSession;
 
-    /// <summary>Opens the search panel.</summary>
-    public ICommand SearchCommand =>
-        this.searchCommand ??= new Command(this.OnSearchClicked);
-
-    /// <summary>Opens the agent library.</summary>
-    public ICommand LibraryCommand =>
-        this.libraryCommand ??= new Command(this.OnLibraryClicked);
-
-    /// <summary>Starts the new-agent creation flow.</summary>
-    public ICommand NewAgentCommand =>
-        this.newAgentCommand ??= new Command(this.OnNewAgentClicked);
-
-    /// <summary>Opens the user profile footer / panel.</summary>
-    public ICommand ProfileCommand =>
-        this.profileCommand ??= new Command(this.OnProfileClicked);
-
-    /// <summary>Toggles the immersive / full-screen layout.</summary>
-    public ICommand ExpandCommand =>
-        this.expandCommand ??= new Command(this.OnExpandClicked);
-
-    /// <summary>Switches the Create Agent page to the Configure tab.</summary>
-    public ICommand ConfigureCommand =>
-        this.configureCommand ??= new Command(this.OnConfigureClicked);
-
-    /// <summary>Persists the new specialist agent.</summary>
-    public ICommand CreateAgentCommand =>
-        this.createAgentCommand ??= new Command(this.OnCreateAgentClicked);
-
     /// <summary>Persists the user's profile changes (display name + email) to the shared <see cref="UserProfile"/>.</summary>
     public ICommand SaveProfileCommand => new Command(this.OnSaveProfileClicked);
 
@@ -493,9 +458,15 @@ public partial class AIMainLayoutViewModel : ObservableObject
     {
         if (item is null || _chatDataService is null || _agentStore is null) return;
 
-        var agent = _agentStore.Agents.FirstOrDefault(a =>
-            string.Equals(a.Id, item.Id, StringComparison.OrdinalIgnoreCase) ||
-            string.Equals(a.AgentName, item.Name, StringComparison.OrdinalIgnoreCase));
+        // Resolve the drawer row against the shared store. Prefer the
+        // visible Name so a user-created agent with the same name wins
+        // over the seed entry, then fall back to the stable Id.
+        var agent =
+            _agentStore.Agents.FirstOrDefault(a =>
+                string.Equals(a.AgentName, item.Name, StringComparison.OrdinalIgnoreCase))
+            ?? _agentStore.Agents.FirstOrDefault(a =>
+                !string.IsNullOrEmpty(item.Id) &&
+                string.Equals(a.Id, item.Id, StringComparison.OrdinalIgnoreCase));
 
         if (agent is null)
         {
@@ -506,14 +477,6 @@ public partial class AIMainLayoutViewModel : ObservableObject
         CurrentSession = _chatDataService.CreateChatSession(agent.AgentName, agent);
         ChatSessionReplaced?.Invoke(this, CurrentSession);
     }
-
-    private void OnSearchClicked() { }
-    private void OnLibraryClicked() { }
-    private void OnNewAgentClicked() { }
-    private void OnProfileClicked() { }
-    private void OnExpandClicked() { }
-    private void OnConfigureClicked() { }
-    private void OnCreateAgentClicked() { }
 
     private void OnSaveProfileClicked()
     {
@@ -667,17 +630,19 @@ public partial class AIMainLayoutViewModel : ObservableObject
     }
 
     /// <summary>
-    /// Persists the two default agents into the shared store the
-    /// first time the app runs in this session. The nav-drawer
-    /// already shows them as <see cref="AgentItem"/> rows, but
-    /// <c>OnOpenAgentChatClicked</c> resolves chats against the
-    /// store — without these entries, clicking a default agent
-    /// returns no match and the chat doesn't open.
+    /// Persists the default agents into the shared store the first
+    /// time the app runs in this session. The nav-drawer already shows
+    /// them as <see cref="AgentItem"/> rows, but <c>OnOpenAgentChatClicked</c>
+    /// resolves chats against the store — without these entries, clicking
+    /// a default agent returns no match and the chat doesn't open.
     /// </summary>
     private static void SeedDefaultAgentsIfMissing(IAgentStore store)
     {
         if (store is null) return;
 
+        EnsureDefault(store, DefaultAgentIds.MeetingNotesAssistant, "Meeting notes assistant",
+            "Turns raw meeting transcripts into structured action items.",
+            "You are an expert meeting-notes assistant. Take raw meeting transcripts or notes and produce a clean summary with attendees, decisions, action items, and follow-up dates. Use bullet points and short headings.");
         EnsureDefault(store, DefaultAgentIds.CodeReviewer, "Code Reviewer",
             "Reviews code for bugs, readability, performance and best practices.",
             "You are an expert code reviewer. Analyze the provided code for bugs, security issues, performance problems, readability and best practices. Give concise, actionable feedback with improved code snippets where helpful.");

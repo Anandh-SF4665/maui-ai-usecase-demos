@@ -42,7 +42,6 @@ public partial class CreateNewAgentPage : ContentPage
         if (Handler is null)
         {
             AIChatNavigationPanel.NavigationRequested -= OnNavigationRequested;
-            //AIChatToolbar.BackRequested -= OnBackRequested;
 #if WINDOWS
             if (_themeChangedSubscribed && Application.Current is { } app)
                 app.RequestedThemeChanged -= OnRequestedThemeChanged;
@@ -61,8 +60,6 @@ public partial class CreateNewAgentPage : ContentPage
 
         AIChatNavigationPanel.NavigationRequested -= OnNavigationRequested;
         AIChatNavigationPanel.NavigationRequested += OnNavigationRequested;
-        //AIChatToolbar.BackRequested -= OnBackRequested;
-        //AIChatToolbar.BackRequested += OnBackRequested;
 
 #if WINDOWS
         if (!_themeChangedSubscribed && Application.Current is { } application)
