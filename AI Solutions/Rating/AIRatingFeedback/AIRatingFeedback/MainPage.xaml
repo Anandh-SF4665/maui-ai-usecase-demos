@@ -76,7 +76,7 @@
                     PlaceholderColor="#8A9BB8"
                     AutoSize="Disabled"
                     TextChanged="OnFeedbackTextChanged" />
-            </inputLayout:SfInputLayout>
+            </inputLayout:SfTextInputLayout>
 
             <!-- Error message (only shown when non-empty) -->
             <Label
