@@ -27,25 +27,19 @@ public sealed class AzureOpenAIService : IAIService
     };
 
     /// <summary>
-    /// Builds the service from the Azure OpenAI environment. Required
-    /// variables: <c>AZURE_OPENAI_ENDPOINT</c>, <c>AZURE_OPENAI_KEY</c>,
-    /// <c>AZURE_OPENAI_DEPLOYMENT</c>. Optional:
-    /// <c>AZURE_OPENAI_TIMEOUT_SECONDS</c> (default 60).
-    /// </summary>
-    public AzureOpenAIService()
-         : this(endpoint: "YOUR_ENDPOINT",
-                apiKey: "YOUR_API_KEY",
-                deployment: "YOUR_DEPLOYMENT",
-                timeoutSeconds: 100)
-    {
-    }
-
-
-    /// <summary>
     /// Test-friendly constructor that accepts credentials explicitly. The
-    /// production constructor pulls from the environment so secrets never
-    /// live in source (NFR-5).
+    /// production host (<c>MauiProgram</c>) reads the values from the
+    /// <c>AZURE_OPENAI_ENDPOINT</c> / <c>_KEY</c> / <c>_DEPLOYMENT</c>
+    /// environment variables so secrets never live in source (NFR-5).
     /// </summary>
+    /// <param name="endpoint">Azure OpenAI endpoint URL.</param>
+    /// <param name="apiKey">Azure OpenAI API key.</param>
+    /// <param name="deployment">Chat-completions deployment name.</param>
+    /// <param name="timeoutSeconds">Hard request timeout in seconds; defaults to 100.</param>
+    /// <exception cref="InvalidOperationException">
+    /// Thrown when any of <paramref name="endpoint"/>, <paramref name="apiKey"/>,
+    /// or <paramref name="deployment"/> is null or whitespace.
+    /// </exception>
     public AzureOpenAIService(string? endpoint, string? apiKey, string? deployment, int timeoutSeconds = 100)
     {
         if (string.IsNullOrWhiteSpace(endpoint))

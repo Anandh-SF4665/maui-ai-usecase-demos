@@ -2,11 +2,9 @@
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml" x:Class="AIChatSample.NewChat"
     xmlns:assistView="clr-namespace:Syncfusion.Maui.AIAssistView;assembly=Syncfusion.Maui.AIAssistView"
-    xmlns:syncTheme="clr-namespace:Syncfusion.Maui.Themes;assembly=Syncfusion.Maui.Core"
-    xmlns:chatViews="clr-namespace:AIChatSample"
     xmlns:controls="clr-namespace:AIChatSample.Controls"
     xmlns:converters="clr-namespace:AIChatSample.Converters"
-    xmlns:local="clr-namespace:AIChatSample" xmlns:viewModel="clr-namespace:AIChatSample">
+    xmlns:viewModel="clr-namespace:AIChatSample">
 
     <ContentPage.BindingContext>
         <viewModel:AIChatSuggestionViewModel />
@@ -43,7 +41,7 @@
                     <Label Grid.Row="1"
                         Text="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.HeaderTitle, FallbackValue='How can I help you today?'}"
                         TextColor="{AppThemeBinding Light={DynamicResource PrimaryTextColorLight}, Dark={DynamicResource PrimaryTextColorDark}}"
-                        FontSize="22" LineHeight="1.5" FontAttributes="Bold" FontFamily="SemiBold"
+                        FontSize="22" LineHeight="1.5" FontAttributes="Bold" FontFamily="Roboto-Medium"
                         HorizontalOptions="Center" VerticalTextAlignment="Center" HorizontalTextAlignment="Center" />
 
                     <Label Grid.Row="2"

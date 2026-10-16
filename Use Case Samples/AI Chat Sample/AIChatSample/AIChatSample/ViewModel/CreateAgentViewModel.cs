@@ -121,12 +121,9 @@ public partial class CreateAgentViewModel : ObservableObject
         // configuration). ServiceHelper is optional in design-time.
         _aiService = aiService ?? ServiceHelper.GetService<IAIService>();
 
-        // Copilot-style command: send the user's free-form prompt to the AI
-        // and have it produce a structured AgentDraft. The page routes to
-        // the configure page with the draft pre-filled once it's ready.
-        DraftAgentCommand = new Command(
-            async () => await OnDraftAgentAsync(),
-            () => !IsBusy && !string.IsNullOrWhiteSpace(PromptText));
+        // Copilot-style flow: the SendButtonCommand below drives the
+        // prompt-driven draft; OnSendRequested kicks off OnDraftAgentAsync
+        // and the page routes to the configure screen once DraftReady fires.
         CancelDraftCommand = new Command(
             () => _draftCts?.Cancel(),
             () => IsBusy);
@@ -194,9 +191,6 @@ public partial class CreateAgentViewModel : ObservableObject
     public ICommand SendButtonCommand { get; }
     public ICommand AttachmentButtonCommand { get; }
     public ICommand VoiceCommand { get; }
-
-    /// <summary>Runs the AI draft flow against the current prompt.</summary>
-    public ICommand DraftAgentCommand { get; }
 
     /// <summary>Cancels the in-flight draft request.</summary>
     public ICommand CancelDraftCommand { get; }
@@ -277,7 +271,6 @@ public partial class CreateAgentViewModel : ObservableObject
         _draftCts = new CancellationTokenSource();
         var ct = _draftCts.Token;
         IsBusy = true;
-        (DraftAgentCommand as Command)?.ChangeCanExecute();
         (CancelDraftCommand as Command)?.ChangeCanExecute();
 
         try
@@ -319,7 +312,6 @@ public partial class CreateAgentViewModel : ObservableObject
         finally
         {
             IsBusy = false;
-            (DraftAgentCommand as Command)?.ChangeCanExecute();
             (CancelDraftCommand as Command)?.ChangeCanExecute();
         }
     }

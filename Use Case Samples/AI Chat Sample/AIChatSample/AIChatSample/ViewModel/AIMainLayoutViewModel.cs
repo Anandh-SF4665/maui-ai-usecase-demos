@@ -47,13 +47,6 @@ public partial class AIMainLayoutViewModel : ObservableObject
     private ICommand? newChatCommand;
     private ICommand? openChatCommand;
     private ICommand? openAgentChatCommand;
-    private ICommand? searchCommand;
-    private ICommand? libraryCommand;
-    private ICommand? newAgentCommand;
-    private ICommand? profileCommand;
-    private ICommand? expandCommand;
-    private ICommand? configureCommand;
-    private ICommand? createAgentCommand;
     /// <summary>Shared in-memory store (NFR-3, ARCHITECTURE §5). May be null in design-time contexts.</summary>
     private readonly IChatDataService? _chatDataService;
 
@@ -376,34 +369,6 @@ public partial class AIMainLayoutViewModel : ObservableObject
     }
     private ChatSession? _currentSession;
 
-    /// <summary>Opens the search panel.</summary>
-    public ICommand SearchCommand =>
-        this.searchCommand ??= new Command(this.OnSearchClicked);
-
-    /// <summary>Opens the agent library.</summary>
-    public ICommand LibraryCommand =>
-        this.libraryCommand ??= new Command(this.OnLibraryClicked);
-
-    /// <summary>Starts the new-agent creation flow.</summary>
-    public ICommand NewAgentCommand =>
-        this.newAgentCommand ??= new Command(this.OnNewAgentClicked);
-
-    /// <summary>Opens the user profile footer / panel.</summary>
-    public ICommand ProfileCommand =>
-        this.profileCommand ??= new Command(this.OnProfileClicked);
-
-    /// <summary>Toggles the immersive / full-screen layout.</summary>
-    public ICommand ExpandCommand =>
-        this.expandCommand ??= new Command(this.OnExpandClicked);
-
-    /// <summary>Switches the Create Agent page to the Configure tab.</summary>
-    public ICommand ConfigureCommand =>
-        this.configureCommand ??= new Command(this.OnConfigureClicked);
-
-    /// <summary>Persists the new specialist agent.</summary>
-    public ICommand CreateAgentCommand =>
-        this.createAgentCommand ??= new Command(this.OnCreateAgentClicked);
-
     /// <summary>Persists the user's profile changes (display name + email) to the shared <see cref="UserProfile"/>.</summary>
     public ICommand SaveProfileCommand => new Command(this.OnSaveProfileClicked);
 
@@ -506,14 +471,6 @@ public partial class AIMainLayoutViewModel : ObservableObject
         CurrentSession = _chatDataService.CreateChatSession(agent.AgentName, agent);
         ChatSessionReplaced?.Invoke(this, CurrentSession);
     }
-
-    private void OnSearchClicked() { }
-    private void OnLibraryClicked() { }
-    private void OnNewAgentClicked() { }
-    private void OnProfileClicked() { }
-    private void OnExpandClicked() { }
-    private void OnConfigureClicked() { }
-    private void OnCreateAgentClicked() { }
 
     private void OnSaveProfileClicked()
     {
