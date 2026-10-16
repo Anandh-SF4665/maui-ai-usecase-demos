@@ -241,9 +241,9 @@ public partial class AIChatNavigationPanel : ContentView, INotifyPropertyChanged
 
     private void NavigationItemTapped(object sender, TappedEventArgs e)
     {
-        if (e.Parameter is string itemKey)
+        if (e.Parameter is AIChatNavigationItem item)
         {
-            RaiseNavigation(itemKey);
+            RaiseNavigation(item.Key);
         }
     }
 
@@ -315,6 +315,5 @@ public partial class AIChatNavigationPanel : ContentView, INotifyPropertyChanged
 /// <summary>
 /// Event args for <see cref="AIChatNavigationPanel.NavigationRequested"/>.
 /// Carries the navigation key (e.g. <c>NewChat</c>, <c>OpenChat</c>, <c>Profile</c>)
-/// plus an optional payload object (e.g. the tapped <see cref="Models.RecentChatItem"/>).
 /// </summary>
 public sealed record NavigationRequestEventArgs(string Key, object? Parameter = null);

@@ -32,10 +32,14 @@ public sealed class AzureOpenAIService : IAIService
     /// <c>AZURE_OPENAI_DEPLOYMENT</c>. Optional:
     /// <c>AZURE_OPENAI_TIMEOUT_SECONDS</c> (default 60).
     /// </summary>
-    //public AzureOpenAIService()
-    //     : this()
-    //{
-    //}
+    public AzureOpenAIService()
+         : this(endpoint: "YOUR_ENDPOINT",
+                apiKey: "YOUR_API_KEY",
+                deployment: "YOUR_DEPLOYMENT",
+                timeoutSeconds: 100)
+    {
+    }
+
 
     /// <summary>
     /// Test-friendly constructor that accepts credentials explicitly. The

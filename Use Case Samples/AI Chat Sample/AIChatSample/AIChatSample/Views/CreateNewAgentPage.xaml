@@ -122,15 +122,17 @@
                     <VerticalStackLayout Padding="0,24,0,0" Background="{AppThemeBinding Light=#FAF8FA,Dark=#313032}" Spacing="6">
                         <Label Text="Template" Style="{StaticResource CA_SectionCaption}"
                             HorizontalTextAlignment="Center" />
-                        <CollectionView ItemsSource="{Binding CreateAgentVM.Suggestions}"
-                            SelectionMode="None"
-                            Margin="24,0"
-                            HeightRequest="160">
-                            <CollectionView.ItemsLayout>
-                                <GridItemsLayout Orientation="Vertical" Span="3"
-                                    HorizontalItemSpacing="16" VerticalItemSpacing="0" />
-                            </CollectionView.ItemsLayout>
-                            <CollectionView.ItemTemplate>
+                        <listView:SfListView ItemsSource="{Binding CreateAgentVM.Suggestions}"
+                                             IsScrollingEnabled="False"
+                                             SelectionMode="None"
+                                             Orientation="Vertical"
+                                             ItemSpacing="8"
+                                             AutoFitMode="DynamicHeight"
+                                             Margin="24,0">
+                            <listView:SfListView.ItemsLayout>
+                                <listView:GridLayout SpanCount="{OnIdiom Phone=1, Tablet=2, Desktop=3}" />
+                            </listView:SfListView.ItemsLayout>
+                            <listView:SfListView.ItemTemplate>
                                 <DataTemplate x:DataType="model:TemplateCardSuggestion">
                                     <Border Padding="0" StrokeThickness="1"
                                         Stroke="{AppThemeBinding Light=#E5E1E3, Dark=#474648}"
@@ -158,23 +160,25 @@
                                         </StackLayout>
                                     </Border>
                                 </DataTemplate>
-                            </CollectionView.ItemTemplate>
-                        </CollectionView>
+                            </listView:SfListView.ItemTemplate>
+                        </listView:SfListView>
                     </VerticalStackLayout>
 
                     <!-- My Agents row: 3 cards in a 3-column grid -->
-                    <VerticalStackLayout Padding="0,24,0,32" Background="{AppThemeBinding Light=#FAF8FA,Dark=#313032}" Spacing="6">
+                    <VerticalStackLayout Padding="0,8,0,32" Background="{AppThemeBinding Light=#FAF8FA,Dark=#313032}" Spacing="6">
                         <Label Text="My Agents" Style="{StaticResource CA_SectionCaption}"
-                            HorizontalTextAlignment="Center" />
-                        <CollectionView ItemsSource="{Binding CreateAgentVM.MyAgents}"
-                            SelectionMode="None"
-                            Margin="24,0"
-                            HeightRequest="160">
-                            <CollectionView.ItemsLayout>
-                                <GridItemsLayout Orientation="Vertical" Span="3"
-                                    HorizontalItemSpacing="16" VerticalItemSpacing="0" />
-                            </CollectionView.ItemsLayout>
-                            <CollectionView.ItemTemplate>
+                               HorizontalTextAlignment="Center" />
+                        <listView:SfListView ItemsSource="{Binding CreateAgentVM.MyAgents}"
+                                             IsScrollingEnabled="False"
+                                             SelectionMode="None"
+                                             AutoFitMode="DynamicHeight"
+                                             ItemSpacing="8"
+                                             Margin="24,0"
+                                             Orientation="Vertical">
+                            <listView:SfListView.ItemsLayout>
+                                <listView:GridLayout SpanCount="{OnIdiom Phone=1, Tablet=2, Desktop=3}" />
+                            </listView:SfListView.ItemsLayout>
+                            <listView:SfListView.ItemTemplate>
                                 <DataTemplate x:DataType="model:TemplateCardSuggestion">
                                     <Border Padding="0" StrokeThickness="1"
                                         Stroke="{AppThemeBinding Light=#E5E1E3, Dark=#474648}"
@@ -202,8 +206,8 @@
                                         </StackLayout>
                                     </Border>
                                 </DataTemplate>
-                            </CollectionView.ItemTemplate>
-                        </CollectionView>
+                            </listView:SfListView.ItemTemplate>
+                            </listView:SfListView>
                     </VerticalStackLayout>
                 </StackLayout>
             </ScrollView>

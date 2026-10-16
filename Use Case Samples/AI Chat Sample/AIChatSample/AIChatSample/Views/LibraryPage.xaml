@@ -74,11 +74,12 @@
                         </Grid>
 
                         <!-- IMAGE GRID -->
-                        <listView:SfListView x:Name="ImageGrid" ItemsSource="{Binding ImageLibraryVM.FilteredImages}"
-                            SelectionMode="Single" ItemSpacing="16" HeightRequest="470" ItemSize="200"
-                            BackgroundColor="Transparent"
-                            SelectionChangedCommand="{Binding ImageLibraryVM.ImageSelectedCommand}"
-                            SelectionChangedCommandParameter="{Binding Source={x:Reference ImageGrid}, Path=SelectedItem}">
+                        <listView:SfListView x:Name="ImageGrid" 
+                                             ItemsSource="{Binding ImageLibraryVM.ImageLibraryItems}"
+                                            SelectionMode="Single" ItemSpacing="16" HeightRequest="470" ItemSize="200"
+                                            BackgroundColor="Transparent"
+                                            SelectionChangedCommand="{Binding ImageLibraryVM.ImageSelectedCommand}"
+                                            SelectionChangedCommandParameter="{Binding Source={x:Reference ImageGrid}, Path=SelectedItem}">
 
                             <listView:SfListView.ItemsLayout>
                                 <listView:GridLayout SpanCount="{OnIdiom Phone=2, Tablet=3, Desktop=4}" />
