@@ -114,10 +114,10 @@
                                             FontSize="18" VerticalOptions="Center"
                                             TextColor="{AppThemeBinding Light={DynamicResource ContentTextColorLight}, Dark={DynamicResource ContentTextColorDark}}" />
                                         <Label Grid.Column="1" Text="{Binding Title}" FontSize="16" FontFamily="Roboto-Regular"
-                                            Style="{DynamicResource SimpleLabelStyle}"
-                                            TextColor="{AppThemeBinding Light={DynamicResource PrimaryTextColorLight}, Dark={DynamicResource PrimaryTextColorDark}}"
-                                            IsVisible="{Binding Source={x:Reference Root}, Path=IsFull}"
-                                            VerticalOptions="Center" VerticalTextAlignment="Center" />
+                                                Style="{DynamicResource SimpleLabelStyle}"
+                                                TextColor="{AppThemeBinding Light={DynamicResource PrimaryTextColorLight}, Dark={DynamicResource PrimaryTextColorDark}}"
+                                                IsVisible="{Binding Source={x:Reference Root}, Path=IsFull}"
+                                                VerticalOptions="Center" VerticalTextAlignment="Center" />
                                     </Grid>
                                     <Border.GestureRecognizers>
                                         <PointerGestureRecognizer PointerEntered="PrimaryItemPointerEntered"
@@ -155,7 +155,7 @@
                                                 <Border WidthRequest="28" HeightRequest="28" StrokeThickness="0" StrokeShape="RoundRectangle 14" BackgroundColor="{Binding Color}">
                                                     <Grid>
                                                         <Image Source="{Binding AvatarSource, Converter={StaticResource StringToImageSource}}" Aspect="AspectFill" IsVisible="{Binding AvatarSource, Converter={StaticResource StringNotEmpty}}" />
-                                                        <Image Source="{Binding IconAvatar}" WidthRequest="16" Margin="-3,0,0,0" HeightRequest="16" HorizontalOptions="Center" VerticalOptions="Center" IsVisible="{Binding ShowIconAvatar}" />
+                                                        <Image Source="{Binding IconAvatar}" WidthRequest="16" HeightRequest="16" HorizontalOptions="Center" VerticalOptions="Center" IsVisible="{Binding ShowIconAvatar}" />
                                                     </Grid>
                                                 </Border>
                                                 <Label Grid.Column="1" Style="{StaticResource DrawerSubItemLabel}"

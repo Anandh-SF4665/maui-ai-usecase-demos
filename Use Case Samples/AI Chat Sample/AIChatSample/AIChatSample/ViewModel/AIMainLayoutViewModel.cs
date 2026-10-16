@@ -6,7 +6,6 @@ using System.Runtime.CompilerServices;
 using System.Windows.Input;
 using CommunityToolkit.Mvvm.ComponentModel;
 
-
 namespace AIChatSample;
 
 public partial class AIMainLayoutViewModel : ObservableObject
@@ -137,10 +136,18 @@ public partial class AIMainLayoutViewModel : ObservableObject
             new()
             {
                 Id = DefaultAgentIds.CodeReviewer,
+                Name = "Meeting notes assistant",
+                Initial = "M",
+                Color = Microsoft.Maui.Graphics.Color.FromArgb("#FF33DA"),
+                AvatarGlyph = "FontIcons;\ue752;#FFFFFF",
+            },
+            new()
+            {
+                Id = DefaultAgentIds.CodeReviewer,
                 Name = "Code Reviewer",
                 Initial = "C",
                 Color = Microsoft.Maui.Graphics.Color.FromArgb("#7633DA"),
-                AvatarGlyph = "UIKitIcons;\ue70b;#FFFFFF",
+                AvatarGlyph = "FontIcons;\ue737;#FFFFFF",
             },
             new()
             {
@@ -148,7 +155,7 @@ public partial class AIMainLayoutViewModel : ObservableObject
                 Name = "Social Media Writer",
                 Initial = "S",
                 Color = Microsoft.Maui.Graphics.Color.FromArgb("#D55E2C"),
-                AvatarGlyph = "UIKitIcons;\ue703;#FFFFFF",
+                AvatarGlyph = "FontIcons;\ue73B;#FFFFFF",
             },
         };
 
@@ -469,7 +476,7 @@ public partial class AIMainLayoutViewModel : ObservableObject
             CurrentSession = null;
         }
         _chatDataService.DeleteSession(session);
-        ChatSessionReplaced?.Invoke(this, CurrentSession);
+        ChatSessionReplaced?.Invoke(this, CurrentSession!);
     }
 
     /// <summary>Build a shareable deep link / display string for a chat.</summary>

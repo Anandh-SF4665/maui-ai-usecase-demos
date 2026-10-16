@@ -289,7 +289,7 @@ public partial class AIChatInputEditor : ContentView
     {
         if (sender is Border border)
         {
-            border.BackgroundColor = Application.Current.RequestedTheme == AppTheme.Dark
+            border.BackgroundColor = Application.Current!.RequestedTheme == AppTheme.Dark
                 ? Color.FromArgb("#3A393B")
                 : Color.FromArgb("#F2F2F2");
 
@@ -305,8 +305,6 @@ public partial class AIChatInputEditor : ContentView
             border.Scale = 1.0;
         }
     }
-
-    private Shadow? _hoverShadow;
 
     private void EditorBorder_PointerEntered(object sender, PointerEventArgs e)
     {
@@ -331,12 +329,12 @@ public partial class AIChatInputEditor : ContentView
 
         if (border != null)
         {
-            border.Stroke = Application.Current.RequestedTheme == AppTheme.Dark
+            border.Stroke = Application.Current!.RequestedTheme == AppTheme.Dark
                 ? Color.FromArgb("#5A5A5A")
                 : Color.FromArgb("#D1D1D1");
 
             border.StrokeThickness = 1;
-            border.Shadow = null;
+            border.Shadow = null!;
         }
     }
 
@@ -349,7 +347,7 @@ public partial class AIChatInputEditor : ContentView
 
         if (border != null)
         {
-            border.Stroke = Application.Current.RequestedTheme == AppTheme.Dark
+            border.Stroke = Application.Current!.RequestedTheme == AppTheme.Dark
                 ? Color.FromArgb("#8A8A8A")
                 : Color.FromArgb("#777777");
 
@@ -372,7 +370,7 @@ public partial class AIChatInputEditor : ContentView
             if (border.StrokeThickness > 1)
                 return;
 
-            border.Shadow = null;
+            border.Shadow = null!;
         }
     }
 
@@ -405,7 +403,7 @@ public partial class AIChatInputEditor : ContentView
 
         if (hasText)
         {
-            border.Stroke = Application.Current.RequestedTheme == AppTheme.Dark
+            border.Stroke = Application.Current!.RequestedTheme == AppTheme.Dark
                 ? Color.FromArgb("#8A8A8A")
                 : Color.FromArgb("#7A7A7A");
 
@@ -413,7 +411,7 @@ public partial class AIChatInputEditor : ContentView
         }
         else
         {
-            border.Stroke = Application.Current.RequestedTheme == AppTheme.Dark
+            border.Stroke = Application.Current!.RequestedTheme == AppTheme.Dark
                 ? Color.FromArgb("#5A5A5A")
                 : Color.FromArgb("#D1D1D1");
 

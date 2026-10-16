@@ -30,7 +30,6 @@ public partial class AIChatSuggestionViewModel : ObservableObject
     private string? _systemContext;
     private ChatSession? _session;
     private CancellationTokenSource? _cts;
-    private AssistItem? _activeResponseItem;
     public AIChatSuggestionViewModel()
         : this(
             aiService: ServiceHelper.GetService<IAIService>() ?? new MockAIService(),
@@ -179,9 +178,9 @@ public partial class AIChatSuggestionViewModel : ObservableObject
         this._agents.Add(new AssistAgent
         {
             Name = config.AgentName,
-            Description = config.AgentDescription,
-            Instructions = config.Instructions,
-            Icon = icon,
+            Description = config.AgentDescription!,
+            Instructions = config.Instructions!,
+            Icon = icon!,
         });
     }
 
@@ -375,7 +374,7 @@ public partial class AIChatSuggestionViewModel : ObservableObject
             prompt = $"[Attached: {this.SelectedFile}]\n{prompt}";
         }
         this.InputText = string.Empty;
-        this.SelectedFile = null;
+        this.SelectedFile = string.Empty;
         TouchSession();
 
         // The custom input editor bypasses the AssistView's own request
@@ -396,7 +395,7 @@ public partial class AIChatSuggestionViewModel : ObservableObject
 
     /// <summary>Removes the attached file.</summary>
     [RelayCommand]
-    private void RemoveAttachment() => this.SelectedFile = null;
+    private void RemoveAttachment() => this.SelectedFile = string.Empty;
 
     private async Task OnAttachFileAsync()
     {
@@ -671,7 +670,7 @@ public partial class AIChatSuggestionViewModel : ObservableObject
 
     /// <summary>
     /// Clears the current conversation so the AIAssistView renders the
-    /// initial welcome state again. Called by <see cref="Views.AIChat.NewChat"/>
+    /// initial welcome state again. Called by <see cref="NewChat"/>
     /// when the page appears (for example after the user taps "New chat" in
     /// the navigation drawer).
     /// </summary>

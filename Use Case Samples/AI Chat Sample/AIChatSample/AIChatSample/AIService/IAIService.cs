@@ -1,13 +1,7 @@
-
-
 namespace AIChatSample;
 
 /// <summary>
 /// Single seam between the UI and any AI provider (NFR-2).
-/// Implementations must:
-///   - Be safe to call from the UI thread but do I/O on a background thread.
-///   - Honour <paramref name="ct"/> for cancellation (NFR-8).
-///   - Never embed credentials; read them from environment / user-secrets (NFR-5).
 /// </summary>
 public interface IAIService
 {
