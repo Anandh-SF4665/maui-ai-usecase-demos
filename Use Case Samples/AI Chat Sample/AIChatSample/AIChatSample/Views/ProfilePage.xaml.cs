@@ -17,21 +17,17 @@ public partial class ProfilePage : ContentPage
         if (Handler is null)
         {
             AIChatNavigationPanel.NavigationRequested -= OnNavigationRequested;
-            //AIChatToolbar.BackRequested -= OnBackRequested;
         }
         else
         {
             AIChatNavigationPanel.NavigationRequested -= OnNavigationRequested;
             AIChatNavigationPanel.NavigationRequested += OnNavigationRequested;
-            //AIChatToolbar.BackRequested -= OnBackRequested;
-            //AIChatToolbar.BackRequested += OnBackRequested;
         }
     }
 
     protected override void OnAppearing()
     {
         base.OnAppearing();
-        // AIChatToolbar.IsBackVisible = Navigation?.NavigationStack.Count > 1;
     }
 
     private async void OnBackRequested(object? sender, EventArgs e)

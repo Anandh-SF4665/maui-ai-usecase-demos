@@ -34,14 +34,11 @@ public partial class AgentConfigurePage : ContentPage
         if (Handler is null)
         {
             AIChatNavigationPanel.NavigationRequested -= OnNavigationRequested;
-           // AIChatToolbar.BackRequested -= OnBackRequested;
         }
         else
         {
             AIChatNavigationPanel.NavigationRequested -= OnNavigationRequested;
             AIChatNavigationPanel.NavigationRequested += OnNavigationRequested;
-            //AIChatToolbar.BackRequested -= OnBackRequested;
-            //AIChatToolbar.BackRequested += OnBackRequested;
         }
     }
 
