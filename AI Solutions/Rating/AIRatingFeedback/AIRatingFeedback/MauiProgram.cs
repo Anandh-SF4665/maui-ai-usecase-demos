@@ -34,7 +34,7 @@ public static class MauiProgram
         {
             handler.PlatformView.BorderThickness = new Thickness(0);
             handler.PlatformView.Padding = new Thickness(0);
-            handler.PlatformView.Background = new SolidColorBrush(Colors.Transparent);
+            handler.PlatformView.Background = new Microsoft.UI.Xaml.Media.SolidColorBrush(Colors.Transparent);
             handler.PlatformView.Resources["TextControlBorderThemeThickness"] = new Thickness(0);
             handler.PlatformView.Resources["TextControlBorderThemeThicknessFocused"] = new Thickness(0);
         });
