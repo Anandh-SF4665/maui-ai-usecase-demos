@@ -128,7 +128,7 @@ public partial class AIMainLayoutViewModel : ObservableObject
         {
             new()
             {
-                Id = DefaultAgentIds.CodeReviewer,
+                Id = DefaultAgentIds.MeetingNotesAssistant,
                 Name = "Meeting notes assistant",
                 Initial = "M",
                 Color = Microsoft.Maui.Graphics.Color.FromArgb("#FF33DA"),
@@ -458,9 +458,15 @@ public partial class AIMainLayoutViewModel : ObservableObject
     {
         if (item is null || _chatDataService is null || _agentStore is null) return;
 
-        var agent = _agentStore.Agents.FirstOrDefault(a =>
-            string.Equals(a.Id, item.Id, StringComparison.OrdinalIgnoreCase) ||
-            string.Equals(a.AgentName, item.Name, StringComparison.OrdinalIgnoreCase));
+        // Resolve the drawer row against the shared store. Prefer the
+        // visible Name so a user-created agent with the same name wins
+        // over the seed entry, then fall back to the stable Id.
+        var agent =
+            _agentStore.Agents.FirstOrDefault(a =>
+                string.Equals(a.AgentName, item.Name, StringComparison.OrdinalIgnoreCase))
+            ?? _agentStore.Agents.FirstOrDefault(a =>
+                !string.IsNullOrEmpty(item.Id) &&
+                string.Equals(a.Id, item.Id, StringComparison.OrdinalIgnoreCase));
 
         if (agent is null)
         {
@@ -624,17 +630,19 @@ public partial class AIMainLayoutViewModel : ObservableObject
     }
 
     /// <summary>
-    /// Persists the two default agents into the shared store the
-    /// first time the app runs in this session. The nav-drawer
-    /// already shows them as <see cref="AgentItem"/> rows, but
-    /// <c>OnOpenAgentChatClicked</c> resolves chats against the
-    /// store — without these entries, clicking a default agent
-    /// returns no match and the chat doesn't open.
+    /// Persists the default agents into the shared store the first
+    /// time the app runs in this session. The nav-drawer already shows
+    /// them as <see cref="AgentItem"/> rows, but <c>OnOpenAgentChatClicked</c>
+    /// resolves chats against the store — without these entries, clicking
+    /// a default agent returns no match and the chat doesn't open.
     /// </summary>
     private static void SeedDefaultAgentsIfMissing(IAgentStore store)
     {
         if (store is null) return;
 
+        EnsureDefault(store, DefaultAgentIds.MeetingNotesAssistant, "Meeting notes assistant",
+            "Turns raw meeting transcripts into structured action items.",
+            "You are an expert meeting-notes assistant. Take raw meeting transcripts or notes and produce a clean summary with attendees, decisions, action items, and follow-up dates. Use bullet points and short headings.");
         EnsureDefault(store, DefaultAgentIds.CodeReviewer, "Code Reviewer",
             "Reviews code for bugs, readability, performance and best practices.",
             "You are an expert code reviewer. Analyze the provided code for bugs, security issues, performance problems, readability and best practices. Give concise, actionable feedback with improved code snippets where helpful.");
