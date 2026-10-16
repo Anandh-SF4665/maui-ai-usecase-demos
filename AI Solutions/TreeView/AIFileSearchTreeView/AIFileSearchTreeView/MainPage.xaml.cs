@@ -1,218 +1,132 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
-using Microsoft.Maui.Controls;
-using Microsoft.Extensions.DependencyInjection;
-using Syncfusion.Maui.TreeView;
-using System.Collections.ObjectModel;
+﻿using AIFileSearchTreeView.ViewModel;
 
-namespace AIFileSearchTreeView
+namespace AIFileSearchTreeView;
+
+public partial class MainPage : ContentPage
 {
-    public partial class MainPage : ContentPage
+    private readonly SalesFileViewModel _viewModel;
+    private CancellationTokenSource? _searchCancellationTokenSource;
+    private int _searchRequestVersion;
+
+    public MainPage(SalesFileViewModel viewModel)
     {
-        private SalesFileViewModel? _viewModel;
-        private CancellationTokenSource? _searchCancellationTokenSource;
-        private int _searchRequestVersion;
+        InitializeComponent();
 
-        public MainPage()
+        _viewModel = viewModel;
+        BindingContext = _viewModel;
+
+        searchEntry.TextChanged += OnSearchEntryTextChanged;
+    }
+
+    /// <summary>
+    /// Handle search entry text changes with AI semantic search.
+    /// </summary>
+    private async void OnSearchEntryTextChanged(object? sender, TextChangedEventArgs e)
+    {
+        string searchText = e.NewTextValue?.Trim() ?? string.Empty;
+
+        int requestVersion = Interlocked.Increment(ref _searchRequestVersion);
+
+        _searchCancellationTokenSource?.Cancel();
+        _searchCancellationTokenSource?.Dispose();
+        _searchCancellationTokenSource = new CancellationTokenSource();
+        var token = _searchCancellationTokenSource.Token;
+
+        if (string.IsNullOrWhiteSpace(searchText))
         {
-            InitializeComponent();
-
-            // Inject ViewModel via ServiceHelper (from DI container)
+            SetSearchBusy(false);
             try
             {
-                _viewModel = ServiceHelper.Services.GetRequiredService<SalesFileViewModel>();
-                this.BindingContext = _viewModel;
-            }
-            catch (Exception ex)
-            {
-                throw;
-            }
-
-            // Attach search event with debouncing
-            if (searchEntry != null)
-            {
-                searchEntry.TextChanged += OnSearchEntryTextChanged;
-            }
-        }
-
-        /// <summary>
-        /// Handle search entry text changes with AI semantic search
-        /// </summary>
-        private async void OnSearchEntryTextChanged(object? sender, TextChangedEventArgs e)
-        {
-            if (_viewModel == null) return;
-
-            string searchText = e.NewTextValue?.Trim() ?? "";
-            _searchRequestVersion++;
-            var requestVersion = _searchRequestVersion;
-
-            _searchCancellationTokenSource?.Cancel();
-            _searchCancellationTokenSource?.Dispose();
-            _searchCancellationTokenSource = new CancellationTokenSource();
-            var token = _searchCancellationTokenSource.Token;
-
-            if (string.IsNullOrWhiteSpace(searchText))
-            {
-                // ensure loading indicator hidden on empty
-                _viewModel.IsSearching = false;
-                SetSearchBusy(false);
-                try
-                {
-                    await _viewModel.PerformSemanticSearch(searchText, token);
-                }
-                catch (OperationCanceledException)
-                {
-                }
-
-                if (requestVersion == _searchRequestVersion)
-                {
-                    CollapseAllNodes();
-                }
-
-                return;
-            }
-
-            try
-            {
-                // show loading indicator immediately while user types / during debounce
-                _viewModel.IsSearching = true;
-                SetSearchBusy(true);
-                await Task.Yield();
-                await Task.Delay(350, token);
-                if (requestVersion != _searchRequestVersion)
-                    return;
-
-                var result = await _viewModel.PerformSemanticSearch(searchText, token);
-                if (requestVersion != _searchRequestVersion)
-                    return;
-
-                ExpandAllMatchedNodes(result);
+                await _viewModel.PerformSemanticSearchAsync(searchText, token);
             }
             catch (OperationCanceledException)
             {
-                // Only the current request may change the loading state.
-                if (requestVersion == _searchRequestVersion)
-                {
-                    _viewModel.IsSearching = false;
-                    SetSearchBusy(false);
-                }
             }
-            finally
+
+            if (requestVersion == _searchRequestVersion)
             {
-                if (requestVersion == _searchRequestVersion)
-                {
-                    _viewModel.IsSearching = false;
-                    SetSearchBusy(false);
-                }
+                _viewModel.ClearSearch();
+                SwapToFullTree();
             }
+
+            return;
         }
 
-        private void SetSearchBusy(bool isBusy)
+        try
         {
-            if (searchBusyIndicator == null)
+            // Show the loading indicator immediately and only allow the current
+            // request to hide it. A request version stamp guards against stale
+            // responses overwriting newer ones.
+            SetSearchBusy(true);
+            await Task.Delay(350, token);
+
+            if (requestVersion != _searchRequestVersion)
+            {
                 return;
+            }
 
-            searchBusyIndicator.IsVisible = isBusy;
-            searchBusyIndicator.IsRunning = isBusy;
-        }
+            var result = await _viewModel.PerformSemanticSearchAsync(searchText, token);
 
-        /// <summary>
-        /// Apply the search result to display ONLY matched files in the TreeView.
-        /// The TreeView's ItemsSource is swapped to the filtered tree that contains
-        /// only matched files inside their ancestor folders; all non-matched files and
-        /// folders are completely hidden (not just collapsed).
-        /// </summary>
-        private void ExpandAllMatchedNodes(SearchResult result)
-        {
-            if (treeView == null || _viewModel?.SalesFileNodes == null)
+            if (requestVersion != _searchRequestVersion)
+            {
                 return;
-
-            try
-            {
-                // ExpandAndHighlightMatches marks nodes AND builds FilteredSalesFileNodes
-                // (the filtered tree containing only matched files + ancestor folders).
-                _viewModel.ExpandAndHighlightMatches(result);
-
-                // Swap the TreeView to the filtered tree so ONLY matched files and their
-                // ancestor folders are rendered. Non-matched files are not displayed.
-                MainThread.BeginInvokeOnMainThread(() =>
-                {
-                    treeView.ItemsSource = _viewModel.FilteredSalesFileNodes;
-                    treeView.ExpandAll();
-                });
             }
-            catch (Exception ex)
-            {
-            }
+
+            ApplyResult(result);
         }
-
-        /// <summary>
-        /// Restore the full tree view with all files and clear highlights.
-        /// The TreeView ItemsSource is swapped back to the full tree so that all
-        /// files/folders become visible again after a search is cleared.
-        /// </summary>
-        private void CollapseAllNodes()
+        catch (OperationCanceledException)
         {
-            if (treeView == null || _viewModel?.SalesFileNodes == null)
-                return;
-
-            try
-            {
-                // Clear all highlights and match markers
-                MarkAllNodesForCollapse(_viewModel.SalesFileNodes.OfType<SalesFileNode>());
-
-                // Swap the TreeView back to the FULL tree (all files/folders visible).
-                MainThread.BeginInvokeOnMainThread(() =>
-                {
-                    treeView.ItemsSource = _viewModel.SalesFileNodes;
-                });
-
-            }
-            catch (Exception ex)
-            {
-            }
+            // Newer keystroke superseded us — leave the UI to the newer request.
         }
-
-        /// <summary>
-        /// Mark all nodes with IsExpanded = false
-        /// </summary>
-        private void MarkAllNodesForCollapse(IEnumerable<SalesFileNode> nodes)
+        finally
         {
-            foreach (var node in nodes)
+            if (requestVersion == _searchRequestVersion)
             {
-                node.IsExpanded = false;
-                node.IsMatched = false;
-                node.IsHighlighted = false;
-
-                // Recursively collapse children
-                if (node.SubFiles?.Count > 0)
-                {
-                    MarkAllNodesForCollapse(node.SubFiles.OfType<SalesFileNode>());
-                }
+                SetSearchBusy(false);
             }
         }
+    }
 
-        /// <summary>
-        /// Clear search and highlights
-        /// </summary>
-        private void OnClearSearch(object sender, EventArgs e)
+    private void SetSearchBusy(bool isBusy)
+    {
+        searchBusyIndicator.IsVisible = isBusy;
+        searchBusyIndicator.IsRunning = isBusy;
+    }
+
+    /// <summary>
+    /// Apply the search result to display ONLY matched files in the TreeView.
+    /// </summary>
+    private void ApplyResult(SearchResult result)
+    {
+        _viewModel.ExpandAndHighlightMatches(result);
+
+        MainThread.BeginInvokeOnMainThread(() =>
         {
-            if (_viewModel == null) return;
+            treeView.ItemsSource = _viewModel.FilteredSalesFileNodes;
+            treeView.ExpandAll();
+        });
+    }
 
-            searchEntry.Text = "";
-            _viewModel.MatchCountLabel = "";
-            _viewModel.MatchCount = 0;
-            _viewModel.IsSearching = false;
+    /// <summary>
+    /// Restore the full tree view with all files and clear highlights.
+    /// </summary>
+    private void SwapToFullTree()
+    {
+        MainThread.BeginInvokeOnMainThread(() =>
+        {
+            treeView.ItemsSource = _viewModel.SalesFileNodes;
+        });
+    }
 
-            _searchCancellationTokenSource?.Cancel();
-            _searchCancellationTokenSource?.Dispose();
-            _searchCancellationTokenSource = new CancellationTokenSource();
+    private void OnClearSearch(object sender, EventArgs e)
+    {
+        searchEntry.Text = string.Empty;
 
-            CollapseAllNodes();
-        }
+        _searchCancellationTokenSource?.Cancel();
+        _searchCancellationTokenSource?.Dispose();
+        _searchCancellationTokenSource = new CancellationTokenSource();
+
+        _viewModel.ClearSearch();
+        SwapToFullTree();
     }
 }

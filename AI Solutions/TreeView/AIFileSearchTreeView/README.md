@@ -8,6 +8,8 @@ Searching a large collection of files by name alone can make relevant informatio
 
 The results are displayed in the Syncfusion .NET MAUI TreeView. Matching files are highlighted, and a result count helps users see how many files matched their search.
 
+If Azure OpenAI is not configured, the app shows a "Configuration Required" alert at startup so the cause is obvious.
+
 ## Key Features
 
    - Syncfusion .NET MAUI TreeView integration
@@ -17,14 +19,14 @@ The results are displayed in the Syncfusion .NET MAUI TreeView. Matching files a
    - Ranked file results with matching paths highlighted
    - Hierarchical file and folder display
    - Search result count and clear-search action
+   - Debounced search with a request-version guard
    - Cross-platform .NET MAUI application
 
 ## Sample
 
 ```xaml
-<core:SfTextInputLayout Hint=""
-                        ContainerType="Outlined">
-    <Entry Text="{Binding SearchText}"
+<core:SfTextInputLayout ContainerType="Outlined">
+    <Entry x:Name="searchEntry"
            Placeholder="Search files..." />
 </core:SfTextInputLayout>
 
@@ -35,7 +37,10 @@ The results are displayed in the Syncfusion .NET MAUI TreeView. Matching files a
                      ExpandActionTarget="Expander" />
 ```
 
+The TreeView binds to `SalesFileViewModel.SalesFileNodes` (full tree) and is swapped to `FilteredSalesFileNodes` while a search is active.
+
 ## Output
+
 ![AI File Search TreeView](ai-file-search-treeview.gif)
 
 ## Requirements to run the demo
@@ -49,8 +54,35 @@ Before running the sample, ensure that you have:
 - Visual Studio with .NET MAUI workload installed
 - .NET 10 SDK or later
 - Azure OpenAI resource and chat deployment
-- Azure OpenAI endpoint, deployment name, and API key configured in `AIFileSearchTreeView/Services/SemanticSearchService.cs`
-- Valid Syncfusion license key
+- Valid Syncfusion license key (community licence is acceptable for evaluation)
+
+### Azure OpenAI credentials
+
+Set the following environment variables before launching the app:
+
+| Variable | Description |
+|----------|-------------|
+| `AZURE_OPENAI_ENDPOINT` | Your Azure OpenAI endpoint, e.g. `https://your-resource.openai.azure.com/` |
+| `AZURE_OPENAI_DEPLOYMENT_NAME` | Name of the chat deployment |
+| `AZURE_OPENAI_API_KEY` | API key for the Azure OpenAI resource |
+
+You can set them in your IDE launch profile, in your shell, or in the project's debug properties. The app reads the variables at startup and surfaces a "Configuration Required" alert if any value is missing or the endpoint is malformed.
+
+### Syncfusion license key
+
+Set the `SYNCFUSION_LICENSE_KEY` environment variable to your license key before launching the app. Without a valid license, Syncfusion controls render a watermark or trial dialog.
+
+## How it works
+
+`MainPage` listens for `Entry.TextChanged`, and for each keystroke:
+
+1. Increments a request version stamp (so a slow response cannot overwrite a newer one).
+2. Cancels the previous in-flight request via `CancellationTokenSource`.
+3. Waits 350 ms (debounce) and re-checks the version.
+4. Calls `SalesFileViewModel.PerformSemanticSearchAsync`, which forwards the query and full file metadata to `SemanticSearchService.SearchFilesSemanticAsync`.
+5. After the response, re-checks the version before swapping the TreeView's `ItemsSource` to `FilteredSalesFileNodes`.
+
+`SemanticSearchService` sends the entire file tree (one record per file with name, folder, keywords, type, created/modified dates) to the Azure OpenAI chat model on each query. The system prompt instructs the model to return only matching leaf-file paths; any returned path is validated against the supplied records before being shown.
 
 ## Troubleshooting
 

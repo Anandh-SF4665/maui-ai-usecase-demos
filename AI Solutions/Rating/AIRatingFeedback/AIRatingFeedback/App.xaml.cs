@@ -1,17 +1,23 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿namespace AIRatingFeedback;
 
-namespace AIRatingFeedback
+public partial class App : Application
 {
-    public partial class App : Application
+    public App()
     {
-        public App()
-        {
-            InitializeComponent();
-        }
+        InitializeComponent();
 
-        protected override Window CreateWindow(IActivationState? activationState)
+        // The Syncfusion license is read from the SYNCFUSION_LICENSE_KEY environment
+        // variable. Without a valid license, Syncfusion controls render a watermark or
+        // trial dialog. Set the variable before launching the app.
+        string? licenseKey = Environment.GetEnvironmentVariable("SYNCFUSION_LICENSE_KEY");
+        if (!string.IsNullOrWhiteSpace(licenseKey))
         {
-            return new Window(new AppShell());
+            Syncfusion.Licensing.SyncfusionLicenseProvider.RegisterLicense(licenseKey);
         }
+    }
+
+    protected override Window CreateWindow(IActivationState? activationState)
+    {
+        return new Window(new AppShell());
     }
 }

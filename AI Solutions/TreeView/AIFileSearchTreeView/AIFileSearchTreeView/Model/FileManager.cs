@@ -1,74 +1,47 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
+﻿using System.Collections.ObjectModel;
 using System.ComponentModel;
-using System.Reflection;
-using System.Text;
-using Microsoft.Maui.Controls;
+using System.Runtime.CompilerServices;
 
-namespace AIFileSearchTreeView
+namespace AIFileSearchTreeView;
+
+/// <summary>
+/// Base model for tree nodes. Uses change notifications because the TreeView
+/// updates as nodes are filtered or highlighted.
+/// </summary>
+public class FileManager : INotifyPropertyChanged
 {
-    public record FileManager : INotifyPropertyChanged
+    private string _itemName = string.Empty;
+    private ImageSource? _imageIcon;
+    private ObservableCollection<FileManager> _subFiles = new();
+
+    public string ItemName
     {
-        #region Fields
+        get => _itemName;
+        set => SetField(ref _itemName, value);
+    }
 
-        private string itemName;
-        private ImageSource imageIcon;
-        private ObservableCollection<FileManager> subFiles;
+    public ImageSource? ImageIcon
+    {
+        get => _imageIcon;
+        set => SetField(ref _imageIcon, value);
+    }
 
-        #endregion
+    public ObservableCollection<FileManager> SubFiles
+    {
+        get => _subFiles;
+        set => SetField(ref _subFiles, value);
+    }
 
-        #region Constructor
-        public FileManager()
+    public event PropertyChangedEventHandler? PropertyChanged;
+
+    protected void SetField<T>(ref T field, T value, [CallerMemberName] string? propertyName = null)
+    {
+        if (EqualityComparer<T>.Default.Equals(field, value))
         {
+            return;
         }
 
-        #endregion
-
-        #region Properties
-        public ObservableCollection<FileManager> SubFiles
-        {
-            get { return subFiles; }
-            set
-            {
-                subFiles = value;
-                RaisedOnPropertyChanged("SubFiles");
-            }
-        }
-
-        public string ItemName
-        {
-            get { return itemName; }
-            init
-            {
-                itemName = value;
-                RaisedOnPropertyChanged("ItemName");
-            }
-        }
-        public ImageSource ImageIcon
-        {
-            get { return imageIcon; }
-            init
-            {
-                imageIcon = value;
-                RaisedOnPropertyChanged("ImageIcon");
-            }
-        }
-
-        #endregion
-
-        #region INotifyPropertyChanged
-
-        public event PropertyChangedEventHandler PropertyChanged;
-
-        public void RaisedOnPropertyChanged(string _PropertyName)
-        {
-            if (PropertyChanged != null)
-            {
-                PropertyChanged(this, new PropertyChangedEventArgs(_PropertyName));
-            }
-        }
-
-        #endregion
+        field = value;
+        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
     }
 }
