@@ -146,7 +146,7 @@ public partial class CreateAgentViewModel : ObservableObject
 
             this.MyAgents.Insert(0, new TemplateCardSuggestion
             {
-                Text = agent.AgentName,
+                Text = agent.AgentName!,
                 TitleText = agent.AgentName,
                 DescriptionText = agent.AgentDescription ?? "Custom specialist agent.",
                 IconGlyph = "\ue736",
