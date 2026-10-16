@@ -14,6 +14,6 @@ public partial class MainPage : ContentPage
         BindingContext = _viewModel;
     }
 
-    private void OnFeedbackTextChanged(object sender, TextChangedEventArgs e)
+    private void OnFeedbackTextChanged(object? sender, TextChangedEventArgs e)
         => _viewModel.OnFeedbackChanged(e.NewTextValue);
 }

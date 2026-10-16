@@ -4,6 +4,11 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Maui.Handlers;
 using Syncfusion.Maui.Core.Hosting;
 
+#if WINDOWS
+using Microsoft.UI.Xaml.Media;
+using Thickness = Microsoft.UI.Xaml.Thickness;
+#endif
+
 namespace AIRatingFeedback;
 
 public static class MauiProgram
