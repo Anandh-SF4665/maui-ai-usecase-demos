@@ -1,4 +1,4 @@
-﻿using NutriLens.Models;
+using NutriLens.Models;
 using System.Diagnostics;
 using System.Net.Http.Headers;
 using System.Text;
@@ -52,11 +52,9 @@ public sealed class AzureOpenAIChatService : IAzureOpenAIChatService
                     }
                 },
 
-                // FIX (Bug 1): gpt-5-mini is a REASONING model. The old value
-                // of 180 tokens was entirely consumed by internal reasoning,
-                // producing EMPTY content on every call. Match the parameter
-                // pattern of AzureOpenAIIngredientService, which works:
-                // a generous token budget + minimal reasoning effort.
+                // gpt-5-mini is a reasoning model — a small max_completion_tokens
+                // is consumed entirely by the internal reasoning step and returns
+                // empty content. Use a generous budget with minimal reasoning effort.
                 max_completion_tokens = 800,
                 reasoning_effort = "minimal"
             };

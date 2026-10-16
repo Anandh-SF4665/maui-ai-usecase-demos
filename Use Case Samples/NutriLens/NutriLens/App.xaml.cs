@@ -1,4 +1,4 @@
-﻿using NutriLens.Views;
+using NutriLens.Views;
 
 namespace NutriLens
 {
@@ -11,8 +11,10 @@ namespace NutriLens
         }
 
         protected override Window CreateWindow(IActivationState? activationState)
-        { 
-            return new Window(new NavigationPage(new NutriLensDashboardPage())); 
+        {
+            // Splash screen delays 3s then pushes the real Dashboard.
+            // AppNavigator expects the root to be a NavigationPage.
+            return new Window(new NavigationPage(new MainPage()));
         }
     }
 }

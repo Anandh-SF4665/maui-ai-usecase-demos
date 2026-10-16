@@ -1,4 +1,4 @@
-﻿using System.Collections.ObjectModel;
+using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using NutriLens.Helpers;
@@ -137,10 +137,10 @@ private void SelectPeriod(string period)
     private async Task OpenScanAsync() => await AppNavigator.GoScanAsync();
 
     [RelayCommand]
-    private Task OpenProfileAsync() => Task.CompletedTask;
+    private async Task OpenProfileAsync() => await AppNavigator.GoProfileAsync();
 
     [RelayCommand]
-    private Task OpenTrendsAsync() => Task.CompletedTask;
+    private async Task OpenTrendsAsync() => await AppNavigator.GoTrendAsync();
 
     private void Recompute()
     {

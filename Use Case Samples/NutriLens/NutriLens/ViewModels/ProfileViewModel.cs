@@ -1,4 +1,4 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Microsoft.Extensions.DependencyInjection;
 using NutriLens.Helpers;
@@ -301,7 +301,18 @@ public partial class ProfileViewModel : ObservableObject
     private async Task OpenTrendsAsync() => await AppNavigator.GoTrendAsync();
 
     [RelayCommand]
-    private Task SignOutAsync() => Task.CompletedTask;
+    private async Task SignOutAsync()
+    {
+        var confirmed = await AppNavigator.ShowConfirmAsync(
+            "Sign out and return to the dashboard?",
+            "Sign out",
+            "Cancel");
+
+        if (!confirmed)
+            return;
+
+        await AppNavigator.GoDashboardAsync();
+    }
 
     private static T? Resolve<T>() where T : class =>
         Application.Current?.Handler?.MauiContext?.Services.GetService<T>();

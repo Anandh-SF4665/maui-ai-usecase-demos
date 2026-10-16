@@ -1,66 +1,8 @@
-﻿using System.Windows.Input;
+using System.Windows.Input;
 
 namespace NutriLens.Models
 {
     using System.Text.Json.Serialization;
-
-    public sealed class ImagePickerService : IImagePickerService
-    {
-        public async Task<FileResult?> CapturePhotoAsync(
-            CancellationToken cancellationToken = default)
-        {
-            // FIX 1: On unpackaged Windows apps (WindowsPackageType=None),
-            // MediaPicker.CapturePhotoAsync launches WinRT CameraCaptureUI,
-            // which crashes the process with 0xC0000005 because it requires
-            // package identity. Fall back to the gallery picker on WinUI.
-            if (DeviceInfo.Platform == DevicePlatform.WinUI)
-                return await PickPhotoAsync(cancellationToken);
-
-            if (!MediaPicker.Default.IsCaptureSupported)
-                return await PickPhotoAsync(cancellationToken);
-
-            var photo = await MediaPicker.Default.CapturePhotoAsync(
-                new MediaPickerOptions { Title = "Capture food label" });
-
-            return await CopyToAppCacheAsync(photo);
-        }
-
-        public async Task<FileResult?> PickPhotoAsync(
-            CancellationToken cancellationToken = default)
-        {
-            var photo = await MediaPicker.Default.PickPhotoAsync(
-                new MediaPickerOptions { Title = "Select food label" });
-
-            return await CopyToAppCacheAsync(photo);
-        }
-
-        // FIX 2: MAUI deletes the temp capture files. Copy to a location WE
-        // control so SelectedImageHolder.Current never references a deleted file.
-        private static async Task<FileResult?> CopyToAppCacheAsync(FileResult? file)
-        {
-            if (file is null)
-                return null;
-
-            var targetDir = Path.Combine(
-                FileSystem.CacheDirectory, "captures");
-            Directory.CreateDirectory(targetDir);
-
-            var target = Path.Combine(
-                targetDir,
-                $"{Guid.NewGuid():N}{Path.GetExtension(file.FileName)}");
-
-            await using var source = await file.OpenReadAsync();
-            await using var destination = File.Create(target);
-            await source.CopyToAsync(destination);
-
-            return new FileResult(target);
-        }
-    }
-    public interface IImagePickerService
-    {
-        Task<FileResult?> CapturePhotoAsync(CancellationToken cancellationToken = default);
-        Task<FileResult?> PickPhotoAsync(CancellationToken cancellationToken = default);
-    }
 
     public sealed class ProductAnalysis
     {
@@ -288,12 +230,6 @@ namespace NutriLens.Models
         public string BadgeText { get; set; } = string.Empty;
         public string BadgeColor { get; set; } = "#0E7C57";
         public string BadgeBg { get; set; } = "#EAF3EE";
-    }
-    public partial class IngredientItem
-    {
-        public string Number { get; set; } = string.Empty;
-        public string Title { get; set; } = string.Empty;
-        public string? SubText { get; set; }
     }
     /// <summary>Scan list row for the home &amp; history pages.</summary>
     public class ScanItem
