@@ -1,7 +1,7 @@
-﻿using Microsoft.Extensions.Logging;
-using Microsoft.Maui.Hosting;
+using AIFileSearchTreeView.Services;
+using AIFileSearchTreeView.ViewModel;
+using Microsoft.Extensions.Logging;
 using Syncfusion.Maui.Core.Hosting;
-using static AIFileSearchTreeView.ServiceHelper;
 
 namespace AIFileSearchTreeView
 {
@@ -20,13 +20,13 @@ namespace AIFileSearchTreeView
                     fonts.AddFont("MaterialIcons-Regular.ttf", "MaterialIcons");
                 });
 
-            // Register Services
+            // Services
             builder.Services.AddSingleton<ISemanticSearchService, SemanticSearchService>();
 
-            // Register ViewModels
+            // ViewModels
             builder.Services.AddSingleton<SalesFileViewModel>();
 
-            // Register Views
+            // Views
             builder.Services.AddTransient<MainPage>();
 
 #if DEBUG
@@ -35,10 +35,10 @@ namespace AIFileSearchTreeView
 
             var app = builder.Build();
 
-            // Initialize ServiceHelper for global service access
             ServiceHelper.CurrentServices = app.Services;
 
-            // Validate Azure credentials on startup
+            // Validate Azure OpenAI credentials on startup so the user knows
+            // immediately why AI features are not responding.
             var semanticService = app.Services.GetRequiredService<ISemanticSearchService>();
             if (!semanticService.IsCredentialValid)
             {
@@ -47,14 +47,10 @@ namespace AIFileSearchTreeView
                     var page = Application.Current?.Windows[0].Page;
                     if (page != null)
                     {
-#if NET10_0
                         await page.DisplayAlertAsync(
-#else
-                        await page.DisplayAlert(
-#endif
                             "Configuration Required",
                             "Azure OpenAI credentials not configured.\n\n" +
-                            "Set these environment variables:\n" +
+                            "Set these environment variables before launching the app:\n" +
                             "• AZURE_OPENAI_ENDPOINT\n" +
                             "• AZURE_OPENAI_API_KEY\n" +
                             "• AZURE_OPENAI_DEPLOYMENT_NAME\n\n" +

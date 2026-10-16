@@ -1,21 +1,18 @@
-using System;
+namespace AIFileSearchTreeView;
 
-namespace AIFileSearchTreeView
+/// <summary>
+/// Holds the application's <see cref="IServiceProvider"/> so that code outside
+/// the DI graph (e.g. <see cref="Microsoft.Maui.Controls.Application"/>) can
+/// resolve services. Prefer constructor injection in pages and view models.
+/// </summary>
+public static class ServiceHelper
 {
-    /// <summary>
-    /// ServiceHelper is a static class that provides access to the current service provider for the application.
-    /// </summary>
-    public static class ServiceHelper
-    {
-        /// <summary>
-        /// Gets or sets the current service provider for the application.
-        /// </summary>
-        public static IServiceProvider? CurrentServices { get; set; }
+    public static IServiceProvider? CurrentServices { get; set; }
 
-        /// <summary>
-        /// Method to retrieve a service of the specified type from the current service provider.
-        /// </summary>
-        public static IServiceProvider Services =>
-            CurrentServices ?? throw new InvalidOperationException("Services not initialized yet.");
-    }
+    /// <summary>
+    /// Returns the current service provider. Throws when accessed before
+    /// <see cref="MauiProgram"/> has finished building the app.
+    /// </summary>
+    public static IServiceProvider Services =>
+        CurrentServices ?? throw new InvalidOperationException("Services not initialized yet.");
 }

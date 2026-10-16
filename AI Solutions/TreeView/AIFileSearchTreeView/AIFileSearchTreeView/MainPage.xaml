@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8" ?>
+<?xml version="1.0" encoding="utf-8" ?>
 <ContentPage
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
@@ -28,7 +28,6 @@
         <Grid Grid.Row="0">
 
             <core:SfTextInputLayout
-                Hint=""
                 ContainerType="Outlined"
                 OutlineCornerRadius="10"
                 Padding="15,0,15,0"
@@ -97,7 +96,6 @@
 
                 <Entry
                     x:Name="searchEntry"
-                    Text="{Binding SearchText}"
                     ClearButtonVisibility="Never"
                     Placeholder="Search files..." />
 

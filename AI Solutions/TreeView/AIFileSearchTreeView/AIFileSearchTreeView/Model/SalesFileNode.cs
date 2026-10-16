@@ -1,118 +1,98 @@
-using System;
 using System.Collections.ObjectModel;
-using System.ComponentModel;
 
-namespace AIFileSearchTreeView
+namespace AIFileSearchTreeView;
+
+/// <summary>
+/// Extended <see cref="FileManager"/> for sales-related files with AI search
+/// metadata (keywords, dates, invoice amount, and search-match flags).
+/// </summary>
+public class SalesFileNode : FileManager
 {
-    /// <summary>
-    /// Extended FileManager model for sales-related files with AI search metadata
-    /// </summary>
-    public record SalesFileNode : FileManager
+    private DateTime _createdDate;
+    private DateTime _modifiedDate;
+    private string? _fileType;
+    private string[]? _keywords;
+    private string[]? _clientNames;
+    private string? _quarter;
+    private decimal? _invoiceAmount;
+    private bool _isMatched;
+    private bool _isHighlighted;
+    private bool _isExpanded;
+    private string _searchPath = string.Empty;
+
+    public DateTime CreatedDate
     {
-        #region Fields
-        private DateTime createdDate;
-        private DateTime modifiedDate;
-        private string? fileType; // Invoice, Contract, Report, etc.
-        private string[]? keywords;
-        private string[]? clientNames;
-        private string? quarter;
-        private decimal? invoiceAmount;
-        private bool isMatched; // Used for parent node highlighting
-        private bool isHighlighted; // Used for final match highlighting
-        private bool isExpanded; // Used for TreeView expansion state
-        private double matchConfidenceScore;
-        private string searchPath = string.Empty; // Full path from root
-        #endregion
+        get => _createdDate;
+        set => SetField(ref _createdDate, value);
+    }
 
-        #region Properties
+    public DateTime ModifiedDate
+    {
+        get => _modifiedDate;
+        set => SetField(ref _modifiedDate, value);
+    }
 
-        public DateTime CreatedDate
-        {
-            get { return createdDate; }
-            set { createdDate = value; RaisedOnPropertyChanged(nameof(CreatedDate)); }
-        }
+    public string? FileType
+    {
+        get => _fileType;
+        set => SetField(ref _fileType, value);
+    }
 
-        public DateTime ModifiedDate
-        {
-            get { return modifiedDate; }
-            set { modifiedDate = value; RaisedOnPropertyChanged(nameof(ModifiedDate)); }
-        }
+    public string[]? Keywords
+    {
+        get => _keywords;
+        set => SetField(ref _keywords, value);
+    }
 
-        public string? FileType
-        {
-            get { return fileType; }
-            set { fileType = value; RaisedOnPropertyChanged(nameof(FileType)); }
-        }
+    public string[]? ClientNames
+    {
+        get => _clientNames;
+        set => SetField(ref _clientNames, value);
+    }
 
-        public string[]? Keywords
-        {
-            get { return keywords; }
-            set { keywords = value; RaisedOnPropertyChanged(nameof(Keywords)); }
-        }
+    public string? Quarter
+    {
+        get => _quarter;
+        set => SetField(ref _quarter, value);
+    }
 
-        public string[]? ClientNames
-        {
-            get { return clientNames; }
-            set { clientNames = value; RaisedOnPropertyChanged(nameof(ClientNames)); }
-        }
+    public decimal? InvoiceAmount
+    {
+        get => _invoiceAmount;
+        set => SetField(ref _invoiceAmount, value);
+    }
 
-        public string? Quarter
-        {
-            get { return quarter; }
-            set { quarter = value; RaisedOnPropertyChanged(nameof(Quarter)); }
-        }
+    public bool IsMatched
+    {
+        get => _isMatched;
+        set => SetField(ref _isMatched, value);
+    }
 
-        public decimal? InvoiceAmount
-        {
-            get { return invoiceAmount; }
-            set { invoiceAmount = value; RaisedOnPropertyChanged(nameof(InvoiceAmount)); }
-        }
+    public bool IsHighlighted
+    {
+        get => _isHighlighted;
+        set => SetField(ref _isHighlighted, value);
+    }
 
-        public bool IsMatched
-        {
-            get { return isMatched; }
-            set { isMatched = value; RaisedOnPropertyChanged(nameof(IsMatched)); }
-        }
+    public bool IsExpanded
+    {
+        get => _isExpanded;
+        set => SetField(ref _isExpanded, value);
+    }
 
-        public bool IsHighlighted
-        {
-            get { return isHighlighted; }
-            set { isHighlighted = value; RaisedOnPropertyChanged(nameof(IsHighlighted)); }
-        }
+    public string SearchPath
+    {
+        get => _searchPath;
+        set => SetField(ref _searchPath, value);
+    }
 
-        public bool IsExpanded
-        {
-            get { return isExpanded; }
-            set { isExpanded = value; RaisedOnPropertyChanged(nameof(IsExpanded)); }
-        }
-
-        public double MatchConfidenceScore
-        {
-            get { return matchConfidenceScore; }
-            set { matchConfidenceScore = value; RaisedOnPropertyChanged(nameof(MatchConfidenceScore)); }
-        }
-
-        public string SearchPath
-        {
-            get { return searchPath; }
-            set { searchPath = value; RaisedOnPropertyChanged(nameof(SearchPath)); }
-        }
-
-        #endregion
-
-        #region Constructor
-
-        public SalesFileNode()
-        {
-            CreatedDate = DateTime.Now;
-            ModifiedDate = DateTime.Now;
-            FileType = string.Empty;
-            Keywords = Array.Empty<string>();
-            ClientNames = Array.Empty<string>();
-            Quarter = string.Empty;
-            SubFiles = new ObservableCollection<FileManager>(new ObservableCollection<SalesFileNode>());
-        }
-
-        #endregion
+    public SalesFileNode()
+    {
+        CreatedDate = DateTime.Now;
+        ModifiedDate = DateTime.Now;
+        FileType = string.Empty;
+        Keywords = Array.Empty<string>();
+        ClientNames = Array.Empty<string>();
+        Quarter = string.Empty;
     }
 }

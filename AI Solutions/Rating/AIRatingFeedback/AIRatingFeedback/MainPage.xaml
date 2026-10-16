@@ -7,8 +7,15 @@
     xmlns:rating="clr-namespace:Syncfusion.Maui.Inputs;assembly=Syncfusion.Maui.Inputs"
     xmlns:inputLayout="clr-namespace:Syncfusion.Maui.Core;assembly=Syncfusion.Maui.Core"
     x:Class="AIRatingFeedback.MainPage"
+    x:DataType="vm:MainViewModel"
+    xmlns:vm="clr-namespace:AIRatingFeedback.ViewModels"
+    xmlns:conv="clr-namespace:AIRatingFeedback.Converters"
     Padding="30"
     Title="">
+
+    <ContentPage.Resources>
+        <conv:StringToVisibilityConverter x:Key="StringToVisibilityConverter" />
+    </ContentPage.Resources>
 
     <cards:SfCardView
         VerticalOptions="Center"
@@ -30,23 +37,21 @@
                     FontAttributes="Bold"
                     TextColor="#263A5A" />
                 <ActivityIndicator
-                    x:Name="LoadingIndicator"
                     Grid.Column="1"
                     WidthRequest="22"
                     HeightRequest="22"
                     HorizontalOptions="End"
                     VerticalOptions="Center"
                     Color="#4F46E5"
-                    IsRunning="False"
-                    IsVisible="False" />
+                    IsRunning="{Binding IsAnalyzing}"
+                    IsVisible="{Binding IsAnalyzing}" />
                 <rating:SfRating
-                    x:Name="RatingControl"
                     Grid.Column="2"
                     VerticalOptions="Center"
                     HorizontalOptions="End"
                     ItemCount="5"
                     ItemSize="32"
-                    Value="0"
+                    Value="{Binding Rating, Mode=OneWay}"
                     IsReadOnly="True"
                     BackgroundColor="Transparent">
                     <rating:SfRating.RatingSettings>
@@ -58,22 +63,28 @@
             <!-- Editor -->
             <inputLayout:SfTextInputLayout
                 Margin="24,24,24,0"
-                Hint=""
                 ContainerType="None"
                 ShowHint="False"
                 CharMaxLength="300"
                 ShowCharCount="True"
                 Stroke="#EEF2F8">
                 <Editor
-                    x:Name="FeedbackEditor"
                     HeightRequest="240"
                     FontSize="16"
                     BackgroundColor="Transparent"
                     Placeholder="Describe your customer support experience..."
                     PlaceholderColor="#8A9BB8"
                     AutoSize="Disabled"
-                    TextChanged="FeedbackEditor_TextChanged" />
-            </inputLayout:SfTextInputLayout>
+                    TextChanged="OnFeedbackTextChanged" />
+            </inputLayout:SfInputLayout>
+
+            <!-- Error message (only shown when non-empty) -->
+            <Label
+                Margin="24,8,24,0"
+                Text="{Binding ErrorMessage}"
+                TextColor="#B91C1C"
+                FontSize="13"
+                IsVisible="{Binding ErrorMessage, Converter={StaticResource StringToVisibilityConverter}}" />
         </VerticalStackLayout>
     </cards:SfCardView>
 </ContentPage>
