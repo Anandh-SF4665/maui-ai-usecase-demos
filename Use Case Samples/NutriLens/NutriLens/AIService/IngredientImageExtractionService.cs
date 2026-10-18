@@ -1,6 +1,4 @@
-﻿using NutriLens.Models;
-using OpenAI.Chat;
-using System.Net.Http.Headers;
+﻿using System.Net.Http.Headers;
 using System.Text;
 using System.Text.Json;
 
@@ -8,14 +6,30 @@ namespace NutriLens.Services;
 
 public sealed class IngredientImageExtractionService : IIngredientImageExtractionService
 {
+    private const string ExtractionPrompt = """
+                Read the entire food label image edge to edge, including text near every border and corner.
+                Do not crop, ignore, or summarize any part of the visible ingredient statement or Nutrition Facts table.
+
+                Transcribe these sections in the order shown:
+                Ingredients:
+                - Copy the complete ingredient statement and sub-ingredients in their printed order.
+                - Preserve commas, parentheses, and allergen statements that are part of the ingredient section.
+                - Put each top-level ingredient on its own line; keep sub-ingredients with their parent ingredient.
+
+                Nutrition Facts:
+                - Record serving size, servings per container, and calories.
+                - Record every visible nutrient row with its amount and % Daily Value, including fat, cholesterol,
+                    sodium, carbohydrates, fiber, sugars, added sugars, protein, vitamins, and minerals.
+                - Keep each nutrient name, number, unit, and % Daily Value together. Do not omit rows at the
+                    top, bottom, left, or right of the table. Use [unclear] only for characters that cannot be read.
+
+                Return only the two labeled sections. Do not invent or estimate unreadable values. If one section
+                is not visible, return its heading followed by "Not visible".
+                """;
+
     private static readonly HttpClient Http = new()
     {
         Timeout = TimeSpan.FromSeconds(120)
-    };
-
-    private static readonly JsonSerializerOptions JsonOptions = new()
-    {
-        PropertyNameCaseInsensitive = true
     };
 
     public async Task<string> ExtractContentAsync(
@@ -27,65 +41,101 @@ public sealed class IngredientImageExtractionService : IIngredientImageExtractio
 
         AzureOpenAIConfig.EnsureConfigured();
 
-        var filePath = image.FullPath;
+        await using var imageStream = await image.OpenReadAsync();
+        using var imageBuffer = new MemoryStream();
+        await imageStream.CopyToAsync(imageBuffer, cancellationToken);
+        var imageBytes = imageBuffer.ToArray();
 
-        if (string.IsNullOrWhiteSpace(filePath))
-            throw new InvalidOperationException("No image was selected.");
+        if (imageBytes.Length == 0)
+            throw new InvalidOperationException("The selected image is empty.");
 
-        var imageBytes = await File.ReadAllBytesAsync(filePath, cancellationToken);
         var base64 = Convert.ToBase64String(imageBytes);
-        var extension = Path.GetExtension(filePath).TrimStart('.').ToLowerInvariant();
-
-        if (extension == "jpg")
-            extension = "jpeg";
-
-        var imageUrl = $"data:image/{extension};base64,{base64}";
-
-        var options = new OpenAI.OpenAIClientOptions
+        var mediaType = Path.GetExtension(image.FileName).ToLowerInvariant() switch
         {
-            Endpoint = AzureOpenAIConfig.GetOpenAIClientEndpoint()
+            ".png" => "image/png",
+            ".webp" => "image/webp",
+            ".gif" => "image/gif",
+            _ => "image/jpeg"
+        };
+        var imageUrl = $"data:{mediaType};base64,{base64}";
+
+        var requestBody = new
+        {
+            model = AzureOpenAIConfig.ConfiguredDeploymentName,
+            messages = new object[]
+            {
+                new
+                {
+                    role = "user",
+                    content = new object[]
+                    {
+                        new { type = "text", text = ExtractionPrompt },
+                        new
+                        {
+                            type = "image_url",
+                            image_url = new { url = imageUrl, detail = "high" }
+                        }
+                    }
+                }
+            },
+            max_completion_tokens = 3000,
+            reasoning_effort = "minimal"
         };
 
-        var client = new OpenAI.OpenAIClient(
-            new System.ClientModel.ApiKeyCredential(AzureOpenAIConfig.ConfiguredApiKey),
-            options);
+        using var request = new HttpRequestMessage(
+            HttpMethod.Post,
+            AzureOpenAIConfig.GetChatCompletionsUri());
+        request.Headers.Add("api-key", AzureOpenAIConfig.ConfiguredApiKey);
+        request.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+        request.Content = new StringContent(
+            JsonSerializer.Serialize(requestBody),
+            Encoding.UTF8,
+            "application/json");
 
-        var chatClient = client.GetChatClient(AzureOpenAIConfig.ConfiguredDeploymentName);
+        using var response = await Http.SendAsync(
+            request,
+            HttpCompletionOption.ResponseHeadersRead,
+            cancellationToken);
+        var responseBody = await response.Content.ReadAsStringAsync(cancellationToken);
 
-        var messages = new List<ChatMessage>
+        if (!response.IsSuccessStatusCode)
         {
-            new UserChatMessage(
-            [
-                ChatMessageContentPart.CreateTextPart(
-                    """
-                    Extract ONLY the ingredient statement from this food label image.
+            throw new HttpRequestException(
+                $"Azure OpenAI image extraction failed (HTTP {(int)response.StatusCode}). " +
+                "Check the deployment, credentials, and service availability.");
+        }
 
-                    Rules:
-                    - Return only ingredients and ingredient subcomponents.
-                    - Do NOT return nutrition facts, serving size, calories, warnings, claims, brand name, or marketing text.
-                    - If the label has an "Ingredients:" section, extract just that section.
-                    - If ingredients are split across multiple lines, keep them together.
-                    - Preserve commas, parentheses, and ordering as printed.
-                    - If no ingredients are visible, return an empty response.
-
-                    Output format:
-                    - One ingredient per line where possible.
-                    - Keep the result concise and exact.
-                    """
-                ),
-                ChatMessageContentPart.CreateImagePart(new Uri(imageUrl))
-            ])
-        };
-
-        ChatCompletion completion = await chatClient.CompleteChatAsync(
-            messages,
-            cancellationToken: cancellationToken);
-
-        var text = completion.Content[0].Text;
+        using var document = JsonDocument.Parse(responseBody);
+        var text = ReadCompletionText(document.RootElement);
 
         if (string.IsNullOrWhiteSpace(text))
-            throw new InvalidOperationException("No ingredients could be extracted from the selected product image.");
+            throw new InvalidOperationException("No readable label content could be extracted from the selected product image.");
 
         return text.Trim();
+    }
+
+    private static string ReadCompletionText(JsonElement root)
+    {
+        if (!root.TryGetProperty("choices", out var choices) ||
+            choices.ValueKind != JsonValueKind.Array ||
+            choices.GetArrayLength() == 0 ||
+            !choices[0].TryGetProperty("message", out var message) ||
+            !message.TryGetProperty("content", out var content))
+        {
+            return string.Empty;
+        }
+
+        if (content.ValueKind == JsonValueKind.String)
+            return content.GetString() ?? string.Empty;
+
+        if (content.ValueKind == JsonValueKind.Array)
+        {
+            return string.Concat(content.EnumerateArray()
+                .Where(part => part.ValueKind == JsonValueKind.Object &&
+                    part.TryGetProperty("text", out _))
+                .Select(part => part.GetProperty("text").GetString() ?? string.Empty));
+        }
+
+        return string.Empty;
     }
 }

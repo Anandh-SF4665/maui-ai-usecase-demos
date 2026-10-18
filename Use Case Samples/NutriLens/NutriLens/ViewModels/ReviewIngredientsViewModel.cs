@@ -11,9 +11,16 @@ namespace NutriLens.ViewModels;
 
 public partial class ReviewIngredientsViewModel : ObservableObject
 {
+    private static readonly Regex IngredientsHeadingPattern = new(
+        @"(?im)^[ \t]*(?:#{1,6}[ \t]*)?(?:[-*•][ \t]*)?(?:\d+[.)][ \t]*)?(?:\*{1,2}[ \t]*)?ingredients?(?:[ \t]+(?:list|statement))?[ \t]*:?[ \t]*(?:\*{1,2})?[ \t]*",
+        RegexOptions.Compiled);
+    private static readonly Regex NutritionFactsHeadingPattern = new(
+        @"(?im)^[ \t]*(?:#{1,6}[ \t]*)?(?:\*{1,2}[ \t]*)?nutrition[ \t]+facts(?:[ \t]*\([^)]*\))?[ \t]*:?[ \t]*(?:\*{1,2})?[ \t]*",
+        RegexOptions.Compiled);
     private readonly IAzureOpenAIIngredientService analysisService;
     private readonly IUserPreferenceStore preferenceStore;
     private string? scannedImagePath;
+    private string extractedLabelText = string.Empty;
 
     public ObservableCollection<IngredientItem> Ingredients { get; } = new();
 
@@ -33,8 +40,9 @@ public partial class ReviewIngredientsViewModel : ObservableObject
     private string analyzingStatus = string.Empty;
 
     public int IngredientCount => Ingredients.Count;
+    public bool HasIngredients => IngredientCount > 0;
 
-    public string IngredientSummary => $"{IngredientCount} Ingredients Found";
+    public string IngredientSummary => $"{IngredientCount} Components Found";
     public ImageSource? ScannedImage { get; private set; }
     public string BackIcon => MaterialIcons.ArrowBack;
     public string PersonIcon => MaterialIcons.Person;
@@ -65,6 +73,8 @@ public partial class ReviewIngredientsViewModel : ObservableObject
         var pending = AnalysisNavigationData.PendingReview;
         if (pending is null)
             return;
+        extractedLabelText = pending.ExtractedText;
+
         scannedImagePath = pending.Image.FullPath;
         ScannedImage = CreateImageSource(pending.Image);
         OnPropertyChanged(nameof(ScannedImage));
@@ -74,15 +84,6 @@ public partial class ReviewIngredientsViewModel : ObservableObject
 
         foreach (var item in ParseIngredients(pending.ExtractedText))
             Ingredients.Add(item);
-
-        if (Ingredients.Count == 0 && !string.IsNullOrWhiteSpace(pending.ExtractedText))
-        {
-            Ingredients.Add(new IngredientItem
-            {
-                IngredientName = pending.ExtractedText.Trim(),
-                IngredientDescription = string.Empty
-            });
-        }
 
         RefreshNumbers();
     }
@@ -108,21 +109,19 @@ public partial class ReviewIngredientsViewModel : ObservableObject
         if (string.IsNullOrWhiteSpace(text))
             yield break;
 
-        var cleanedText = NormalizeExtractedText(text);
-
-        var lines = cleanedText
-            .Split(['\r', '\n', ';'], StringSplitOptions.RemoveEmptyEntries)
+        var ingredientLines = NormalizeExtractedText(text)
+            .Split(['\r', '\n'], StringSplitOptions.RemoveEmptyEntries)
             .Select(l => l.Trim())
             .Where(l => l.Length > 0)
+            .SelectMany(SplitTopLevelIngredients)
             .ToList();
 
-        var index = 1;
-
-        foreach (var raw in lines)
+        foreach (var raw in ingredientLines)
         {
             var cleaned = Regex.Replace(raw, @"^\s*(?:\d+[.\)]|-|\*|•)\s*", "").Trim();
 
-            if (string.IsNullOrWhiteSpace(cleaned))
+            if (string.IsNullOrWhiteSpace(cleaned) ||
+                cleaned.Equals("Not visible", StringComparison.OrdinalIgnoreCase))
                 continue;
 
             var (name, description) = SplitIngredient(cleaned);
@@ -132,74 +131,98 @@ public partial class ReviewIngredientsViewModel : ObservableObject
 
             yield return new IngredientItem
             {
-                DisplayNumber = index.ToString("00"),
                 IngredientName = name.Trim(),
                 IngredientDescription = description?.Trim() ?? string.Empty
             };
 
-            index++;
         }
+
+        foreach (var raw in ExtractNutritionFacts(text)
+            .Split(['\r', '\n'], StringSplitOptions.RemoveEmptyEntries))
+        {
+            var cleaned = Regex.Replace(raw.Trim(), @"^(?:[-*•]\s*)+", "");
+            if (string.IsNullOrWhiteSpace(cleaned) ||
+                cleaned.Equals("Not visible", StringComparison.OrdinalIgnoreCase))
+            {
+                continue;
+            }
+
+            var (name, value) = SplitNutritionRow(cleaned);
+            if (string.IsNullOrWhiteSpace(name))
+                continue;
+
+            yield return new IngredientItem
+            {
+                IngredientName = name,
+                IngredientDescription = value
+            };
+
+        }
+    }
+
+    private static (string Name, string Value) SplitNutritionRow(string line)
+    {
+        var colonIndex = line.IndexOf(':');
+        if (colonIndex > 0)
+            return (line[..colonIndex].Trim(), line[(colonIndex + 1)..].Trim());
+
+        var valueMatch = Regex.Match(
+            line,
+            @"\s(?=(?:<|>)?\d+(?:[.,]\d+)?\s*(?:mg|mcg|g|kcal|calories?|iu|%))",
+            RegexOptions.IgnoreCase);
+
+        if (!valueMatch.Success && Regex.IsMatch(line, @"^(?:serving size|servings per container|calories)\b", RegexOptions.IgnoreCase))
+            valueMatch = Regex.Match(line, @"\s(?=(?:<|>)?\d)");
+
+        return valueMatch.Success
+            ? (line[..valueMatch.Index].Trim(), line[valueMatch.Index..].Trim())
+            : (line.Trim(), string.Empty);
     }
 
     private static string NormalizeExtractedText(string text)
     {
-        var lines = text
-            .Split(['\r', '\n'], StringSplitOptions.RemoveEmptyEntries)
-            .Select(l => l.Trim())
-            .Where(l => l.Length > 0)
-            .ToArray();
+        var ingredientsHeading = IngredientsHeadingPattern.Match(text);
+        if (!ingredientsHeading.Success)
+            ingredientsHeading = Regex.Match(text, @"\bingredients?\s*:\s*", RegexOptions.IgnoreCase);
 
-        var ingredientSection = new List<string>();
-        var capture = false;
+        if (!ingredientsHeading.Success)
+            return string.Empty;
 
-        foreach (var line in lines)
+        var contentStart = ingredientsHeading.Index + ingredientsHeading.Length;
+        var nutritionHeading = NutritionFactsHeadingPattern.Match(text, contentStart);
+        if (!nutritionHeading.Success)
+            nutritionHeading = Regex.Match(text, @"\bnutrition\s+facts\s*:?");
+
+        var contentEnd = nutritionHeading.Success && nutritionHeading.Index >= contentStart
+            ? nutritionHeading.Index
+            : text.Length;
+
+        return text[contentStart..contentEnd].Trim();
+    }
+
+    private static IEnumerable<string> SplitTopLevelIngredients(string line)
+    {
+        var nestingDepth = 0;
+        var start = 0;
+
+        for (var index = 0; index < line.Length; index++)
         {
-            var lower = line.ToLowerInvariant();
-
-            if (lower.Contains("ingredient"))
-                capture = true;
-
-            if (capture)
+            if (line[index] is '(' or '[')
+                nestingDepth++;
+            else if (line[index] is ')' or ']')
+                nestingDepth = Math.Max(0, nestingDepth - 1);
+            else if ((line[index] is ',' or ';') && nestingDepth == 0)
             {
-                var stopWords = new[]
-                {
-                    "nutrition facts",
-                    "serving size",
-                    "calories",
-                    "protein",
-                    "fat",
-                    "carbohydrate",
-                    "carbohydrates",
-                    "sugar",
-                    "sodium",
-                    "allergen",
-                    "warning",
-                    "health claim",
-                    "directions",
-                    "storage"
-                };
-
-                if (stopWords.Any(lower.Contains) && !lower.Contains("ingredient"))
-                    break;
-
-                ingredientSection.Add(line);
+                var ingredient = line[start..index].Trim();
+                if (ingredient.Length > 0)
+                    yield return ingredient;
+                start = index + 1;
             }
         }
 
-        if (ingredientSection.Count == 0)
-            return text;
-
-        if (ingredientSection.Count == 1 && ingredientSection[0].ToLowerInvariant().Contains("ingredients"))
-        {
-            var first = ingredientSection[0];
-            var colonIndex = first.IndexOf(':');
-            if (colonIndex >= 0 && colonIndex < first.Length - 1)
-                return first[(colonIndex + 1)..].Trim();
-
-            return string.Empty;
-        }
-
-        return string.Join(Environment.NewLine, ingredientSection);
+        var lastIngredient = line[start..].Trim();
+        if (lastIngredient.Length > 0)
+            yield return lastIngredient;
     }
 
     private static (string Name, string? Description) SplitIngredient(string line)
@@ -217,11 +240,9 @@ public partial class ReviewIngredientsViewModel : ObservableObject
 
     private void RefreshNumbers()
     {
-        for (var i = 0; i < Ingredients.Count; i++)
-            Ingredients[i].DisplayNumber = (i + 1).ToString("00");
-
         OnPropertyChanged(nameof(IngredientCount));
         OnPropertyChanged(nameof(IngredientSummary));
+        OnPropertyChanged(nameof(HasIngredients));
     }
 
     [RelayCommand]
@@ -319,12 +340,12 @@ public partial class ReviewIngredientsViewModel : ObservableObject
             if (prefs.IsEmpty)
                 prefs = null;
 
-            var combined = string.Join('\n', Ingredients.Select(i =>
+            var combinedIngredients = string.Join('\n', Ingredients.Select(i =>
                 string.IsNullOrWhiteSpace(i.IngredientDescription)
                     ? i.IngredientName
                     : $"{i.IngredientName} ({i.IngredientDescription})"));
 
-            var result = await analysisService.AnalyzeAsync(combined, prefs);
+            var result = await analysisService.AnalyzeAsync(combinedIngredients, prefs);
 
             if (result is null)
                 throw new InvalidOperationException("The AI analysis returned no result.");
@@ -333,6 +354,7 @@ public partial class ReviewIngredientsViewModel : ObservableObject
         }
         catch (Exception ex)
         {
+            System.Diagnostics.Debug.WriteLine($"[ReviewIngredients] Analysis failed: {ex}");
             await AppNavigator.ShowAlertAsync("Analysis Error", ex.Message, "OK");
         }
         finally
@@ -340,6 +362,17 @@ public partial class ReviewIngredientsViewModel : ObservableObject
             IsLoading = false;
             AnalyzingStatus = string.Empty;
         }
+    }
+
+    private static string ExtractNutritionFacts(string extractedText)
+    {
+        var heading = NutritionFactsHeadingPattern.Match(extractedText);
+        if (!heading.Success)
+            heading = Regex.Match(extractedText, @"\bnutrition\s+facts\s*:?\s*", RegexOptions.IgnoreCase);
+
+        return !heading.Success
+            ? string.Empty
+            : extractedText[(heading.Index + heading.Length)..].Trim();
     }
 
     private static T? Resolve<T>() where T : class =>
