@@ -1,5 +1,6 @@
 ﻿using NutriLens.Models;
 using NutriLens.Views;
+using System.Diagnostics;
 using System.Globalization;
 
 namespace NutriLens.Helpers
@@ -49,6 +50,33 @@ namespace NutriLens.Helpers
         public static Task GoTrendAsync() => NavigateTopLevelAsync<TrendsPage>();
         public static Task GoScanAsync() => NavigateTopLevelAsync<ScanIngredientsPage>();
         public static Task GoAnalyzeIngredientsAsync() => PushAsync<AnalyzeIngredientsResultPage>();
+
+        public static async Task RunNavigationSafelyAsync(
+            Page page,
+            Func<Task> navigation,
+            string destination)
+        {
+            try
+            {
+                await navigation();
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"[Navigation] Could not open {destination}: {ex}");
+
+                try
+                {
+                    await page.DisplayAlertAsync(
+                        "Navigation",
+                        $"Could not open {destination}. Please try again.",
+                        "OK");
+                }
+                catch (Exception alertException)
+                {
+                    Debug.WriteLine($"[Navigation] Error alert failed: {alertException}");
+                }
+            }
+        }
 
         public static Task PopAsync() => Nav.PopAsync();
 

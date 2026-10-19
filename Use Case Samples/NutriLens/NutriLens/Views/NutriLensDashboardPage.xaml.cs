@@ -1,3 +1,4 @@
+using NutriLens.Helpers;
 using NutriLens.Models;
 using NutriLens.ViewModels;
 
@@ -112,7 +113,10 @@ public partial class NutriLensDashboardPage : ContentPage
         if (e.DataItem is RecentScanItem item
             && BindingContext is NutriLensDashboardViewModel vm)
         {
-            await vm.RecentScanTappedCommand.ExecuteAsync(item);
+            await AppNavigator.RunNavigationSafelyAsync(
+                this,
+                () => vm.RecentScanTappedCommand.ExecuteAsync(item),
+                "Recent scan");
         }
     }
 }

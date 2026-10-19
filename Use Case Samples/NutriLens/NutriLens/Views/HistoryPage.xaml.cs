@@ -54,27 +54,42 @@ public partial class HistoryPage : ContentPage
     {
         if (e.DataItem is HistoryItem item && ViewModel is not null)
         {
-            await ViewModel.RecentScanTappedCommand.ExecuteAsync(item);
+            await AppNavigator.RunNavigationSafelyAsync(
+                this,
+                () => ViewModel.RecentScanTappedCommand.ExecuteAsync(item),
+                "Scan analysis");
         }
     }
 
     private async void OnHomeClicked(object? sender, EventArgs e)
     {
-        await AppNavigator.GoDashboardAsync();
+        await AppNavigator.RunNavigationSafelyAsync(
+            this,
+            AppNavigator.GoDashboardAsync,
+            "Dashboard");
     }
 
     private async void OnScanClicked(object? sender, EventArgs e)
     {
-        await AppNavigator.GoScanAsync();
+        await AppNavigator.RunNavigationSafelyAsync(
+            this,
+            AppNavigator.GoScanAsync,
+            "Scan");
     }
 
     private async void OnProfileClicked(object? sender, EventArgs e)
     {
-        await AppNavigator.GoProfileAsync();
+        await AppNavigator.RunNavigationSafelyAsync(
+            this,
+            AppNavigator.GoProfileAsync,
+            "Profile");
     }
 
     private async void OnTrendsClicked(object? sender, EventArgs e)
     {
-        await AppNavigator.GoTrendAsync();
+        await AppNavigator.RunNavigationSafelyAsync(
+            this,
+            AppNavigator.GoTrendAsync,
+            "Trends");
     }
 }

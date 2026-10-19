@@ -39,7 +39,10 @@ public partial class AnalyzeIngredientsResultPage : ContentPage
 
     private async void OnBackClicked(object? sender, EventArgs e)
     {
-        await Navigation.PopAsync();
+        await AppNavigator.RunNavigationSafelyAsync(
+            this,
+            () => Navigation.PopAsync(),
+            "Previous page");
     }
 
     private async void OnSaveResultClicked(object? sender, TappedEventArgs e)

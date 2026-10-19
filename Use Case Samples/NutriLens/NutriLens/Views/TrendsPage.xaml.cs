@@ -32,33 +32,43 @@ public partial class TrendsPage : ContentPage
         }
     }
 
-    // OnHomeClicked / OnHistoryClicked / OnScanClicked / OnProfileClicked
-    // stay exactly as they are today.
     private async void OnHomeClicked(
         object? sender,
         EventArgs e)
     {
-        await AppNavigator.GoDashboardAsync();
+        await AppNavigator.RunNavigationSafelyAsync(
+            this,
+            AppNavigator.GoDashboardAsync,
+            "Dashboard");
     }
 
     private async void OnHistoryClicked(
         object? sender,
         EventArgs e)
     {
-        await AppNavigator.GoHistoryAsync();
+        await AppNavigator.RunNavigationSafelyAsync(
+            this,
+            AppNavigator.GoHistoryAsync,
+            "History");
     }
 
     private async void OnScanClicked(
         object? sender,
         TappedEventArgs e)
     {
-        await AppNavigator.GoScanAsync();
+        await AppNavigator.RunNavigationSafelyAsync(
+            this,
+            AppNavigator.GoScanAsync,
+            "Scan");
     }
 
     private async void OnProfileClicked(
         object? sender,
         EventArgs e)
     {
-        await AppNavigator.GoProfileAsync();
+        await AppNavigator.RunNavigationSafelyAsync(
+            this,
+            AppNavigator.GoProfileAsync,
+            "Profile");
     }
 }

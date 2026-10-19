@@ -25,7 +25,6 @@ A cross-platform .NET MAUI app that turns a mobile camera scan or desktop image 
 - .NET MAUI (net10.0)
 - Syncfusion .NET MAUI 34.2.6 (Buttons, Charts, Core, Gauges, ListView, Popup, ProgressBar)
 - CommunityToolkit.Mvvm 8.4.0
-- OpenAI 2.13.0 (used by the image-extraction service)
 - Azure OpenAI (chat completions endpoint)
 
 ## Features
@@ -98,7 +97,7 @@ dotnet build -t:Run -f net10.0-android
 
 | Folder | Purpose |
 |---|---|
-| `NutriLens/AIService/` | Azure OpenAI clients + the OpenAI image-extraction service |
+| `NutriLens/AIService/` | Azure OpenAI chat and image-extraction services |
 | `NutriLens/Services/` | Persistence, history, sample data, image picker, daily-insight pipeline |
 | `NutriLens/ViewModels/` | MVVM view models (one per page) |
 | `NutriLens/Views/` | ContentPages + desktop header navigation |
