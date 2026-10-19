@@ -66,8 +66,6 @@
                 <Setter Property="StrokeThickness" Value="0" />
                 <Setter Property="EnableRippleEffect" Value="True" />
             </Style>
-            <FontImageSource x:Key="CA_PlusGlyph" Glyph="&#xe70d;" FontFamily="MaterialAssets" Color="White"
-                Size="14" />
             <model:LoadedScaleConverter x:Key="CALoadedScale" />
             <convertor:InverseBooleanConverter x:Key="InverseBoolean" />
             <convertor:StringToImageSourceConverter x:Key="StringToImageSource" />
@@ -155,7 +153,7 @@
                                               Style="{StaticResource CA_CreateAgentButton}"
                                               SemanticProperties.Description="Create Agent"
                                               SemanticProperties.Hint="Saves the specialist agent and opens it"
-                                              ImageSource="{StaticResource CA_PlusGlyph}"
+                                              ImageSource="plus.png"
                                               Text="Create Agent"
                                               HorizontalTextAlignment="Start"
                                               IsEnabled="{Binding IsCreateEnabled}"

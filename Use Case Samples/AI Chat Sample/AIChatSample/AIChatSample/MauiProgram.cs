@@ -53,10 +53,10 @@ namespace AIChatSample
             {
                 builder.Services.AddSingleton<IAIService>(_ =>
                     new AzureOpenAIService(
-                        Environment.GetEnvironmentVariable("AZURE_OPENAI_ENDPOINT"),
-                        Environment.GetEnvironmentVariable("AZURE_OPENAI_KEY"),
-                        Environment.GetEnvironmentVariable("AZURE_OPENAI_DEPLOYMENT"),
-                        int.TryParse(Environment.GetEnvironmentVariable("AZURE_OPENAI_TIMEOUT_SECONDS"), out var t) ? t : 100));
+                        "YOUR_ENDPOINT_HERE",
+                        "YOUR_APIKEY_HERE",
+                        "YOUR_DEPLOYMENT_HERE",
+                        int.TryParse("YOUR_TIMEOUT_SECONDS_HERE", out var t) ? t : 100));
             }
             else
             {
@@ -81,9 +81,9 @@ namespace AIChatSample
         /// </summary>
         private static bool HasAzureOpenAIConfiguration()
         {
-            var endpoint = Environment.GetEnvironmentVariable("AZURE_OPENAI_ENDPOINT");
-            var apiKey = Environment.GetEnvironmentVariable("AZURE_OPENAI_KEY");
-            var deployment = Environment.GetEnvironmentVariable("AZURE_OPENAI_DEPLOYMENT");
+            var endpoint = "YOUR_ENDPOINT_HERE";
+            var apiKey = "YOUR_APIKEY_HERE";
+            var deployment = "YOUR_DEPLOYMENT_HERE";
 
             return !string.IsNullOrWhiteSpace(endpoint)
                 && !string.IsNullOrWhiteSpace(apiKey)

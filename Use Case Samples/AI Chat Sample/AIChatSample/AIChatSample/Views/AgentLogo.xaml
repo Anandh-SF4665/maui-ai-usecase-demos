@@ -62,7 +62,6 @@
                    ShowFooter="False"
                    ShowCloseButton="False"
                    AutoSizeMode="Both"
-                   OverlayMode="Blur"
                    StaysOpen="True"
                    BackgroundColor="Transparent">
         <popup:SfPopup.PopupStyle>
