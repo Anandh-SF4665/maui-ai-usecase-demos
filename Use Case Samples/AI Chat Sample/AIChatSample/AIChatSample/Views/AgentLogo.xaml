@@ -237,9 +237,10 @@
                                 <Grid>
                                     <Image Source="{Binding SelectedImage, Converter={StaticResource StringToImageSource}}"
                                            Aspect="AspectFill" IsVisible="{Binding HasSelectedImage}" />
-                                    <Image Source="{AppThemeBinding Light=photolight.png, Dark=photodark.png}"
-                                        WidthRequest="40" HeightRequest="40" HorizontalOptions="Center"
-                                        VerticalOptions="Center"
+                                    <Label Text="&#xe700;"
+                                        FontFamily="UIKitIcons" FontSize="40"
+                                        TextColor="{AppThemeBinding Light=#C9C6C8, Dark=#858385}"
+                                        HorizontalOptions="Center" VerticalOptions="Center"
                                         IsVisible="{Binding HasSelectedImage, Converter={StaticResource InverseBoolean}}" />
                                 </Grid>
                             </Border>
@@ -260,9 +261,10 @@
                                     <TapGestureRecognizer Command="{Binding SelectImageCommand}" />
                                 </Border.GestureRecognizers>
                                 <VerticalStackLayout Spacing="6" HorizontalOptions="Center" VerticalOptions="Center">
-                                    <Image Source="{AppThemeBinding Light=container.png, Dark=containerdark.png}"
-                                        WidthRequest="24" HeightRequest="24" HorizontalOptions="Center"
-                                        VerticalOptions="Center" />
+                                    <Label Text="&#xe713;"
+                                        FontFamily="UIKitIcons" FontSize="24"
+                                        TextColor="{AppThemeBinding Light=#7633DA, Dark=#8D4CF5}"
+                                        HorizontalOptions="Center" VerticalOptions="Center" />
                                     <Label Text="Click or drag your image here" FontFamily="Roboto-Regular"
                                         FontSize="14" TextColor="{AppThemeBinding Light=#474648, Dark=#C9C6C8}"
                                         HorizontalOptions="Center" />

@@ -21,7 +21,10 @@ namespace AIChatSample
 
         [ObservableProperty] private LogoIconModel? selectedIcon;
         [ObservableProperty] private LogoColorModel? selectedColor;
-        [ObservableProperty] private string? selectedImage;
+        [ObservableProperty]
+        [NotifyPropertyChangedFor(nameof(HasSelectedImage))]
+        [NotifyPropertyChangedFor(nameof(IsApplyEnabled))]
+        private string? selectedImage;
         [ObservableProperty] private AgentConfiguration? targetAgent;
 
         #endregion
