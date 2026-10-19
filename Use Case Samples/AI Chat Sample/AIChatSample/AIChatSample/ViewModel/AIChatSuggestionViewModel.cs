@@ -47,7 +47,7 @@ public partial class AIChatSuggestionViewModel : ObservableObject
         {
             iconColor = Application.Current.UserAppTheme == AppTheme.Dark
                 ? Color.FromArgb("#A572F7")
-                : (Color)Application.Current.Resources["PrimaryColorLight"];
+                : TryGetThemeColor("PrimaryColorLight", fallback: Color.FromArgb("#7633DA"));
         }
 
         // FR-4.3: initial prompts surfaced as the welcome-state
@@ -520,15 +520,22 @@ public partial class AIChatSuggestionViewModel : ObservableObject
 
         try
         {
-            var result = await Task.Run(async () =>
-                await _aiService.GetResponseAsync(prompt, _systemContext, ct).ConfigureAwait(false),
-                ct).ConfigureAwait(true);
+            // The AI service methods are already async — wrapping them in
+            // Task.Run just hops threads without adding concurrency. Call
+            // directly and let the inner implementation (and any ConfigureAwait
+            // inside it) decide where to resume.
+            var result = await _aiService.GetResponseAsync(prompt, _systemContext, ct).ConfigureAwait(true);
 
             if (ct.IsCancellationRequested || result is null)
             {
                 return;
             }
             AddResponse(result.Answer ?? string.Empty);
+            // Surface the AI's follow-up suggestions so the suggestion
+            // strip below the editor stays live (FR-4.3). The mock
+            // always returns suggestions; Azure may not, in which case
+            // AppendFollowUpSuggestions is a no-op.
+            AppendFollowUpSuggestions(result.Suggestions);
         }
         catch (OperationCanceledException)
         {
@@ -590,7 +597,7 @@ public partial class AIChatSuggestionViewModel : ObservableObject
         {
             iconColor = Application.Current.UserAppTheme == AppTheme.Dark
                 ? Color.FromArgb("#A572F7")
-                : (Color)Application.Current.Resources["PrimaryColorLight"];
+                : TryGetThemeColor("PrimaryColorLight", fallback: Color.FromArgb("#7633DA"));
         }
 
         // Replace any existing suggestions so we never accumulate stale
@@ -693,6 +700,22 @@ public partial class AIChatSuggestionViewModel : ObservableObject
     public void SetSystemContext(string? systemContext)
     {
         _systemContext = systemContext;
+    }
+
+    /// <summary>
+    /// Safely reads a Color resource from <see cref="Application.Current"/>'s
+    /// merged dictionaries. Returns <paramref name="fallback"/> when the
+    /// resource is missing or isn't a <see cref="Color"/>, so callers
+    /// don't have to write unsafe casts at every use site.
+    /// </summary>
+    private static Color TryGetThemeColor(string key, Color fallback)
+    {
+        if (Application.Current?.Resources?.TryGetValue(key, out var value) == true
+            && value is Color color)
+        {
+            return color;
+        }
+        return fallback;
     }
 
 

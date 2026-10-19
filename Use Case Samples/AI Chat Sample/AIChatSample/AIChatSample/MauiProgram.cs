@@ -15,6 +15,13 @@ namespace AIChatSample
         /// <returns>The fully-configured <see cref="MauiApp"/> ready to run.</returns>
         public static MauiApp CreateMauiApp()
         {
+            // Register the Syncfusion license before any Syncfusion control is
+            // inflated. Replace the placeholder with a real key (or pull it
+            // from a secure store) to silence the runtime license banner.
+            // TODO: Replace with your Syncfusion license key, or load it from
+            //       a secure store (e.g. environment variable, user-secrets).
+            Syncfusion.Licensing.SyncfusionLicenseProvider.RegisterLicense("YOUR_LICENSE_KEY");
+
             var builder = MauiApp.CreateBuilder();
             builder
                 .UseMauiApp<App>()
@@ -49,14 +56,9 @@ namespace AIChatSample
             // constructor throws if the env vars are missing, so we
             // can't register it unconditionally and let activation fail
             // later.
-            if (HasAzureOpenAIConfiguration())
+            if (TryCreateAzureOpenAIService(out var azureService))
             {
-                builder.Services.AddSingleton<IAIService>(_ =>
-                    new AzureOpenAIService(
-                        "YOUR_ENDPOINT_HERE",
-                        "YOUR_APIKEY_HERE",
-                        "YOUR_DEPLOYMENT_HERE",
-                        int.TryParse("YOUR_TIMEOUT_SECONDS_HERE", out var t) ? t : 100));
+                builder.Services.AddSingleton<IAIService>(azureService!);
             }
             else
             {
@@ -75,19 +77,57 @@ namespace AIChatSample
         }
 
         /// <summary>
-        /// True when the environment provides the minimum Azure OpenAI
-        /// configuration. All three variables must be set and
-        /// non-empty (NFR-5).
+        /// Returns <c>true</c> when the environment provides the minimum
+        /// Azure OpenAI configuration. All three variables must be set
+        /// and non-empty (NFR-5).
         /// </summary>
         private static bool HasAzureOpenAIConfiguration()
         {
-            var endpoint = "YOUR_ENDPOINT_HERE";
-            var apiKey = "YOUR_APIKEY_HERE";
-            var deployment = "YOUR_DEPLOYMENT_HERE";
+            var endpoint = Environment.GetEnvironmentVariable("AZURE_OPENAI_ENDPOINT");
+            var apiKey = Environment.GetEnvironmentVariable("AZURE_OPENAI_KEY");
+            var deployment = Environment.GetEnvironmentVariable("AZURE_OPENAI_DEPLOYMENT");
 
             return !string.IsNullOrWhiteSpace(endpoint)
                 && !string.IsNullOrWhiteSpace(apiKey)
                 && !string.IsNullOrWhiteSpace(deployment);
+        }
+
+        /// <summary>
+        /// Attempts to construct an <see cref="AzureOpenAIService"/> from
+        /// environment variables. Returns <c>true</c> and sets
+        /// <paramref name="service"/> when the env vars are all present
+        /// and a valid https endpoint is supplied; otherwise returns
+        /// <c>false</c> so the caller can fall back to the mock service.
+        /// </summary>
+        private static bool TryCreateAzureOpenAIService(out IAIService? service)
+        {
+            service = null;
+            if (!HasAzureOpenAIConfiguration())
+            {
+                return false;
+            }
+
+            var endpoint = Environment.GetEnvironmentVariable("AZURE_OPENAI_ENDPOINT")!;
+            var apiKey = Environment.GetEnvironmentVariable("AZURE_OPENAI_KEY")!;
+            var deployment = Environment.GetEnvironmentVariable("AZURE_OPENAI_DEPLOYMENT")!;
+            var timeoutRaw = Environment.GetEnvironmentVariable("AZURE_OPENAI_TIMEOUT_SECONDS");
+            int timeout = int.TryParse(timeoutRaw, out var t) ? t : 100;
+
+            try
+            {
+                service = new AzureOpenAIService(endpoint, apiKey, deployment, timeout);
+                return true;
+            }
+            catch (InvalidOperationException ex)
+            {
+                // Misconfiguration (e.g. http:// endpoint). Surface the
+                // problem in the debug log and fall back to the mock so
+                // the sample still runs.
+                System.Diagnostics.Debug.WriteLine(
+                    $"AzureOpenAI configuration invalid, falling back to MockAIService: {ex.Message}");
+                service = null;
+                return false;
+            }
         }
     }
 }

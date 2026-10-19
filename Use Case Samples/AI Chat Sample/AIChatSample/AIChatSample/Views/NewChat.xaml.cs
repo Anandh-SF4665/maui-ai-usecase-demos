@@ -7,6 +7,23 @@ public partial class NewChat : ContentPage
     private bool spanUpdatePending;
     private AIMainLayoutViewModel? _layoutVm;
 
+    /// <summary>
+    /// Safely reads a <see cref="Color"/> resource from
+    /// <see cref="Application.Current"/>'s merged dictionaries. Falls
+    /// back to <paramref name="fallback"/> when the key is missing or
+    /// the resource is not a Color, so callers don't need to repeat
+    /// the cast-and-null-check pattern.
+    /// </summary>
+    private static Color TryGetColor(string key, Color fallback)
+    {
+        if (Application.Current?.Resources?.TryGetValue(key, out var value) == true
+            && value is Color color)
+        {
+            return color;
+        }
+        return fallback;
+    }
+
     public NewChat()
     {
         InitializeComponent();
@@ -14,8 +31,8 @@ public partial class NewChat : ContentPage
         if (Application.Current != null)
         {
             sfAIAssistViewBackground = Application.Current.UserAppTheme == AppTheme.Dark
-            ? (Color?)Application.Current.Resources["SentMessageColorDark"] ?? Color.FromArgb("#313032")
-            : (Color?)Application.Current.Resources["SentMessageColorLight"] ?? Color.FromArgb("#FCF8FA");
+            ? TryGetColor("SentMessageColorDark", Color.FromArgb("#313032"))
+            : TryGetColor("SentMessageColorLight", Color.FromArgb("#FCF8FA"));
         }
 
 

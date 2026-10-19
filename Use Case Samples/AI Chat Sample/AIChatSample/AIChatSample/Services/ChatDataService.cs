@@ -96,9 +96,12 @@ public sealed class ChatDataService : IChatDataService
     public void DeleteSession(ChatSession session)
     {
         if (session is null) return;
-        if (_sessions.Remove(session))
-        {
-            ChatSessionAdded?.Invoke(this, session); // reuse the same event for now; future: dedicated removed event
-        }
+        _sessions.Remove(session);
+        // Intentionally do not raise ChatSessionAdded here — that event
+        // signals "a new session was added" and would mislead consumers
+        // (e.g. the nav drawer) into thinking a removed session is
+        // fresh. Subscribers receive the underlying
+        // ChatSessionsChanged -> CollectionChanged notification when
+        // the ObservableCollection is mutated.
     }
 }
