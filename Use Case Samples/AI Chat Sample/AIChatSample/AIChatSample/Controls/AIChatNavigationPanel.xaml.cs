@@ -241,9 +241,9 @@ public partial class AIChatNavigationPanel : ContentView, INotifyPropertyChanged
 
     private void NavigationItemTapped(object sender, TappedEventArgs e)
     {
-        if (e.Parameter is AIChatNavigationItem item)
+        if (e.Parameter is string itemKey)
         {
-            RaiseNavigation(item.Key);
+            RaiseNavigation(itemKey);
         }
     }
 
