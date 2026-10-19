@@ -281,7 +281,15 @@ namespace AIChatSample
 
                 SelectedImage = result.FullPath ?? result.FileName;
             }
-            catch { /* Hook: surface validation error */ }
+            catch (TaskCanceledException)
+            {
+                // User dismissed the picker — nothing to do.
+            }
+            catch (Exception ex)
+            {
+                // Hook: surface validation error.
+                System.Diagnostics.Debug.WriteLine($"Logo picker failed: {ex.Message}");
+            }
         }
 
         private void OnRemoveImage() => SelectedImage = null;

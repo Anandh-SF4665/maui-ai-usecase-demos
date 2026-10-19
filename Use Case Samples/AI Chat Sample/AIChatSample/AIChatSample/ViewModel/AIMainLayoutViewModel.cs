@@ -2,6 +2,7 @@ using Syncfusion.Maui.AIAssistView;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.ComponentModel;
+using System.Globalization;
 using System.Runtime.CompilerServices;
 using System.Windows.Input;
 using CommunityToolkit.Mvvm.ComponentModel;
@@ -771,7 +772,7 @@ public partial class AIMainLayoutViewModel : ObservableObject
         if (delta.TotalMinutes < 60) return $"{(int)delta.TotalMinutes}m";
         if (delta.TotalHours < 24) return $"{(int)delta.TotalHours}h";
         if (delta.TotalDays < 7) return $"{(int)delta.TotalDays}d";
-        return utc.ToLocalTime().ToString("MMM d");
+        return utc.ToLocalTime().ToString("MMM d", CultureInfo.InvariantCulture);
     }
 
     #endregion

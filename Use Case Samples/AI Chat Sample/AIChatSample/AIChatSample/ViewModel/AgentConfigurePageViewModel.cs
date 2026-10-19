@@ -139,6 +139,26 @@ public partial class AgentConfigurePageViewModel : ObservableObject
     /// <summary>True after a successful Create so the page can pop back.</summary>
     public bool CreatedSuccessfully => AgentVM.CreatedSuccessfully;
 
+    private string? _inputText;
+
+    /// <summary>
+    /// TwoWay-bound prompt text shown in the Copilot-style AIChatInputEditor
+    /// at the bottom of the page. Bound from the EditorViewTemplate via
+    /// <c>Path=BindingContext.InputText</c>; cleared after the assistant
+    /// finishes handling the request so the field is empty for the next
+    /// prompt.
+    /// </summary>
+    public string? InputText
+    {
+        get => _inputText;
+        set
+        {
+            if (_inputText == value) return;
+            _inputText = value;
+            OnPropertyChanged(nameof(InputText));
+        }
+    }
+
     /// <summary>InputCommand for the AIChatInputEditor to bind in the EditorViewTemplate. Accepts string text and creates RequestEventArgs.</summary>
     public ICommand InputCommand => new Command<string>(OnEditorInput);
 
@@ -150,10 +170,10 @@ public partial class AgentConfigurePageViewModel : ObservableObject
         }
 
         // Create an AssistItem from the typed text
-        var userItem = new Syncfusion.Maui.AIAssistView.AssistItem 
-        { 
-            Text = text, 
-            IsRequested = true 
+        var userItem = new Syncfusion.Maui.AIAssistView.AssistItem
+        {
+            Text = text,
+            IsRequested = true
         };
 
         // Create RequestEventArgs and invoke the Assistant's RequestCommand
@@ -162,6 +182,10 @@ public partial class AgentConfigurePageViewModel : ObservableObject
         {
             Assistant.RequestCommand.Execute(args);
         }
+
+        // Reset the editor so the next prompt starts with an empty field,
+        // matching the behaviour of the main chat page.
+        InputText = string.Empty;
     }
 
     // ---- Inline name-required validation (FR-1.2 / AC-1.2) ----

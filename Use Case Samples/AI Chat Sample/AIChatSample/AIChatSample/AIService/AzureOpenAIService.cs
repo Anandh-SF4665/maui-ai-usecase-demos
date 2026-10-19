@@ -60,7 +60,14 @@ public sealed class AzureOpenAIService : IAIService
                 "AZURE_OPENAI_DEPLOYMENT is not set. Configure it via environment variables or user-secrets before using AzureOpenAIService.");
         }
 
-        var client = new AzureOpenAIClient(new Uri(endpoint), new AzureKeyCredential(apiKey));
+        if (!Uri.TryCreate(endpoint, UriKind.Absolute, out var endpointUri) ||
+            endpointUri.Scheme != Uri.UriSchemeHttps)
+        {
+            throw new InvalidOperationException(
+                $"AZURE_OPENAI_ENDPOINT must be an https:// URL (got '{endpoint}'). Sending the API key over plain http is not supported.");
+        }
+
+        var client = new AzureOpenAIClient(endpointUri, new AzureKeyCredential(apiKey));
         _chatClient = client.GetChatClient(deployment);
         _requestTimeout = TimeSpan.FromSeconds(Math.Max(1, timeoutSeconds));
     }
@@ -82,10 +89,16 @@ public sealed class AzureOpenAIService : IAIService
             using var cts = CancellationTokenSource.CreateLinkedTokenSource(ct);
             cts.CancelAfter(_requestTimeout);
 
-            var messages = new List<ChatMessage>
+            // The agent's Behaviour/Instructions is supplied as the
+            // system prompt so per-agent instructions actually reach
+            // the model (otherwise only the user message is sent and
+            // every agent behaves identically).
+            var messages = new List<ChatMessage>();
+            if (!string.IsNullOrWhiteSpace(systemContext))
             {
-                new UserChatMessage(prompt),
-            };
+                messages.Add(new SystemChatMessage(systemContext));
+            }
+            messages.Add(new UserChatMessage(prompt));
 
             ChatCompletion completion = await _chatClient
                 .CompleteChatAsync(messages, cancellationToken: cts.Token)

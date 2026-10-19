@@ -1,26 +1,13 @@
-﻿<?xml version="1.0" encoding="utf-8" ?>
+<?xml version="1.0" encoding="utf-8" ?>
 <ResourceDictionary xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
                      xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
                      x:Class="AIChatSample.Themes.LightTheme">
 
-    <ResourceDictionary.MergedDictionaries>
-        <!--<styles:ButtonStyles />
-        <styles:LabelStyles />
-        
-                     xmlns:styles="clr-namespace:AIChatSample.Styles"
-        <styles:BorderStyles />
-        <styles:ListViewStyles />
-        <styles:RatingStyles />
-        <styles:BoxViewStyles />
-        <styles:AvatarViewStyles />
-        <styles:EntryStyles />
-        <styles:FontIcons />
-        <styles:Colors />
-        <styles:EditorStyles />
-        <styles:RadioButtonStyles />
-        <styles:SegmentedControlStyles />
-        <styles:ComboBoxStyles />-->
-    </ResourceDictionary.MergedDictionaries>
+    <!--
+        Light-mode palette. Keys here are the canonical light-mode
+        values; DarkTheme.xaml only adds dark-only or "Dark"-suffixed
+        keys so neither file overrides the other.
+    -->
 
     <Color x:Key="PrimaryDarkColor">#d0424f</Color>
     <Color x:Key="PrimaryDarkenColor">#ab3641</Color>
