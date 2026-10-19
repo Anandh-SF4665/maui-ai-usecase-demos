@@ -25,7 +25,7 @@
                             <VisualState Name="PointerOver">
                                 <VisualState.Setters>
                                     <Setter Property="BackgroundColor"
-            Value="{AppThemeBinding Light=#F3EFF4, Dark=#35303C}" />
+                                            Value="{AppThemeBinding Light=#F3EFF4, Dark=#35303C}" />
                                 </VisualState.Setters>
                             </VisualState>
                         </VisualStateGroup>
@@ -44,7 +44,7 @@
                             <VisualState Name="PointerOver">
                                 <VisualState.Setters>
                                     <Setter Property="HeaderBackground"
-            Value="{AppThemeBinding Light=#F3EFF4, Dark=#35303C}" />
+                                            Value="{AppThemeBinding Light=#F3EFF4, Dark=#35303C}" />
                                     <Setter Property="BackgroundColor" Value="Transparent" />
                                 </VisualState.Setters>
                             </VisualState>

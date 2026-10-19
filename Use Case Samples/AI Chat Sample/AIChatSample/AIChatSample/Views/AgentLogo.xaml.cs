@@ -13,6 +13,7 @@ public partial class AgentLogoPage : ContentPage
         if (BindingContext is null) BindingContext = _vm;
         _vm.RequestClose += OnRequestClose;
         _vm.ResetForOpen();
+        LogoPopup.IsOpen = true;
     }
 
     protected override void OnBindingContextChanged()

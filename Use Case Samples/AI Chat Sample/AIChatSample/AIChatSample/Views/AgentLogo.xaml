@@ -2,6 +2,7 @@
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     xmlns:buttons="clr-namespace:Syncfusion.Maui.Toolkit.Buttons;assembly=Syncfusion.Maui.Toolkit"
+    xmlns:listView="clr-namespace:Syncfusion.Maui.ListView;assembly=Syncfusion.Maui.ListView"
     xmlns:popup="clr-namespace:Syncfusion.Maui.Toolkit.Popup;assembly=Syncfusion.Maui.Toolkit"
     xmlns:viewModel="clr-namespace:AIChatSample"
     xmlns:model="clr-namespace:AIChatSample"
@@ -57,12 +58,10 @@
     </ContentPage.Resources>
 
     <popup:SfPopup x:Name="LogoPopup"
-                   IsOpen="True"
                    ShowHeader="False"
                    ShowFooter="False"
                    ShowCloseButton="False"
                    AutoSizeMode="Both"
-                   OverlayMode="Blur"
                    StaysOpen="True"
                    BackgroundColor="Transparent">
         <popup:SfPopup.PopupStyle>
@@ -124,10 +123,10 @@
                     </HorizontalStackLayout>
 
                     <!-- BODY -->
-                    <Grid Grid.Row="2">
+                    <Grid Grid.Row="2" RowDefinitions="*">
 
                         <!-- CREATE MODE -->
-                        <VerticalStackLayout Spacing="12" IsVisible="{Binding IsCreateMode}">
+                        <VerticalStackLayout Spacing="12" IsVisible="{Binding IsCreateMode}" MinimumHeightRequest="150">
 
                             <!-- LIVE LOGO PREVIEW -->
                             <Border WidthRequest="72" HeightRequest="72" StrokeThickness="0"
@@ -144,21 +143,23 @@
                             <Label Text="Icons" FontFamily="Roboto-Medium" FontSize="14"
                                 TextColor="{AppThemeBinding Light=#313032, Dark=#FFFFFF}" Margin="4,0,0,0" />
 
-                            <CollectionView x:Name="IconsGrid"
-                                            ItemsSource="{Binding AvailableIcons}"
-                                            SelectionMode="Single"
-                                            SelectedItem="{Binding SelectedIcon, Mode=TwoWay}"
-                                            VerticalScrollBarVisibility="Never"
-                                            HeightRequest="126">
-                                <CollectionView.ItemsLayout>
-                                    <GridItemsLayout Span="5" Orientation="Vertical" HorizontalItemSpacing="8" VerticalItemSpacing="8" />
-                                </CollectionView.ItemsLayout>
-                                <CollectionView.ItemTemplate>
+                            <listView:SfListView x:Name="IconsGrid"
+                                                ItemsSource="{Binding Source={x:Reference root}, Path=BindingContext.AvailableIcons}"
+                                                Loaded="IconsGrid_Loaded"
+                                                SelectionMode="Single"
+                                                SelectedItem="{Binding SelectedIcon, Mode=TwoWay}"
+                                                Orientation="Horizontal"
+                                                ItemSpacing="5"
+                                                SelectionBackground="Transparent"
+                                                HeightRequest="40"
+                                                ItemSize="40"
+                                                AutoFitMode="Height">
+                                <listView:SfListView.ItemTemplate>
                                     <DataTemplate x:DataType="model:LogoIconModel">
-                                        <Grid WidthRequest="40" HeightRequest="40" Padding="2">
+                                        <HorizontalStackLayout WidthRequest="40" HeightRequest="40" Padding="2">
                                             <!-- Suppress MAUI's default selection rectangle and
-                                                 hover border so only the inner tinted circle
-                                                 signals selection. -->
+                                                    hover border so only the inner tinted circle
+                                                    signals selection. -->
                                             <VisualStateManager.VisualStateGroups>
                                                 <VisualStateGroup x:Name="CommonStates">
                                                     <VisualState x:Name="Normal" />
@@ -189,43 +190,44 @@
                                                     </Label.Triggers>
                                                 </Label>
                                             </Border>
-                                        </Grid>
+                                        </HorizontalStackLayout>
                                     </DataTemplate>
-                                </CollectionView.ItemTemplate>
-                            </CollectionView>
+                                </listView:SfListView.ItemTemplate>
+                            </listView:SfListView>
 
                             <!-- COLORS -->
                             <Label Text="Colors" FontFamily="Roboto-Medium" FontSize="14"
                                 TextColor="{AppThemeBinding Light=#313032, Dark=#FFFFFF}" Margin="4,0,0,0" />
 
-                            <CollectionView x:Name="ColorsGrid"
-                                ItemsSource="{Binding AvailableColors}"
-                                SelectionMode="Single"
-                                SelectedItem="{Binding SelectedColor, Mode=TwoWay}"
-                                HeightRequest="48">
-                                <CollectionView.ItemsLayout>
-                                    <LinearItemsLayout Orientation="Horizontal" ItemSpacing="10" />
-                                </CollectionView.ItemsLayout>
-                                <CollectionView.ItemTemplate>
-                                    <DataTemplate x:DataType="model:LogoColorModel">
-                                        <Border WidthRequest="40" HeightRequest="40"
-                                            StrokeThickness="0" StrokeShape="RoundRectangle 20"
-                                            BackgroundColor="Transparent">
-                                            <Border WidthRequest="32" HeightRequest="32"
-                                                StrokeThickness="2" Stroke="Transparent"
-                                                StrokeShape="RoundRectangle 16"
-                                                BackgroundColor="{Binding ColorHex}"
-                                                HorizontalOptions="Center" VerticalOptions="Center">
-                                                <Border.Triggers>
-                                                    <DataTrigger TargetType="Border" Binding="{Binding IsSelected}" Value="True">
-                                                        <Setter Property="Stroke" Value="{AppThemeBinding Light=#5F5E60, Dark=#FFFFFF}" />
-                                                    </DataTrigger>
-                                                </Border.Triggers>
-                                            </Border>
+                            <listView:SfListView x:Name="ColorsGrid"
+                                                ItemsSource="{Binding AvailableColors}"
+                                                SelectionMode="Single"
+                                                Orientation="Horizontal"
+                                                SelectionBackground="Transparent"
+                                                HeightRequest="40"
+                                                ItemSize="40"
+                                                AutoFitMode="Height"
+                                                SelectedItem="{Binding SelectedColor, Mode=TwoWay}">
+                                <listView:SfListView.ItemTemplate>
+                                        <DataTemplate x:DataType="model:LogoColorModel">
+                                    <Border WidthRequest="40" HeightRequest="40"
+                                        StrokeThickness="0" StrokeShape="RoundRectangle 20"
+                                        BackgroundColor="Transparent">
+                                        <Border WidthRequest="32" HeightRequest="32"
+                                            StrokeThickness="2" Stroke="Transparent"
+                                            StrokeShape="RoundRectangle 16"
+                                            BackgroundColor="{Binding ColorHex}"
+                                            HorizontalOptions="Center" VerticalOptions="Center">
+                                            <Border.Triggers>
+                                                <DataTrigger TargetType="Border" Binding="{Binding IsSelected}" Value="True">
+                                                    <Setter Property="Stroke" Value="{AppThemeBinding Light=#5F5E60, Dark=#FFFFFF}" />
+                                                </DataTrigger>
+                                            </Border.Triggers>
                                         </Border>
-                                    </DataTemplate>
-                                </CollectionView.ItemTemplate>
-                            </CollectionView>
+                                    </Border>
+                                </DataTemplate>
+                            </listView:SfListView.ItemTemplate>
+                        </listView:SfListView>
                         </VerticalStackLayout>
 
                         <!-- UPLOAD MODE -->
@@ -238,9 +240,10 @@
                                 <Grid>
                                     <Image Source="{Binding SelectedImage, Converter={StaticResource StringToImageSource}}"
                                            Aspect="AspectFill" IsVisible="{Binding HasSelectedImage}" />
-                                    <Image Source="{AppThemeBinding Light=photolight.png, Dark=photodark.png}"
-                                        WidthRequest="40" HeightRequest="40" HorizontalOptions="Center"
-                                        VerticalOptions="Center"
+                                    <Label Text="&#xe702;"
+                                        FontFamily="UIKitIcons" FontSize="40"
+                                        TextColor="{AppThemeBinding Light=#C9C6C8, Dark=#858385}"
+                                        HorizontalOptions="Center" VerticalOptions="Center"
                                         IsVisible="{Binding HasSelectedImage, Converter={StaticResource InverseBoolean}}" />
                                 </Grid>
                             </Border>
@@ -261,9 +264,10 @@
                                     <TapGestureRecognizer Command="{Binding SelectImageCommand}" />
                                 </Border.GestureRecognizers>
                                 <VerticalStackLayout Spacing="6" HorizontalOptions="Center" VerticalOptions="Center">
-                                    <Image Source="{AppThemeBinding Light=container.png, Dark=containerdark.png}"
-                                        WidthRequest="24" HeightRequest="24" HorizontalOptions="Center"
-                                        VerticalOptions="Center" />
+                                    <Label Text="&#xe703;"
+                                        FontFamily="UIKitIcons" FontSize="24"
+                                        TextColor="{AppThemeBinding Light=#7633DA, Dark=#8D4CF5}"
+                                        HorizontalOptions="Center" VerticalOptions="Center" />
                                     <Label Text="Click or drag your image here" FontFamily="Roboto-Regular"
                                         FontSize="14" TextColor="{AppThemeBinding Light=#474648, Dark=#C9C6C8}"
                                         HorizontalOptions="Center" />
