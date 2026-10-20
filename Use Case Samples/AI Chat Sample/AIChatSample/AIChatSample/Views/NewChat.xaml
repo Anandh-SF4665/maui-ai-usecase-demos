@@ -91,6 +91,16 @@
                                            ShowSelectedAgent="True"
                                            ShowResponseLoader="{Binding ShowResponseLoader}"
                                            RequestCommand="{Binding RequestCommand}">
+                    <assistView:SfAIAssistView.ResponseItemTemplate>
+                        <DataTemplate>
+                            <Border BackgroundColor="Transparent" Stroke="Transparent">
+                                <Label
+                                    Text="{Binding Text}"
+                                    TextColor="{AppThemeBinding Light=Black, Dark=White}"
+                                    FontSize="14"/>
+                            </Border>
+                        </DataTemplate>
+                    </assistView:SfAIAssistView.ResponseItemTemplate>
 
                     <assistView:SfAIAssistView.EditorViewTemplate>
                         <DataTemplate>
