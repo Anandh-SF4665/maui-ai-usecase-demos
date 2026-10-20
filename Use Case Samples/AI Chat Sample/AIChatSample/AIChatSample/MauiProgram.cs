@@ -15,13 +15,6 @@ namespace AIChatSample
         /// <returns>The fully-configured <see cref="MauiApp"/> ready to run.</returns>
         public static MauiApp CreateMauiApp()
         {
-            // Register the Syncfusion license before any Syncfusion control is
-            // inflated. Replace the placeholder with a real key (or pull it
-            // from a secure store) to silence the runtime license banner.
-            // TODO: Replace with your Syncfusion license key, or load it from
-            //       a secure store (e.g. environment variable, user-secrets).
-            Syncfusion.Licensing.SyncfusionLicenseProvider.RegisterLicense("YOUR_LICENSE_KEY");
-
             var builder = MauiApp.CreateBuilder();
             builder
                 .UseMauiApp<App>()
@@ -83,9 +76,9 @@ namespace AIChatSample
         /// </summary>
         private static bool HasAzureOpenAIConfiguration()
         {
-            var endpoint = Environment.GetEnvironmentVariable("AZURE_OPENAI_ENDPOINT");
-            var apiKey = Environment.GetEnvironmentVariable("AZURE_OPENAI_KEY");
-            var deployment = Environment.GetEnvironmentVariable("AZURE_OPENAI_DEPLOYMENT");
+            var endpoint = "YOUR_ENDPOINT_HERE";
+            var apiKey = "YOUR_APIKEY_HERE";
+            var deployment = "YOUR_DEPLOYMENT_HERE";
 
             return !string.IsNullOrWhiteSpace(endpoint)
                 && !string.IsNullOrWhiteSpace(apiKey)
@@ -107,10 +100,10 @@ namespace AIChatSample
                 return false;
             }
 
-            var endpoint = Environment.GetEnvironmentVariable("AZURE_OPENAI_ENDPOINT")!;
-            var apiKey = Environment.GetEnvironmentVariable("AZURE_OPENAI_KEY")!;
-            var deployment = Environment.GetEnvironmentVariable("AZURE_OPENAI_DEPLOYMENT")!;
-            var timeoutRaw = Environment.GetEnvironmentVariable("AZURE_OPENAI_TIMEOUT_SECONDS");
+            var endpoint = "YOUR_ENDPOINT_HERE";
+            var apiKey = "YOUR_APIKEY_HERE";
+            var deployment = "YOUR_DEPLOYMENT_HERE";
+            var timeoutRaw = "YOUR_TIMEOUT_HERE";
             int timeout = int.TryParse(timeoutRaw, out var t) ? t : 100;
 
             try

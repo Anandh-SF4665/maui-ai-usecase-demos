@@ -145,7 +145,6 @@
 
                             <listView:SfListView x:Name="IconsGrid"
                                                 ItemsSource="{Binding Source={x:Reference root}, Path=BindingContext.AvailableIcons}"
-                                                Loaded="IconsGrid_Loaded"
                                                 SelectionMode="Single"
                                                 SelectedItem="{Binding SelectedIcon, Mode=TwoWay}"
                                                 Orientation="Horizontal"
