@@ -57,30 +57,31 @@ public partial class AIChatNavigationPanel : ContentView, INotifyPropertyChanged
     public bool IsFull => !IsCompact;
 
     /// <summary>
-    /// Width of the drawer column. On desktop the drawer is always
-    /// visible (60px collapsed / 250px expanded). On Android the drawer
-    /// overlays the content — collapsed (hamburger hidden) the column
-    /// is 0 wide so the content fills the screen; expanded (hamburger
-    /// visible) the column grows to 250 so the drawer covers the
-    /// content's left edge. The previous version returned
-    /// <c>GridLength(0)</c> unconditionally on Android, which left the
-    /// drawer zero-width even when expanded and made every tap land on
-    /// the content layer underneath.
+    /// Width of the drawer column. Desktop keeps the drawer permanently
+    /// visible (60px collapsed / 250px expanded). Android uses an
+    /// overlay drawer: the column is 0 while collapsed (content fills
+    /// the screen) and grows to 250 while expanded.
     /// </summary>
     public GridLength NavigationColumnWidth => IsAndroid
         ? new GridLength(IsCompact ? 0 : 250)
         : new GridLength(IsCompact ? 60 : 250);
 
     /// <summary>
-    /// Grid column the content sits in. On desktop column 1 (drawer
-    /// is always visible at column 0). On Android the content stays at
-    /// column 0 with a 2-column span so the drawer overlays it when
-    /// expanded instead of pushing it off-screen.
+    /// Grid column the content sits in. Desktop: column 1 (drawer is
+    /// always at column 0). Android collapsed: column 0 spanning both
+    /// columns, because the drawer is zero-width. Android expanded:
+    /// column 1 — the drawer takes column 0, so the content MUST move
+    /// right or its (full-width) grid would sit on top of the drawer and
+    /// swallow every tap meant for the drawer's list rows.
     /// </summary>
-    public int ContentColumn => IsAndroid ? 0 : 1;
+    public int ContentColumn => IsAndroid ? (IsCompact ? 0 : 1) : 1;
 
-    /// <summary>Number of columns the content spans.</summary>
-    public int ContentColumnSpan => IsAndroid ? 2 : 1;
+    /// <summary>
+    /// Number of grid columns the content spans. Two only when the
+    /// Android drawer is collapsed and the column has zero width;
+    /// otherwise the content occupies exactly one column.
+    /// </summary>
+    public int ContentColumnSpan => IsAndroid ? (IsCompact ? 2 : 1) : 1;
 
     public bool IsToolbarNavigationVisible => IsAndroid && IsCompact;
 

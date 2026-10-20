@@ -32,20 +32,14 @@ public partial class NewChat : ContentPage
             ? TryGetColor("SentMessageColorDark", Color.FromArgb("#1C1B1D"))
             : TryGetColor("SentMessageColorLight", Color.FromArgb("#FCF8FA"));
 
-        // The previous "CustomTheme" approach depended on resource keys
-        // (SfAIAssistViewResponseTextColor etc.) being read during
-        // OnApplyTemplate. Those reads are unreliable across Syncfusion
-        // versions — the response and prompt text fell back to black
-        // and became invisible on the dark background. Use the built-in
-        // "Dark" / "Light" theme names instead: they carry pre-defined
-        // visible text colors internally, and we only need to override
-        // the background to match the rest of the page.
-        ResourceDictionary dictionary = new ResourceDictionary();
-        dictionary.Add("SfAIAssistViewTheme", isDark ? "Dark" : "Light");
-        dictionary.Add("SfAIAssistViewBackground", sfAIAssistViewBackground);
-        dictionary.Add("SfAIAssistViewHeaderSuggestionBackground", sfAIAssistViewBackground);
-        this.Resources.Add(dictionary);
-
+        // The text / background color keys (SfAIAssistViewEditorTextColor,
+        // SfAIAssistViewResponseTextColor, SfAIAssistViewBackground, …)
+        // are all set at the App.Resources level in App.xaml.cs so they
+        // survive page navigation and theme changes. Here we only need
+        // to pick the per-page background color matching the rest of the
+        // page palette.
+        this.Resources["SfAIAssistViewBackground"] = sfAIAssistViewBackground;
+        this.Resources["SfAIAssistViewHeaderSuggestionBackground"] = sfAIAssistViewBackground;
     }
 
     protected override void OnHandlerChanged()
