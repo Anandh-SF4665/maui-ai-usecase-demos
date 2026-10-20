@@ -27,32 +27,23 @@ public partial class NewChat : ContentPage
     public NewChat()
     {
         InitializeComponent();
-        Color sfAIAssistViewBackground = Color.FromArgb("#FCF8FA");
-        if (Application.Current != null)
-        {
-            sfAIAssistViewBackground = Application.Current.UserAppTheme == AppTheme.Dark
-            ? TryGetColor("SentMessageColorDark", Color.FromArgb("#313032"))
+        var isDark = Application.Current?.UserAppTheme == AppTheme.Dark;
+        Color sfAIAssistViewBackground = isDark
+            ? TryGetColor("SentMessageColorDark", Color.FromArgb("#1C1B1D"))
             : TryGetColor("SentMessageColorLight", Color.FromArgb("#FCF8FA"));
-        }
 
-
+        // The previous "CustomTheme" approach depended on resource keys
+        // (SfAIAssistViewResponseTextColor etc.) being read during
+        // OnApplyTemplate. Those reads are unreliable across Syncfusion
+        // versions — the response and prompt text fell back to black
+        // and became invisible on the dark background. Use the built-in
+        // "Dark" / "Light" theme names instead: they carry pre-defined
+        // visible text colors internally, and we only need to override
+        // the background to match the rest of the page.
         ResourceDictionary dictionary = new ResourceDictionary();
-        dictionary.Add("SfAIAssistViewTheme", "CustomTheme");
+        dictionary.Add("SfAIAssistViewTheme", isDark ? "Dark" : "Light");
         dictionary.Add("SfAIAssistViewBackground", sfAIAssistViewBackground);
         dictionary.Add("SfAIAssistViewHeaderSuggestionBackground", sfAIAssistViewBackground);
-        // Syncfusion's CustomTheme requires the consumer to provide the
-        // response + editor text-color keys explicitly. The defaults
-        // are black, which is unreadable on the dark background — so
-        // the AI response and the user prompt disappear. Supply
-        // theme-aware values that contrast with SfAIAssistViewBackground.
-        dictionary.Add("SfAIAssistViewEditorTextColor",
-            Application.Current?.UserAppTheme == AppTheme.Dark
-                ? Color.FromArgb("#FFFFFF")
-                : Color.FromArgb("#1C1B1D"));
-        dictionary.Add("SfAIAssistViewResponseTextColor",
-            Application.Current?.UserAppTheme == AppTheme.Dark
-                ? Color.FromArgb("#FFFFFF")
-                : Color.FromArgb("#1C1B1D"));
         this.Resources.Add(dictionary);
 
     }
