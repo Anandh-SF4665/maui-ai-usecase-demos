@@ -91,7 +91,7 @@
                     </Border.GestureRecognizers>
                     <Label x:Name="SendIconLabel" Grid.Column="3" Text="&#xe784;" FontFamily="MaterialAssets" FontSize="20"
                         WidthRequest="32" HeightRequest="32"
-                        TextColor="{AppThemeBinding Light=#C9C6C8, Dark=#858385}"
+                        TextColor="{AppThemeBinding Light={DynamicResource ContentTextColorLight}, Dark={DynamicResource ContentTextColorDark}}"
                         BackgroundColor="Transparent" VerticalTextAlignment="Center" HorizontalTextAlignment="Center" />
                 </Border>
             </Grid>

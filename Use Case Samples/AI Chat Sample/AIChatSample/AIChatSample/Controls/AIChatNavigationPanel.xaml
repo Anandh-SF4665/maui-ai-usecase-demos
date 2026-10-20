@@ -13,7 +13,6 @@
         <ResourceDictionary>
             <converters:InverseBooleanConverter x:Key="InverseBoolean" />
             <converters:StringNotEmptyConverter x:Key="StringNotEmpty" />
-            <converters:StringNotEmptyConverter x:Key="StringIsEmpty" />
             <converters:StringToImageSourceConverter x:Key="StringToImageSource" />
         </ResourceDictionary>
         <Style TargetType="Border">

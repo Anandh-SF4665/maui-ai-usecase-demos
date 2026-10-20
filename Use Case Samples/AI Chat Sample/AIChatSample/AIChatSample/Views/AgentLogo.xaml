@@ -144,8 +144,7 @@
                                 TextColor="{AppThemeBinding Light=#313032, Dark=#FFFFFF}" Margin="4,0,0,0" />
 
                             <listView:SfListView x:Name="IconsGrid"
-                                                ItemsSource="{Binding Source={x:Reference root}, Path=BindingContext.AvailableIcons}"
-                                                Loaded="IconsGrid_Loaded"
+                                                ItemsSource="{Binding AvailableIcons}"
                                                 SelectionMode="Single"
                                                 SelectedItem="{Binding SelectedIcon, Mode=TwoWay}"
                                                 Orientation="Horizontal"
@@ -153,7 +152,7 @@
                                                 SelectionBackground="Transparent"
                                                 HeightRequest="40"
                                                 ItemSize="40"
-                                                AutoFitMode="Height">
+                                                ItemTapped="OnIconTapped">
                                 <listView:SfListView.ItemTemplate>
                                     <DataTemplate x:DataType="model:LogoIconModel">
                                         <HorizontalStackLayout WidthRequest="40" HeightRequest="40" Padding="2">
@@ -206,7 +205,7 @@
                                                 SelectionBackground="Transparent"
                                                 HeightRequest="40"
                                                 ItemSize="40"
-                                                AutoFitMode="Height"
+                                                ItemTapped="OnColorTapped"
                                                 SelectedItem="{Binding SelectedColor, Mode=TwoWay}">
                                 <listView:SfListView.ItemTemplate>
                                         <DataTemplate x:DataType="model:LogoColorModel">

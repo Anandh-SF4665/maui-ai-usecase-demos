@@ -7,24 +7,39 @@ public partial class NewChat : ContentPage
     private bool spanUpdatePending;
     private AIMainLayoutViewModel? _layoutVm;
 
+    /// <summary>
+    /// Safely reads a <see cref="Color"/> resource from
+    /// <see cref="Application.Current"/>'s merged dictionaries. Falls
+    /// back to <paramref name="fallback"/> when the key is missing or
+    /// the resource is not a Color, so callers don't need to repeat
+    /// the cast-and-null-check pattern.
+    /// </summary>
+    private static Color TryGetColor(string key, Color fallback)
+    {
+        if (Application.Current?.Resources?.TryGetValue(key, out var value) == true
+            && value is Color color)
+        {
+            return color;
+        }
+        return fallback;
+    }
+
     public NewChat()
     {
         InitializeComponent();
-        Color sfAIAssistViewBackground = Color.FromArgb("#FCF8FA");
-        if (Application.Current != null)
-        {
-            sfAIAssistViewBackground = Application.Current.UserAppTheme == AppTheme.Dark
-            ? (Color?)Application.Current.Resources["SentMessageColorDark"] ?? Color.FromArgb("#313032")
-            : (Color?)Application.Current.Resources["SentMessageColorLight"] ?? Color.FromArgb("#FCF8FA");
-        }
+        var isDark = Application.Current?.UserAppTheme == AppTheme.Dark;
+        Color sfAIAssistViewBackground = isDark
+            ? TryGetColor("SentMessageColorDark", Color.FromArgb("#1C1B1D"))
+            : TryGetColor("SentMessageColorLight", Color.FromArgb("#FCF8FA"));
 
-
-        ResourceDictionary dictionary = new ResourceDictionary();
-        dictionary.Add("SfAIAssistViewTheme", "CustomTheme");
-        dictionary.Add("SfAIAssistViewBackground", sfAIAssistViewBackground);
-        dictionary.Add("SfAIAssistViewHeaderSuggestionBackground", Color.FromArgb("#FCF8FA"));
-        this.Resources.Add(dictionary);
-
+        // The text / background color keys (SfAIAssistViewEditorTextColor,
+        // SfAIAssistViewResponseTextColor, SfAIAssistViewBackground, …)
+        // are all set at the App.Resources level in App.xaml.cs so they
+        // survive page navigation and theme changes. Here we only need
+        // to pick the per-page background color matching the rest of the
+        // page palette.
+        this.Resources["SfAIAssistViewBackground"] = sfAIAssistViewBackground;
+        this.Resources["SfAIAssistViewHeaderSuggestionBackground"] = sfAIAssistViewBackground;
     }
 
     protected override void OnHandlerChanged()

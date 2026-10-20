@@ -28,7 +28,7 @@
                         expect these keys to exist on the Syncfusion theme.
                         Overriding them with Transparent lets the host page
                         define its own hover / ripple background, matching
-                        the rest of the AI-Copilot chat palette.
+                        the rest of the chat palette.
                     -->
                     <Color x:Key="SfListViewHoverListViewItemBackground">Transparent</Color>
                     <Color x:Key="SfListViewItemRippleBackground">Transparent</Color>

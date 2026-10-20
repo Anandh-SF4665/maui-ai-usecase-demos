@@ -18,9 +18,28 @@ internal static class ChatNavigationService
     /// <summary>
     /// Handles a <see cref="AIChatNavigationPanel.NavigationRequested"/>
     /// event by pushing the matching page on the supplied page's
-    /// navigation stack.
+    /// navigation stack. Wrapped in try/catch so an unobserved exception
+    /// from a partial navigation failure does not tear down the app
+    /// (this method is invoked from a synchronous event handler).
     /// </summary>
     public static async void Handle(Page currentPage, string key, object? parameter = null)
+    {
+        try
+        {
+            await HandleAsync(currentPage, key, parameter).ConfigureAwait(true);
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine(
+                $"Navigation failed for key '{key}': {ex.Message}");
+        }
+    }
+
+    /// <summary>
+    /// Awaitable core of <see cref="Handle"/>. Tests / callers can
+    /// await this directly to surface failures.
+    /// </summary>
+    public static async Task HandleAsync(Page currentPage, string key, object? parameter = null)
     {
         if (currentPage?.Navigation?.NavigationStack is null)
         {
