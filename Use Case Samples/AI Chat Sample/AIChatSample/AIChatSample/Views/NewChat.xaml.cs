@@ -39,7 +39,20 @@ public partial class NewChat : ContentPage
         ResourceDictionary dictionary = new ResourceDictionary();
         dictionary.Add("SfAIAssistViewTheme", "CustomTheme");
         dictionary.Add("SfAIAssistViewBackground", sfAIAssistViewBackground);
-        dictionary.Add("SfAIAssistViewHeaderSuggestionBackground", Color.FromArgb("#FCF8FA"));
+        dictionary.Add("SfAIAssistViewHeaderSuggestionBackground", sfAIAssistViewBackground);
+        // Syncfusion's CustomTheme requires the consumer to provide the
+        // response + editor text-color keys explicitly. The defaults
+        // are black, which is unreadable on the dark background — so
+        // the AI response and the user prompt disappear. Supply
+        // theme-aware values that contrast with SfAIAssistViewBackground.
+        dictionary.Add("SfAIAssistViewEditorTextColor",
+            Application.Current?.UserAppTheme == AppTheme.Dark
+                ? Color.FromArgb("#FFFFFF")
+                : Color.FromArgb("#1C1B1D"));
+        dictionary.Add("SfAIAssistViewResponseTextColor",
+            Application.Current?.UserAppTheme == AppTheme.Dark
+                ? Color.FromArgb("#FFFFFF")
+                : Color.FromArgb("#1C1B1D"));
         this.Resources.Add(dictionary);
 
     }

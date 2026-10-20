@@ -151,8 +151,7 @@
                                                 ItemSpacing="5"
                                                 SelectionBackground="Transparent"
                                                 HeightRequest="40"
-                                                ItemSize="40"
-                                                AutoFitMode="Height">
+                                                ItemSize="40">
                                 <listView:SfListView.ItemTemplate>
                                     <DataTemplate x:DataType="model:LogoIconModel">
                                         <HorizontalStackLayout WidthRequest="40" HeightRequest="40" Padding="2">
@@ -205,7 +204,6 @@
                                                 SelectionBackground="Transparent"
                                                 HeightRequest="40"
                                                 ItemSize="40"
-                                                AutoFitMode="Height"
                                                 SelectedItem="{Binding SelectedColor, Mode=TwoWay}">
                                 <listView:SfListView.ItemTemplate>
                                         <DataTemplate x:DataType="model:LogoColorModel">

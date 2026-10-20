@@ -56,12 +56,30 @@ public partial class AIChatNavigationPanel : ContentView, INotifyPropertyChanged
 
     public bool IsFull => !IsCompact;
 
+    /// <summary>
+    /// Width of the drawer column. On desktop the drawer is always
+    /// visible (60px collapsed / 250px expanded). On Android the drawer
+    /// overlays the content — collapsed (hamburger hidden) the column
+    /// is 0 wide so the content fills the screen; expanded (hamburger
+    /// visible) the column grows to 250 so the drawer covers the
+    /// content's left edge. The previous version returned
+    /// <c>GridLength(0)</c> unconditionally on Android, which left the
+    /// drawer zero-width even when expanded and made every tap land on
+    /// the content layer underneath.
+    /// </summary>
     public GridLength NavigationColumnWidth => IsAndroid
-        ? new GridLength(0)
+        ? new GridLength(IsCompact ? 0 : 250)
         : new GridLength(IsCompact ? 60 : 250);
 
+    /// <summary>
+    /// Grid column the content sits in. On desktop column 1 (drawer
+    /// is always visible at column 0). On Android the content stays at
+    /// column 0 with a 2-column span so the drawer overlays it when
+    /// expanded instead of pushing it off-screen.
+    /// </summary>
     public int ContentColumn => IsAndroid ? 0 : 1;
 
+    /// <summary>Number of columns the content spans.</summary>
     public int ContentColumnSpan => IsAndroid ? 2 : 1;
 
     public bool IsToolbarNavigationVisible => IsAndroid && IsCompact;
