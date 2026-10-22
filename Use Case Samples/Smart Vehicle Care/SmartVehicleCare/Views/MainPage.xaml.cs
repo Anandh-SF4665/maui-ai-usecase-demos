@@ -11,12 +11,9 @@ public partial class MainPage : ContentPage
         SizeChanged += OnSizeChanged;
 
         // Wire quick-action alert events (view owns the dialogs, MVVM-compliant)
-        viewModel.OnShowOilChangeAlert += () => _ = DisplayAlert(
-            "Oil Change", "Next oil change scheduled on Jun 27.\nEstimated cost: ₹1,200.", "OK");
-        viewModel.OnShowLastFuelAlert += () => _ = DisplayAlert(
-            "Last Fuel Log", "Last refuel: 3 days ago.\nAmount: 30 L · ₹2,850.", "OK");
-        viewModel.OnShowAddActionAlert += () => _ = DisplayAlert(
-            "Add Action", "Log a new action such as fuel or service.", "OK");
+        viewModel.OnShowOilChangeAlert += message => _ = DisplayAlert("Oil Change", message, "OK");
+        viewModel.OnShowLastFuelAlert += message => _ = DisplayAlert("Last Fuel Log", message, "OK");
+        viewModel.OnShowAddActionAlert += message => _ = DisplayAlert("Add Action", message, "OK");
     }
 
     private MainViewModel VM => (MainViewModel)BindingContext;

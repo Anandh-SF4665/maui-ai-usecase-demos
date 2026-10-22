@@ -92,9 +92,9 @@ public class MainViewModel : INotifyPropertyChanged
             _hasSkippedApiKeyThisSession = true;
         });
 
-        OilChangeCommand = new Command(() => OnShowOilChangeAlert?.Invoke());
-        LastFuelCommand = new Command(() => OnShowLastFuelAlert?.Invoke());
-        AddActionCommand = new Command(() => OnShowAddActionAlert?.Invoke());
+        OilChangeCommand = new Command(() => OnShowOilChangeAlert?.Invoke(BuildOilChangeSummary()));
+        LastFuelCommand = new Command(() => OnShowLastFuelAlert?.Invoke(BuildLastFuelSummary()));
+        AddActionCommand = new Command(() => OnShowAddActionAlert?.Invoke("Log a new action such as fuel or service."));
 
         ShowAddVehicleCommand = new Command(() =>
         {
@@ -592,9 +592,34 @@ public class MainViewModel : INotifyPropertyChanged
     public ICommand AddActionCommand { get; }
     
     // Events for UI alerts (MVVM compliant)
-    public event Action OnShowOilChangeAlert;
-    public event Action OnShowLastFuelAlert;
-    public event Action OnShowAddActionAlert;
+    public event Action<string> OnShowOilChangeAlert;
+    public event Action<string> OnShowLastFuelAlert;
+    public event Action<string> OnShowAddActionAlert;
+
+    private string BuildOilChangeSummary()
+    {
+        var vehicle = VehicleDataService.Instance.SelectedVehicle;
+        if (vehicle == null)
+            return "Add a vehicle to start tracking its service schedule.";
+
+        var due = vehicle.NextServiceDueDate;
+        return $"Next oil change for your {vehicle.MakeModel} is scheduled on {due:MMM dd, yyyy}.";
+    }
+
+    private string BuildLastFuelSummary()
+    {
+        var vehicle = VehicleDataService.Instance.SelectedVehicle;
+        if (vehicle == null)
+            return "Add a vehicle to start logging fuel.";
+
+        var fuel = VehicleDataService.Instance.GetFuelEntries(vehicle.Id).FirstOrDefault();
+        if (fuel == null)
+            return "No fuel entries yet — log your first refuel to see it here.";
+
+        var daysAgo = (int)(DateTime.Today - fuel.FuelDate.Date).TotalDays;
+        return $"Last refuel: {(daysAgo == 0 ? "today" : $"{daysAgo} day{(daysAgo == 1 ? "" : "s")} ago")}.\n" +
+               $"Amount: {fuel.LitresFilled:N0} L · ₹{fuel.TotalCost:N0}.";
+    }
     // ── Add Vehicle ───────────────────────────────────────────────────────────
 
     private bool _isAddVehicleDrawerVisible = false;

@@ -112,9 +112,12 @@ public class VehicleDataService
 
     /// <summary>
     /// Persists the current state to device storage as JSON.
+    /// Serialized under a lock — mutation events can arrive from any thread.
     /// </summary>
     public void SaveToStorage()
     {
+        lock (_saveLock)
+        {
         try
         {
             var store = new VehicleStore
@@ -184,7 +187,10 @@ public class VehicleDataService
         {
             System.Diagnostics.Debug.WriteLine($"[VehicleDataService] Failed to save store: {ex.Message}");
         }
+        }
     }
+
+    private readonly object _saveLock = new();
 
     public ObservableCollection<Vehicle> Vehicles { get; } = new();
     
@@ -216,8 +222,18 @@ public class VehicleDataService
     public event Action? DataReloaded;
     // Fired when any per-vehicle data changes (service/fuel/doc/reminder added)
     public event Action<int>? DataChanged;
-    public void NotifyDataChanged(int vehicleId) => DataChanged?.Invoke(vehicleId);
-    public void NotifyDataReloaded() => DataReloaded?.Invoke();
+
+    public void NotifyDataChanged(int vehicleId)
+    {
+        DataChanged?.Invoke(vehicleId);
+        SaveToStorage();
+    }
+
+    public void NotifyDataReloaded()
+    {
+        DataReloaded?.Invoke();
+        SaveToStorage();
+    }
 
     public void ClearAllData()
     {
@@ -232,17 +248,6 @@ public class VehicleDataService
         _vehicleReminders.Clear();
     }
 
-
-    /// <summary>
-    /// Resets the service to a clean state and loads fresh demo data.
-    /// </summary>
-    public void FullReset()
-    {
-        ClearAllData();
-        _currentMode = DataMode.Demo;
-        ModeChanged?.Invoke(_currentMode);
-        TryLoadDemoData();
-    }
 
     /// <summary>
     /// Switches to Demo mode and loads sample data.
@@ -262,9 +267,8 @@ public class VehicleDataService
     {
         if (vehicle == null) return;
 
-        if (vehicle.Id <= 0)
-            vehicle.Id = Vehicles.Count == 0 ? 1 : Vehicles.Max(v => v.Id) + 1;
-        else if (Vehicles.Any(v => v.Id == vehicle.Id))
+        // Always allocate a fresh, unused id (max existing id + 1).
+        if (vehicle.Id <= 0 || Vehicles.Any(v => v.Id == vehicle.Id))
             vehicle.Id = Vehicles.Count == 0 ? 1 : Vehicles.Max(v => v.Id) + 1;
 
         Vehicles.Add(vehicle);

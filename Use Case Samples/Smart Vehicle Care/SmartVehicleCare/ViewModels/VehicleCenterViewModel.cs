@@ -587,7 +587,20 @@ public class VehicleCenterViewModel : INotifyPropertyChanged
     public bool IsServiceNetworkSelected => _nearbyMapMode == "Service";
     public bool IsFuelNetworkSelected => _nearbyMapMode == "Fuel";
     public string NearbyMapTitle => IsServiceNetworkSelected ? "Service centers" : "Fuel stations";
-    public string NearbyMapSummary => "Within 10 km of your current location";
+    public string NearbyMapSummary => _isNearbyDataIllustrative
+        ? "Within 10 km — sample data (live OSM unavailable)"
+        : "Within 10 km of your current location";
+
+    /// <summary>
+    /// True when the current nearby results came from the AI or static fallback
+    /// instead of live OpenStreetMap data (used to label the map as illustrative).
+    /// </summary>
+    private bool _isNearbyDataIllustrative;
+    public bool IsNearbyDataIllustrative
+    {
+        get => _isNearbyDataIllustrative;
+        set => SetProperty(ref _isNearbyDataIllustrative, value);
+    }
 
     private bool _isNearbyEmpty;
     public bool IsNearbyEmpty
@@ -1522,10 +1535,12 @@ Keep each line under 140 characters. Use the Indian Rupee symbol ₹. Do not use
         JsonElementArray? items = null;
 
         // ── Primary: Overpass OSM API (real data from OpenStreetMap) ─────────────
+        bool fromLiveOsm = false;
         {
             var helper = new ServiceCenterDataHelper();
             var data = await helper.GetNearbyPlacesAsync(latitude, longitude, 10, 8, _nearbyMapMode);
             items = ServiceCenterDataHelper.UnwrapMarkerCollections(data);
+            fromLiveOsm = items is { Count: > 0 };
         }
 
         // ── Fallback 1: Azure OpenAI (if Overpass returned nothing) ──────────────
@@ -1538,11 +1553,11 @@ Keep each line under 140 characters. Use the Indian Rupee symbol ₹. Do not use
                     return;
 
                 var (aiItems, _) = await GetNearbyPlacesFromAIAsync(latitude, longitude);
-                
+
                 // Check if this refresh is still current after the AI call
                 if (refreshVersion != _nearbyNetworkRefreshVersion)
                     return;
-                    
+
                 items = aiItems;
             }
         }
@@ -1555,6 +1570,11 @@ Keep each line under 140 characters. Use the Indian Rupee symbol ₹. Do not use
             items = ServiceCenterDataHelper.UnwrapMarkerCollections(
                 ServiceCenterDataHelper.GetStaticFallback(latitude, longitude, _nearbyMapMode, 8));
         }
+
+        // Results not from live OSM are AI-generated or curated — label them as
+        // illustrative so users can tell sample data apart from real places.
+        IsNearbyDataIllustrative = !fromLiveOsm;
+        OnPropertyChanged(nameof(NearbyMapSummary));
 
         if (items == null || items.Count == 0)
         {

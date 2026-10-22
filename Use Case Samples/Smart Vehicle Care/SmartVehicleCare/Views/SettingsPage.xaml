@@ -95,7 +95,7 @@
                                 <Label Text="Azure OpenAI API key"
                                        FontSize="13" FontAttributes="Bold"
                                        TextColor="{AppThemeBinding Light=#0F172A, Dark=#EDF6FF}"/>
-                                <Label Text="{Binding ApiKeyStatusText}" FontSize="{OnPlatform Default=12, WinUI=11, MacCatalyst=11}" LineBreakMode="WordWrap"
+                                <Label Text="{Binding AiStatusText}" FontSize="{OnPlatform Default=12, WinUI=11, MacCatalyst=11}" LineBreakMode="WordWrap"
                                        TextColor="{AppThemeBinding Light=#64748B, Dark=#9DB7D2}"/>
                             </StackLayout>
                         </Grid>
@@ -150,6 +150,98 @@
                                     <TapGestureRecognizer Command="{Binding SaveApiKeyCommand}"/>
                                 </Border.GestureRecognizers>
                                 <Label Text="Save key" FontSize="12" FontAttributes="Bold"
+                                       HorizontalTextAlignment="Center"
+                                       VerticalTextAlignment="Center"
+                                       TextColor="White"/>
+                            </Border>
+                        </HorizontalStackLayout>
+
+                        <!-- Azure AI Foundry project endpoint (not a secret — Preferences) -->
+                        <Label Text="Azure OpenAI endpoint"
+                               FontSize="12" FontAttributes="Bold"
+                               TextColor="{AppThemeBinding Light=#0F172A, Dark=#EDF6FF}"/>
+                        <til:SfTextInputLayout
+                            ContainerType="Outlined" OutlineCornerRadius="10"
+                            EnableFloating="False" Hint="{Binding EndpointHint}"
+                            FocusedStrokeThickness="1.5" UnfocusedStrokeThickness="1.5"
+                            InputViewPadding="14,0" ReserveSpaceForAssistiveLabels="False"
+                            Stroke="{AppThemeBinding Light=#CBD5E1, Dark=#3D2E24}"
+                            ContainerBackground="{AppThemeBinding Light=White, Dark={StaticResource BrandNavyMid}}">
+                            <til:SfTextInputLayout.HintLabelStyle>
+                                <til:LabelStyle FontSize="13" TextColor="{AppThemeBinding Light={StaticResource BrandDimOnLight}, Dark={StaticResource BrandDimOnDark}}"/>
+                            </til:SfTextInputLayout.HintLabelStyle>
+                            <Entry Text="{Binding EndpointEntry, Mode=TwoWay}"
+                                   IsEnabled="{Binding HasEndpoint, Converter={StaticResource InvertedBoolConverter}}"
+                                   Keyboard="Url"
+                                   TextColor="{AppThemeBinding Light={StaticResource BrandTextDark}, Dark={StaticResource BrandTextOnDark}}"
+                                   BackgroundColor="Transparent"/>
+                        </til:SfTextInputLayout>
+
+                        <HorizontalStackLayout Spacing="10" HorizontalOptions="End">
+                            <Border StrokeThickness="1"
+                                    Padding="14,9"
+                                    IsVisible="{Binding HasEndpoint}"
+                                    Stroke="{AppThemeBinding Light=#E2E8F0, Dark=#3D2E24}"
+                                    BackgroundColor="Transparent"
+                                    WidthRequest="88"
+                                    HorizontalOptions="Center">
+                                <Border.StrokeShape><RoundRectangle CornerRadius="10"/></Border.StrokeShape>
+                                <Border.GestureRecognizers>
+                                    <TapGestureRecognizer Command="{Binding ClearEndpointCommand}"/>
+                                </Border.GestureRecognizers>
+                                <Label Text="Remove" FontSize="12" FontAttributes="Bold"
+                                       HorizontalTextAlignment="Center"
+                                       VerticalTextAlignment="Center"
+                                       TextColor="{AppThemeBinding Light=#DC2626, Dark=#F87171}"/>
+                            </Border>
+
+                            <Border StrokeThickness="0"
+                                    Padding="14,9"
+                                    IsVisible="{Binding HasEndpoint, Converter={StaticResource InvertedBoolConverter}}"
+                                    BackgroundColor="{AppThemeBinding Light=#B45309, Dark=#D97706}"
+                                    WidthRequest="140"
+                                    HorizontalOptions="Center">
+                                <Border.StrokeShape><RoundRectangle CornerRadius="10"/></Border.StrokeShape>
+                                <Border.GestureRecognizers>
+                                    <TapGestureRecognizer Command="{Binding SaveEndpointCommand}"/>
+                                </Border.GestureRecognizers>
+                                <Label Text="Save endpoint" FontSize="12" FontAttributes="Bold"
+                                       HorizontalTextAlignment="Center"
+                                       VerticalTextAlignment="Center"
+                                       TextColor="White"/>
+                            </Border>
+                        </HorizontalStackLayout>
+
+                        <!-- Deployment name (model deployment on the Azure resource) -->
+                        <Label Text="Deployment name"
+                               FontSize="12" FontAttributes="Bold"
+                               TextColor="{AppThemeBinding Light=#0F172A, Dark=#EDF6FF}"/>
+                        <til:SfTextInputLayout
+                            ContainerType="Outlined" OutlineCornerRadius="10"
+                            EnableFloating="False" Hint="gpt-5-mini"
+                            FocusedStrokeThickness="1.5" UnfocusedStrokeThickness="1.5"
+                            InputViewPadding="14,0" ReserveSpaceForAssistiveLabels="False"
+                            Stroke="{AppThemeBinding Light=#CBD5E1, Dark=#3D2E24}"
+                            ContainerBackground="{AppThemeBinding Light=White, Dark={StaticResource BrandNavyMid}}">
+                            <til:SfTextInputLayout.HintLabelStyle>
+                                <til:LabelStyle FontSize="13" TextColor="{AppThemeBinding Light={StaticResource BrandDimOnLight}, Dark={StaticResource BrandDimOnDark}}"/>
+                            </til:SfTextInputLayout.HintLabelStyle>
+                            <Entry Text="{Binding DeploymentNameEntry, Mode=TwoWay}"
+                                   TextColor="{AppThemeBinding Light={StaticResource BrandTextDark}, Dark={StaticResource BrandTextOnDark}}"
+                                   BackgroundColor="Transparent"/>
+                        </til:SfTextInputLayout>
+
+                        <HorizontalStackLayout Spacing="10" HorizontalOptions="End">
+                            <Border StrokeThickness="0"
+                                    Padding="14,9"
+                                    BackgroundColor="{AppThemeBinding Light=#B45309, Dark=#D97706}"
+                                    WidthRequest="160"
+                                    HorizontalOptions="Center">
+                                <Border.StrokeShape><RoundRectangle CornerRadius="10"/></Border.StrokeShape>
+                                <Border.GestureRecognizers>
+                                    <TapGestureRecognizer Command="{Binding SaveDeploymentNameCommand}"/>
+                                </Border.GestureRecognizers>
+                                <Label Text="Save deployment" FontSize="12" FontAttributes="Bold"
                                        HorizontalTextAlignment="Center"
                                        VerticalTextAlignment="Center"
                                        TextColor="White"/>
