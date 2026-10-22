@@ -112,18 +112,17 @@ public partial class AgentConfigurationViewModel : ObservableObject
     /// <summary>
     /// True when the user has interacted with (or attempted to submit)
     /// the name field and left it empty / whitespace. Drives the inline
-    /// "Agent name is required" error label under the field (FR-1.2,
-    /// AC-1.2).
+    /// "Agent name is required" error label under the field.
     /// </summary>
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(HasNameValidationError))]
     private bool hasInteractedWithName;
 
-    /// <summary>True when the agent-name field is currently empty / whitespace AND the user has touched it. Drives the inline error label (FR-1.2, AC-1.2).</summary>
+    /// <summary>True when the agent-name field is currently empty / whitespace AND the user has touched it. Drives the inline error label.</summary>
     public bool HasNameValidationError =>
         HasInteractedWithName && string.IsNullOrWhiteSpace(AgentName);
 
-    /// <summary>Static copy of the inline error; bound to the label under the name field so screen readers and unit tests can pin the message (FR-1.2).</summary>
+    /// <summary>Static copy of the inline error; bound to the label under the name field so screen readers and unit tests can pin the message.</summary>
     public string NameValidationMessage => "Agent name is required.";
 
     /// <summary>
@@ -163,21 +162,14 @@ public partial class AgentConfigurationViewModel : ObservableObject
     [RelayCommand] private void SwitchToConfigure() => SelectedTab = 0;
     [RelayCommand] private void SwitchToPreview() => SelectedTab = 1;
 
-    [RelayCommand]
-    private void UploadAgentIcon()
-    {
-        // Hookup: file picker / MediaPicker.PickPhotoAsync
-        AgentAvatar = "agent_avatar_placeholder.png";
-    }
-
     [RelayCommand(CanExecute = nameof(IsCreateEnabled))]
     private async Task CreateAgentAsync(CancellationToken ct)
     {
-        // AC-1.2: surface the inline name-required error the first time
-        // the user clicks Create with an empty name, instead of silently
-        // doing nothing. The Create button is already disabled in this
-        // case, but we also want the error to appear if the user hit
-        // Enter / an accelerator / etc.
+        // Surface the inline name-required error the first time the user
+        // clicks Create with an empty name, instead of silently doing
+        // nothing. The Create button is already disabled in this case,
+        // but we also want the error to appear if the user hit Enter /
+        // an accelerator / etc.
         if (string.IsNullOrWhiteSpace(AgentName))
         {
             HasInteractedWithName = true;
@@ -214,7 +206,7 @@ public partial class AgentConfigurationViewModel : ObservableObject
                 AvatarGlyph = AgentAvatar is { } encoded && encoded.Contains(';') ? encoded : null,
             };
 
-            // FR-1.3: every agent gets a unique Id, a default avatar
+            // Every agent gets a unique Id, a default avatar
             // color and an initial derived from its name. The store
             // already enforces name-uniqueness; the Id is a fresh Guid
             // so chats / nav rows can bind back to a specific agent

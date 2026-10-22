@@ -240,7 +240,7 @@
                                                 Placeholder="e.g., Data Analyst Assistant" FontFamily="Roboto-Regular"
                                                 FontSize="14" />
                                         </input:SfTextInputLayout>
-                                        <!-- FR-1.2 / AC-1.2: inline "name is required"
+                                        <!-- Inline "name is required"
                                              feedback that appears the moment the user
                                              touches the field and leaves it empty. The
                                              label is hidden by default so the layout

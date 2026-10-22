@@ -8,7 +8,7 @@ namespace AIChatSample;
 /// <summary>
 /// Single conversation between the user and the AI. Holds the message
 /// log plus the agent binding so the chat can be re-opened with the same
-/// system context (FR-0.4).
+/// system context.
 /// </summary>
 public sealed class ChatSession : INotifyPropertyChanged
 {
@@ -46,7 +46,7 @@ public sealed class ChatSession : INotifyPropertyChanged
     /// <summary>UTC timestamp the session was first created.</summary>
     public DateTime CreatedDate { get; init; } = DateTime.UtcNow;
 
-    /// <summary>UTC timestamp of the most recent activity. Updated by <c>ChatDataService.TouchSession</c> so the Recent list re-sorts (FR-0.4).</summary>
+    /// <summary>UTC timestamp of the most recent activity. Updated by <c>ChatDataService.TouchSession</c> so the Recent list re-sorts.</summary>
     public DateTime LastActiveDate
     {
         get => lastActiveDate;

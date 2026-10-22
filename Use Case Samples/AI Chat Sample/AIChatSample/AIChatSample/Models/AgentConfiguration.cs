@@ -21,7 +21,7 @@ public class AgentConfiguration : INotifyPropertyChanged
 
     /// <summary>
     /// Stable unique identifier for the agent. Assigned at creation
-    /// time (FR-1.3) and used to bind chat sessions / nav-list rows
+    /// time and used to bind chat sessions / nav-list rows
     /// back to a specific agent configuration.
     /// </summary>
     public string? Id
@@ -69,8 +69,8 @@ public class AgentConfiguration : INotifyPropertyChanged
     /// <summary>
     /// Background color used for the agent avatar (hex, e.g. <c>#7633DA</c>).
     /// Picked from a small palette so newly created agents visually
-    /// stand apart without forcing the user through a color picker
-    /// (FR-1.3). Editable later via the logo editor (T07).
+    /// stand apart without forcing the user through a color picker.
+    /// Editable later via the logo editor.
     /// </summary>
     public string? Color
     {
@@ -81,7 +81,7 @@ public class AgentConfiguration : INotifyPropertyChanged
     /// <summary>
     /// Single character used as the agent avatar glyph when no image
     /// is uploaded. Derived from the first non-whitespace character
-    /// of <see cref="AgentName"/>, upper-cased (FR-1.3).
+    /// of <see cref="AgentName"/>, upper-cased.
     /// </summary>
     public string? Initial
     {
@@ -107,8 +107,8 @@ public class AgentConfiguration : INotifyPropertyChanged
     /// Populates <see cref="Id"/>, <see cref="Initial"/>, and
     /// <see cref="Color"/> from the current <see cref="AgentName"/>.
     /// Idempotent — safe to call more than once. Used by the create
-    /// flow (FR-1.3) and exposed publicly so the AgentLogoEditor
-    /// (T07) can re-derive <see cref="Color"/> when the name changes.
+    /// flow and exposed publicly so the AgentLogoEditor
+    /// can re-derive <see cref="Color"/> when the name changes.
     /// </summary>
     public void EnsureIdentityFields()
     {
@@ -125,7 +125,7 @@ public class AgentConfiguration : INotifyPropertyChanged
     /// Returns the first non-whitespace character of <paramref name="name"/>,
     /// upper-cased, or <c>"?"</c> if <paramref name="name"/> is null /
     /// empty. Pure function — exposed <c>internal</c> so unit tests
-    /// can assert on the derivation rule (FR-1.3).
+    /// can assert on the derivation rule.
     /// </summary>
     internal static string DeriveInitial(string? name)
     {
@@ -150,8 +150,8 @@ public class AgentConfiguration : INotifyPropertyChanged
     /// based on the hash of <paramref name="name"/>. The same name
     /// always maps to the same color, so a "Code Helper" agent
     /// keeps its visual identity even after the logo editor is
-    /// used (T07). Exposed <c>internal</c> for unit-testability
-    /// (FR-1.3).
+    /// used. Exposed <c>internal</c> so unit tests can assert on the
+    /// derivation rule.
     /// </summary>
     internal static string DeriveColor(string? name)
     {

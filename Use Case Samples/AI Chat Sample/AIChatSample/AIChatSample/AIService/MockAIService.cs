@@ -6,8 +6,8 @@ namespace AIChatSample;
 /// <summary>
 /// Deterministic offline implementation of <see cref="IAIService"/> used
 /// when no Azure OpenAI configuration is supplied. Lets the sample run
-/// with zero configuration (NFR-2) and supports the harness's per-task
-/// manual verification (T02).
+/// with zero configuration and supports the harness's per-task
+/// manual verification.
 /// </summary>
 public sealed class MockAIService : IAIService
 {
@@ -42,7 +42,7 @@ public sealed class MockAIService : IAIService
         }
 
         // Stay responsive on the UI thread by awaiting the simulated
-        // network round-trip on a background scheduler (NFR-8).
+        // network round-trip on a background scheduler.
         if (_simulatedLatency > TimeSpan.Zero)
         {
             await Task.Delay(_simulatedLatency, ct).ConfigureAwait(false);

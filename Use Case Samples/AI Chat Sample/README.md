@@ -17,7 +17,7 @@ The sample focuses on:
 - **SfExpander** — agent / recent-chats accordion sections in the navigation drawer
 - **SfPopup** — agent logo / avatar editor modal
 - **SfChipGroup** — Configure / Preview mode selector
-- **SfAvatarView** — agent avatars in the configure form
+- **SfAvatarView** — agent avatars in the configure form (provided via the `Syncfusion.Maui.Core` assembly)
 - **SfButton** — primary actions in the agent configure / create flows
 
 ## Prerequisites
@@ -42,15 +42,15 @@ To use a real Azure OpenAI deployment, set the following environment variables b
 
 | Variable | Required | Description |
 | --- | --- | --- |
-| `AZURE_OPENAI_ENDPOINT` | yes | Azure OpenAI endpoint URL (e.g. `https://your-resource.openai.azure.com/`) |
+| `AZURE_OPENAI_ENDPOINT` | yes | Azure OpenAI endpoint URL (e.g. `https://your-resource.openai.azure.com/`). Must be `https://`. |
 | `AZURE_OPENAI_KEY` | yes | Azure OpenAI API key |
 | `AZURE_OPENAI_DEPLOYMENT` | yes | Chat-completions deployment name |
 | `AZURE_OPENAI_TIMEOUT_SECONDS` | no | Hard request timeout (default 100) |
 
-When all three required variables are non-empty, `MauiProgram` registers `AzureOpenAIService` instead of `MockAIService`.
+`MauiProgram` reads these values with `Environment.GetEnvironmentVariable(...)`. When all three required variables are non-empty, the host registers `AzureOpenAIService`; otherwise it falls back to `MockAIService` so the sample stays runnable. Invalid configuration (for example, an `http://` endpoint) is caught and logged, and the sample falls back to the mock rather than crashing.
 
 **Do not commit API keys to source control.** Use environment variables, user-secrets, or your platform's secure storage.
 
 ## Supported Platforms
 
-The harness is written for the sample's MAUI target matrix and is intended for Android and Windows validation.
+The harness is written for the sample's MAUI target matrix and is intended for Android and Windows validation. On Android the editor exposes a microphone affordance; the cross-platform fallback is a typed prompt, but `RECORD_AUDIO` is declared in `Platforms/Android/AndroidManifest.xml` so a real speech-to-text provider can be wired in without further manifest changes.

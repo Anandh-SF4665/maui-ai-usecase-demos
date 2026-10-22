@@ -48,10 +48,10 @@ public partial class AIMainLayoutViewModel : ObservableObject
     private ICommand? newChatCommand;
     private ICommand? openChatCommand;
     private ICommand? openAgentChatCommand;
-    /// <summary>Shared in-memory store (NFR-3, ARCHITECTURE §5). May be null in design-time contexts.</summary>
+    /// <summary>Shared in-memory store. May be null in design-time contexts.</summary>
     private readonly IChatDataService? _chatDataService;
 
-    /// <summary>Shared in-memory agent store. Surfaces new agents so the nav-drawer list and "My Agents" row stay in sync (FR-1.4).</summary>
+    /// <summary>Shared in-memory agent store. Surfaces new agents so the nav-drawer list and "My Agents" row stay in sync.</summary>
     private readonly IAgentStore? _agentStore;
 
     #endregion
@@ -80,15 +80,13 @@ public partial class AIMainLayoutViewModel : ObservableObject
         ImageLibraryVM = new ImageLibraryViewModel();
         AgentPopUpVM = new AgentLogoPopupViewModel();
 
-        // FR-0.1 / FR-0.4: surface the user profile (live across the
-        // app) and the shared chat history. The Recent chats list
-        // re-sorts automatically because the underlying store calls
-        // Move() on the observable collection when LastActiveDate
-        // changes.
+        // Surface the user profile (live across the app) and the shared
+        // chat history. The Recent chats list re-sorts automatically
+        // because the underlying store calls Move() on the observable
+        // collection when LastActiveDate changes.
         if (_chatDataService is not null)
         {
             this.UserName = _chatDataService.Profile.Name;
-            this.ProfileVM.PropertyChanged += OnProfileVMChanged;
             _chatDataService.Profile.PropertyChanged += OnUserProfileChanged;
 
             RecentChats = new ObservableCollection<RecentChatItem>(BuildRecentChatItems());
@@ -153,7 +151,7 @@ public partial class AIMainLayoutViewModel : ObservableObject
             },
         };
 
-        // FR-1.4: surface any agents already persisted in the store
+        // Surface any agents already persisted in the store
         // (in this session; the in-memory store doesn't survive
         // restarts). We prepend so the most recently created agent
         // is closest to the top — matches the "Recent" pattern.
@@ -213,15 +211,15 @@ public partial class AIMainLayoutViewModel : ObservableObject
     /// <summary>Agents shown in the "Agent" accordion section.</summary>
     public ObservableCollection<AgentItem> Agents { get; }
 
-    /// <summary>Recently visited chats shown in the "Recent chat" accordion section. Backed by <see cref="IChatDataService"/> when available (FR-0.4).</summary>
+    /// <summary>Recently visited chats shown in the "Recent chat" accordion section. Backed by <see cref="IChatDataService"/> when available.</summary>
     public ObservableCollection<RecentChatItem> RecentChats { get; private set; } = new();
 
-    /// <summary>Filtered view of <see cref="RecentChats"/> driven by <see cref="SearchText"/>. FR-4.1.</summary>
+    /// <summary>Filtered view of <see cref="RecentChats"/> driven by <see cref="SearchText"/>.</summary>
     public ObservableCollection<RecentChatItem> FilteredRecentChats { get; private set; } = new();
 
     /// <summary>
     /// Free-text query bound to the Search page's input. Re-filters
-    /// <see cref="FilteredRecentChats"/> on every keystroke (FR-4.1).
+    /// <see cref="FilteredRecentChats"/> on every keystroke.
     /// </summary>
     [ObservableProperty]
     private string? searchText;
@@ -342,7 +340,7 @@ public partial class AIMainLayoutViewModel : ObservableObject
     public ICommand AgentSelectedCommand =>
         this.agentSelectedCommand ??= new Command<AgentItem?>(this.OnAgentSelected);
 
-    /// <summary>Creates a new chat session and raises <see cref="ChatSessionReplaced"/> so the host page can swap the active conversation (FR-0.4).</summary>
+    /// <summary>Creates a new chat session and raises <see cref="ChatSessionReplaced"/> so the host page can swap the active conversation.</summary>
     public ICommand NewChatCommand =>
         this.newChatCommand ??= new Command(this.OnNewChatClicked);
 
@@ -354,10 +352,10 @@ public partial class AIMainLayoutViewModel : ObservableObject
     public ICommand OpenAgentChatCommand =>
         this.openAgentChatCommand ??= new Command<AgentItem?>(this.OnOpenAgentChatClicked);
 
-    /// <summary>Opened or created chat session. The host page (NewChat) listens to this and binds the new conversation into the AI AssistView (FR-0.4).</summary>
+    /// <summary>Opened or created chat session. The host page (NewChat) listens to this and binds the new conversation into the AI AssistView.</summary>
     public event EventHandler<ChatSession>? ChatSessionReplaced;
 
-    /// <summary>Currently open chat session, or null when the host should display the welcome header (FR-0.4).</summary>
+    /// <summary>Currently open chat session, or null when the host should display the welcome header.</summary>
     public ChatSession? CurrentSession
     {
         get => _currentSession;
@@ -403,7 +401,7 @@ public partial class AIMainLayoutViewModel : ObservableObject
 
     private void OnNewChatClicked()
     {
-        // FR-0.4: a fresh chat is a fresh ChatSession. We never mutate
+        // A fresh chat is a fresh ChatSession. We never mutate
         // an existing session in-place; opening "New chat" from the
         // drawer always creates a new one.
         if (_chatDataService is null) return;
@@ -511,7 +509,7 @@ public partial class AIMainLayoutViewModel : ObservableObject
     private void OnUserProfileChanged(object? sender, PropertyChangedEventArgs e)
     {
         if (_chatDataService is null) return;
-        // FR-3.3 / FR-0.1: nav header initial/name updates live.
+        // Nav header initial/name updates live.
         if (e.PropertyName is nameof(UserProfile.Name) or nameof(UserProfile.Initial))
         {
             UserName = _chatDataService.Profile.Name;
@@ -523,16 +521,11 @@ public partial class AIMainLayoutViewModel : ObservableObject
         }
     }
 
-    private void OnProfileVMChanged(object? sender, PropertyChangedEventArgs e)
-    {
-        // No-op placeholder; T09 mutates UserProfile via SaveProfileCommand.
-    }
-
     private void OnChatSessionsChanged(object? sender, NotifyCollectionChangedEventArgs e)
     {
         // Re-render the Recent chats list whenever the store is
         // mutated (e.g. a new session is created, or TouchSession
-        // re-sorts the collection). FR-0.4.
+        // re-sorts the collection).
         if (_chatDataService is null) return;
         RecentChats = new ObservableCollection<RecentChatItem>(BuildRecentChatItems());
         OnPropertyChanged(nameof(RecentChats));
@@ -541,9 +534,9 @@ public partial class AIMainLayoutViewModel : ObservableObject
 
     /// <summary>
     /// Inserts a single <see cref="AgentItem"/> row for the freshly
-    /// created agent. De-duplicated by id (FR-1.4) and by
+    /// created agent. De-duplicated by id and by
     /// case-insensitive name so the seeded design-time defaults
-    /// don't appear twice. T07 / T08 will reuse the same row to
+    /// don't appear twice. Future avatar edits reuse the same row to
     /// surface the customized avatar.
     /// </summary>
     private void AddAgentRow(AgentConfiguration agent)
@@ -622,7 +615,7 @@ public partial class AIMainLayoutViewModel : ObservableObject
     /// <summary>
     /// Raised by <see cref="IAgentStore.AgentAdded"/> when a new
     /// specialist agent is persisted. Pushes a row into the
-    /// nav-drawer <see cref="Agents"/> list (FR-1.4) and leaves
+    /// nav-drawer <see cref="Agents"/> list and leaves
     /// selection unchanged so the user keeps the current focus.
     /// </summary>
     private void OnAgentAddedToStore(object? sender, AgentConfiguration e)
@@ -681,7 +674,7 @@ public partial class AIMainLayoutViewModel : ObservableObject
 
     private void ApplySearchFilter()
     {
-        // FR-4.1: the Search page lists all chats by default; the query
+        // The Search page lists all chats by default; the query
         // narrows the list. Opening the page should not show an empty
         // list — that's the "haven't searched yet" feel the user
         // complained about. We still skip empty sessions so demo

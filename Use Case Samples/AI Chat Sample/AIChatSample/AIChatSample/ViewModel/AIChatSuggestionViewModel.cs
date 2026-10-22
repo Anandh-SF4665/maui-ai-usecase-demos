@@ -14,9 +14,9 @@ namespace AIChatSample;
 
 /// <summary>
 /// View-model for the new-chat screen. Owns the prompt + response flow
-/// (FR-0.2, FR-0.3) and delegates the actual AI call to
-/// <see cref="IAIService"/> (NFR-2). Uses async/await so the UI thread
-/// stays responsive while a request is in flight (NFR-8).
+/// and delegates the actual AI call to <see cref="IAIService"/>. Uses
+/// async/await so the UI thread stays responsive while a request is in
+/// flight.
 /// </summary>
 public partial class AIChatSuggestionViewModel : ObservableObject
 {
@@ -50,7 +50,7 @@ public partial class AIChatSuggestionViewModel : ObservableObject
                 : TryGetThemeColor("PrimaryColorLight", fallback: Color.FromArgb("#7633DA"));
         }
 
-        // FR-4.3: initial prompts surfaced as the welcome-state
+        // initial prompts surfaced as the welcome-state
         // suggestion grid. The list intentionally does not change based
         // on the active agent — these are global starters.
         this._suggestions = new ObservableCollection<ISuggestion>()
@@ -64,11 +64,10 @@ public partial class AIChatSuggestionViewModel : ObservableObject
         this._assistItems = new ObservableCollection<IAssistItem>();
         this._assistItems.CollectionChanged += OnAssistItemsChanged;
 
-        // FR-4.3: the follow-up suggestions returned by the AI service
+        // The follow-up suggestions returned by the AI service
         // (e.g. "Tell me more", "Give an example") are surfaced via the
         // syncfusion AIAssistView's suggestion strip; binding
         // Suggestions above keeps that strip alive.
-        _data.ChatSessionsChanged += OnDataSessionsChanged;
 
         // Agents shown in the AIAssistView agent selector: two defaults
         // plus any agent created by the user (kept in sync via IAgentStore).
@@ -293,7 +292,7 @@ public partial class AIChatSuggestionViewModel : ObservableObject
     /// <summary>Bound to the editor's microphone icon. Hook for future voice-input flows.</summary>
     public ICommand MicCommand { get; }
 
-    /// <summary>Currently bound <see cref="ChatSession"/>, or <c>null</c> when showing the welcome state (FR-0.4).</summary>
+    /// <summary>Currently bound <see cref="ChatSession"/>, or <c>null</c> when showing the welcome state.</summary>
     public ChatSession? CurrentSession
     {
         get => _session;
@@ -315,7 +314,7 @@ public partial class AIChatSuggestionViewModel : ObservableObject
 
     /// <summary>
     /// Loads an existing chat session into the view-model, replacing the
-    /// current conversation with the session's stored messages (FR-0.4).
+    /// current conversation with the session's stored messages.
     /// </summary>
     public void LoadSession(ChatSession session)
     {
@@ -343,7 +342,7 @@ public partial class AIChatSuggestionViewModel : ObservableObject
             return;
         }
 
-        // FR-0.4: every new prompt lazily creates a ChatSession so the
+        // Every new prompt lazily creates a ChatSession so the
         // Recent-chats list reflects what the user typed. This keeps the
         // behaviour consistent whether the user typed into the welcome
         // state or into an existing session.
@@ -464,7 +463,7 @@ public partial class AIChatSuggestionViewModel : ObservableObject
 
         // The SfAIAssistView already added the request item to AssistItems
         // before raising the event. We just need to call the AI service
-        // and append the response (FR-0.2 / FR-0.3).
+        // and append the response.
         args.Handled = true;
 
         var prompt = userItem.Text;
@@ -502,7 +501,7 @@ public partial class AIChatSuggestionViewModel : ObservableObject
     /// <summary>
     /// Sends a prompt to the AI service on a background thread and
     /// appends the response to the chat surface. Marshals UI updates
-    /// back to the main thread (NFR-8).
+    /// back to the main thread.
     /// </summary>
     public async Task SendPromptAsync(string prompt)
     {
@@ -532,7 +531,7 @@ public partial class AIChatSuggestionViewModel : ObservableObject
             }
             AddResponse(result.Answer ?? string.Empty);
             // Surface the AI's follow-up suggestions so the suggestion
-            // strip below the editor stays live (FR-4.3). The mock
+            // strip below the editor stays live. The mock
             // always returns suggestions; Azure may not, in which case
             // AppendFollowUpSuggestions is a no-op.
             AppendFollowUpSuggestions(result.Suggestions);
@@ -583,7 +582,7 @@ public partial class AIChatSuggestionViewModel : ObservableObject
     }
 
     /// <summary>
-    /// FR-4.3: replace the static follow-up suggestions on the
+    /// replace the static follow-up suggestions on the
     /// AIAssistView with the context-aware ones returned by the AI
     /// service. We don't surface them as additional chat bubbles — the
     /// suggestion strip below the editor is the canonical place.
@@ -632,12 +631,6 @@ public partial class AIChatSuggestionViewModel : ObservableObject
     {
         if (_session is null) return;
         _data.TouchSession(_session);
-    }
-
-    private void OnDataSessionsChanged(object? sender, NotifyCollectionChangedEventArgs e)
-    {
-        // No-op for now; placeholder for any reactive UI work that
-        // depends on the session list (e.g. cross-tab sync).
     }
 
     private void OnSuggestionTapped(ISuggestion? suggestion)

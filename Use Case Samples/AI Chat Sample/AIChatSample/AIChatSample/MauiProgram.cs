@@ -33,22 +33,21 @@ namespace AIChatSample
             builder.Services.AddSingleton<IAgentStore, InMemoryAgentStore>();
             builder.Services.AddSingleton<IAgentService, DefaultAgentService>();
 
-            // In-memory chat + user-profile store (NFR-3, FR-0.4).
+            // In-memory chat + user-profile store.
             builder.Services.AddSingleton<IChatDataService, ChatDataService>();
 
-            // Shared app shell view-model (FR-0.1, FR-0.4). Registered as
-            // a singleton so the Recent-chats list, user-profile header
-            // and currently-open session stay in sync across the
-            // navigation panel and the chat host page.
+            // Shared app shell view-model. Registered as a singleton so
+            // the Recent-chats list, user-profile header, and currently-open
+            // session stay in sync across the navigation panel and the chat
+            // host page.
             builder.Services.AddSingleton<AIMainLayoutViewModel>();
 
             // AI service: prefer AzureOpenAIService when the Azure
             // configuration is present, otherwise register the offline
             // MockAIService so the sample is still runnable with zero
-            // configuration (NFR-2, NFR-5). AzureOpenAIService's
-            // constructor throws if the env vars are missing, so we
-            // can't register it unconditionally and let activation fail
-            // later.
+            // configuration. AzureOpenAIService's constructor throws if the
+            // env vars are missing, so we can't register it unconditionally
+            // and let activation fail later.
             if (TryCreateAzureOpenAIService(out var azureService))
             {
                 builder.Services.AddSingleton<IAIService>(azureService!);
@@ -72,13 +71,13 @@ namespace AIChatSample
         /// <summary>
         /// Returns <c>true</c> when the environment provides the minimum
         /// Azure OpenAI configuration. All three variables must be set
-        /// and non-empty (NFR-5).
+        /// and non-empty.
         /// </summary>
         private static bool HasAzureOpenAIConfiguration()
         {
-            var endpoint = "YOUR_ENDPOINT_HERE";
-            var apiKey = "YOUR_APIKEY_HERE";
-            var deployment = "YOUR_DEPLOYMENT_HERE";
+            var endpoint = Environment.GetEnvironmentVariable("AZURE_OPENAI_ENDPOINT");
+            var apiKey = Environment.GetEnvironmentVariable("AZURE_OPENAI_KEY");
+            var deployment = Environment.GetEnvironmentVariable("AZURE_OPENAI_DEPLOYMENT");
 
             return !string.IsNullOrWhiteSpace(endpoint)
                 && !string.IsNullOrWhiteSpace(apiKey)
@@ -100,10 +99,10 @@ namespace AIChatSample
                 return false;
             }
 
-            var endpoint = "YOUR_ENDPOINT_HERE";
-            var apiKey = "YOUR_APIKEY_HERE";
-            var deployment = "YOUR_DEPLOYMENT_HERE";
-            var timeoutRaw = "YOUR_TIMEOUT_HERE";
+            var endpoint = Environment.GetEnvironmentVariable("AZURE_OPENAI_ENDPOINT")!;
+            var apiKey = Environment.GetEnvironmentVariable("AZURE_OPENAI_KEY")!;
+            var deployment = Environment.GetEnvironmentVariable("AZURE_OPENAI_DEPLOYMENT")!;
+            var timeoutRaw = Environment.GetEnvironmentVariable("AZURE_OPENAI_TIMEOUT_SECONDS");
             int timeout = int.TryParse(timeoutRaw, out var t) ? t : 100;
 
             try
