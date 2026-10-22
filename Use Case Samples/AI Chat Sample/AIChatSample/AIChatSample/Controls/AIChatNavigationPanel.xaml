@@ -6,7 +6,7 @@
     xmlns:core="clr-namespace:Syncfusion.Maui.Core;assembly=Syncfusion.Maui.Core"
     xmlns:model="clr-namespace:AIChatSample"
     xmlns:buttons="clr-namespace:Syncfusion.Maui.Toolkit.Buttons;assembly=Syncfusion.Maui.Toolkit"
-    xmlns:converters="clr-namespace:AIChatSample.Converters"
+    xmlns:converters="clr-namespace:AIChatSample.Converters" ZIndex="100"
     x:Class="AIChatSample.Controls.AIChatNavigationPanel" x:Name="Root">
 
     <ContentView.Resources>
@@ -83,14 +83,17 @@
                 BackgroundColor="{AppThemeBinding Light={DynamicResource BackgroundColorLight}, Dark={DynamicResource BackgroundColorDark}}">
                 <VerticalStackLayout Padding="0" Spacing="0">
 
-                    <listView:SfListView ItemsSource="{Binding chatVM.PrimaryItems}" ItemSize="44"
+                    <listView:SfListView ItemsSource="{Binding chatVM.PrimaryItems}"
+                                         ItemSize="44"
                                          SelectionBackground="Transparent"
                                          Background="Transparent"
+                                         SelectionMode="None"
                                          ItemTapped="PrimaryItemTapped"
                                          Margin="0,4,0,0">
                         <listView:SfListView.ItemTemplate>
                             <DataTemplate>
                                 <Border HeightRequest="44" BackgroundColor="{Binding BackgroundColor}"
+                                        InputTransparent="False"
                                     StrokeThickness="0">
                                     <Border.StrokeShape>
                                         <RoundRectangle CornerRadius="10" />
@@ -118,10 +121,10 @@
                                                 IsVisible="{Binding Source={x:Reference Root}, Path=IsFull}"
                                                 VerticalOptions="Center" VerticalTextAlignment="Center" />
                                     </Grid>
-                                    <Border.GestureRecognizers>
+                                    <!--<Border.GestureRecognizers>
                                         <PointerGestureRecognizer PointerEntered="PrimaryItemPointerEntered"
                                             PointerExited="PrimaryItemPointerExited" />
-                                    </Border.GestureRecognizers>
+                                    </Border.GestureRecognizers>-->
                                 </Border>
                             </DataTemplate>
                         </listView:SfListView.ItemTemplate>
@@ -237,6 +240,6 @@
 
         <BoxView Grid.RowSpan="3" WidthRequest="1" HorizontalOptions="End" VerticalOptions="Fill"
                 BackgroundColor="{AppThemeBinding Light={DynamicResource SeparatorColorLight}, Dark={DynamicResource SeparatorColorDark}}"
-                InputTransparent="True" ZIndex="3" />
+                InputTransparent="True" ZIndex="100" />
     </Grid>
 </ContentView>

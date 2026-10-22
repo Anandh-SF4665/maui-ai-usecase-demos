@@ -1,3 +1,6 @@
+using AIChatSample.Controls;
+using System.Diagnostics;
+
 namespace AIChatSample;
 
 public partial class AgentLogoPage : ContentPage
@@ -19,10 +22,16 @@ public partial class AgentLogoPage : ContentPage
         // wired up — AvailableIcons / AvailableColors stayed empty and
         // the icon row rendered blank, so nothing was selectable.
         BindingContext = _vm;
-
         _vm.RequestClose += OnRequestClose;
         _vm.ResetForOpen();
-        LogoPopup.IsOpen = true;
+    }
+
+    protected override void OnAppearing()
+    {
+        base.OnAppearing();
+
+        Task.Delay(500);
+        LogoPopup.Show();
     }
 
     protected override void OnBindingContextChanged()
@@ -40,9 +49,9 @@ public partial class AgentLogoPage : ContentPage
     private void OnRequestClose(object? sender, EventArgs e)
     {
         LogoPopup.IsOpen = false;
-        if (Navigation?.ModalStack.Contains(this) == true)
+        if (Navigation?.NavigationStack.Count > 1)
         {
-            Navigation.PopModalAsync(animated: true);
+            Navigation.PopAsync(animated: true);
         }
     }
 

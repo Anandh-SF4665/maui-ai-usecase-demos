@@ -62,9 +62,18 @@ public partial class AIChatNavigationPanel : ContentView, INotifyPropertyChanged
     /// overlay drawer: the column is 0 while collapsed (content fills
     /// the screen) and grows to 250 while expanded.
     /// </summary>
-    public GridLength NavigationColumnWidth => IsAndroid
-        ? new GridLength(IsCompact ? 0 : 250)
-        : new GridLength(IsCompact ? 60 : 250);
+
+    public GridLength NavigationColumnWidth
+    {
+        get
+        {
+#if ANDROID || IOS
+            return new GridLength(0);
+#else
+            return IsCompact ? new GridLength(60) : new GridLength(250);
+#endif
+        }
+    }
 
     /// <summary>
     /// Grid column the content sits in. Desktop: column 1 (drawer is

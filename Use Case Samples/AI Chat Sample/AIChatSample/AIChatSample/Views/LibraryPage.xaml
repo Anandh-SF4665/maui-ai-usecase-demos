@@ -55,7 +55,7 @@
 
                             <core:SfTextInputLayout Hint="Search" Grid.Column="1" ContainerType="Outlined"
                                 OutlineCornerRadius="28" HorizontalOptions="End" FocusedStrokeThickness="1"
-                                UnfocusedStrokeThickness="1" WidthRequest="220" ReserveSpaceForAssistiveLabels="False"
+                                UnfocusedStrokeThickness="1" ReserveSpaceForAssistiveLabels="False"
                                 InputViewPadding="16, 0, 16, 0" EnableFloating="False" Margin="0" ShowHelperText="False"
                                 ShowHint="True"
                                 Stroke="{AppThemeBinding Light={DynamicResource ContentTextColorDark}, Dark={DynamicResource SecondaryTextColorLight}}"
@@ -75,9 +75,9 @@
 
                         <!-- IMAGE GRID -->
                         <listView:SfListView x:Name="ImageGrid" 
-                                             ItemsSource="{Binding ImageLibraryVM.ImageLibraryItems}"
-                                            SelectionMode="Single" ItemSpacing="16" HeightRequest="470" ItemSize="200"
-                                            BackgroundColor="Transparent"
+                                            ItemsSource="{Binding ImageLibraryVM.ImageLibraryItems}"
+                                            SelectionMode="Single" ItemSpacing="16" ItemSize="{OnIdiom Default=200,Phone=150}"
+                                            BackgroundColor="Transparent" AutoFitMode="DynamicHeight"
                                             SelectionChangedCommand="{Binding ImageLibraryVM.ImageSelectedCommand}"
                                             SelectionChangedCommandParameter="{Binding Source={x:Reference ImageGrid}, Path=SelectedItem}">
 
@@ -98,7 +98,7 @@
                                             </DataTrigger>
                                         </Border.Triggers>
 
-                                        <Image Source="{Binding ImagePath}" Aspect="AspectFill" HeightRequest="190"
+                                        <Image Source="{Binding ImagePath}" Aspect="AspectFill" HeightRequest="{OnIdiom Default=190,Phone=140}"
                                             HorizontalOptions="Fill" VerticalOptions="Fill" />
                                     </Border>
                                 </DataTemplate>

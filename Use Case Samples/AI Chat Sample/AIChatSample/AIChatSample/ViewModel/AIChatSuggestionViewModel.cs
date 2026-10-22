@@ -58,7 +58,7 @@ public partial class AIChatSuggestionViewModel : ObservableObject
             new AssistSuggestion() { Text = "Summarize a document", ImageSource = new FontImageSource() { Glyph = "\ue797", FontFamily = "MaterialAssets", Color = iconColor } },
             new AssistSuggestion() { Text = "Analyze business data", ImageSource = new FontImageSource() { Glyph = "\ue793", FontFamily = "MaterialAssets", Color = iconColor } },
             new AssistSuggestion() { Text = "Draft content", ImageSource = new FontImageSource() { Glyph = "\ue7f2", FontFamily = "MaterialAssets", Color = iconColor } },
-            new AssistSuggestion() { Text = "Solve a technical problem", ImageSource = new FontImageSource() { Glyph = "\ue7f5", FontFamily = "MaterialAssets", Color = iconColor } },
+            new AssistSuggestion() { Text = "Solve a technical problem", ImageSource = new FontImageSource() { Glyph = "\ue716", FontFamily = "MaterialAssets", Color = iconColor } },
         };
 
         this._assistItems = new ObservableCollection<IAssistItem>();
