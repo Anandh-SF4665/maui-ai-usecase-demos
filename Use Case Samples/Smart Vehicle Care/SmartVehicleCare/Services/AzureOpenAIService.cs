@@ -71,13 +71,18 @@ internal class AzureOpenAIService
     }
 
     /// <summary>
-    /// Ensures the API key is loaded from SecureStorage before an AI call.
-    /// Shared guard used by all ViewModels to avoid the App-startup race.
+    /// Ensures the persisted AI configuration (key, endpoint, deployment name) is
+    /// loaded before an AI call. Shared guard used by all ViewModels to avoid the
+    /// App-startup race — preferences are not readable before the app initializes.
     /// </summary>
     internal static async Task EnsureApiKeyLoadedAsync()
     {
         if (!HasApiKey)
             await LoadApiKeyFromStorageAsync();
+        if (!HasEndpoint)
+            LoadEndpoint();
+        if (_deploymentName == DefaultDeploymentName)
+            LoadDeploymentName();
     }
 
     internal static async Task SaveApiKeyToStorageAsync(string? key)

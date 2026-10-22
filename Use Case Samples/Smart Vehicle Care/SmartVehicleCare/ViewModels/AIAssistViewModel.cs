@@ -387,6 +387,8 @@ User Query: {requestText}
         IsGeneratingResponse = true;
         try
         {
+            // Restore persisted AI config (key/endpoint/deployment) before the call.
+            await AzureOpenAIService.EnsureApiKeyLoadedAsync();
             _requestCts?.Cancel();
             _requestCts = new CancellationTokenSource();
             var aiText = await _ai.GetResultsFromAI(vehicleInfo, systemMsg, cancellationToken: _requestCts.Token);
