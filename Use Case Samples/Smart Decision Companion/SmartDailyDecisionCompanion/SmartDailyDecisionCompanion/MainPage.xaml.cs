@@ -1,66 +1,32 @@
-﻿using System;
-using Microsoft.Maui.ApplicationModel;
-using System.ComponentModel;
-
 namespace SmartDailyDecisionCompanion
 {
+    /// <summary>
+    /// Code-behind for the main page. Task state, tab selection, and the Accept/Postpone
+    /// actions all live in <see cref="MainViewModel"/>; the tab views stay in step through the
+    /// two-way SelectedIndex binding declared in MainPage.xaml. This class only triggers the
+    /// awaited startup credential check once the page is visible.
+    /// </summary>
     public partial class MainPage : ContentPage
     {
-        private bool _isNavigatingToInsights;
+        private bool _isInitialized;
 
         public MainPage(MainViewModel vm)
         {
             InitializeComponent();
             BindingContext = vm;
-
-            vm.PropertyChanged += OnViewModelPropertyChanged;
         }
 
-        private void OnViewModelPropertyChanged(object? sender, PropertyChangedEventArgs e)
+        protected override async void OnAppearing()
         {
-            if (e.PropertyName != nameof(MainViewModel.SelectedTask))
+            base.OnAppearing();
+
+            // Credential validation performs I/O, so it is awaited here rather than fired
+            // from the AI service constructor, which keeps the outcome deterministic.
+            if (_isInitialized || BindingContext is not MainViewModel vm)
                 return;
 
-            var vm = BindingContext as MainViewModel;
-            if (vm?.SelectedTask == null || _isNavigatingToInsights)
-                return;
-
-            _isNavigatingToInsights = true;
-            MainThread.BeginInvokeOnMainThread(() =>
-            {
-                try
-                {
-                    if (MobileTabView != null && MobileTabView.IsVisible)
-                        MobileTabView.SelectedIndex = 1;
-                    if (DesktopTabView != null && DesktopTabView.IsVisible)
-                        DesktopTabView.SelectedIndex = 1;
-                }
-                finally
-                {
-                    _isNavigatingToInsights = false;
-                }
-            });
-        }
-
-        private void OnAcceptRecommendationClicked(object? sender, EventArgs e)
-        {
-            NavigateToTodayTab();
-        }
-
-        private void OnPostponeRecommendationClicked(object? sender, EventArgs e)
-        {
-            NavigateToTodayTab();
-        }
-
-        private void NavigateToTodayTab()
-        {
-            MainThread.BeginInvokeOnMainThread(() =>
-            {
-                if (MobileTabView != null && MobileTabView.IsVisible)
-                    MobileTabView.SelectedIndex = 0;
-                if (DesktopTabView != null && DesktopTabView.IsVisible)
-                    DesktopTabView.SelectedIndex = 0;
-            });
+            _isInitialized = true;
+            await vm.InitializeAsync();
         }
     }
 }

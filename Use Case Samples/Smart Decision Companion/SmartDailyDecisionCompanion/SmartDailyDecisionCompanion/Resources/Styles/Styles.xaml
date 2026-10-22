@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="UTF-8" ?>
+<?xml version="1.0" encoding="UTF-8" ?>
 <ResourceDictionary 
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml">
@@ -479,5 +479,90 @@
         <Setter Property="UnselectedTabColor" Value="{AppThemeBinding Light={StaticResource Gray200}, Dark={StaticResource Gray950}}" />
         <Setter Property="SelectedTabColor" Value="{AppThemeBinding Light={StaticResource Gray950}, Dark={StaticResource Gray200}}" />
     </Style>
+
+    <!--
+        Shared SfListView item templates. The mobile and desktop layouts used to inline
+        six near-identical DataTemplates; these three keyed resources are referenced by
+        both layouts so a task row is defined once per category.
+        Only the icon badge tint differs between categories.
+    -->
+    <DataTemplate x:Key="DoTodayTaskItemTemplate">
+        <Grid ColumnDefinitions="48, *"
+              ColumnSpacing="8">
+            <Border BackgroundColor="#DDEAF2"
+                    WidthRequest="40"
+                    HeightRequest="40"
+                    VerticalOptions="Center"
+                    HorizontalOptions="Center"
+                    Padding="0">
+                <Border.StrokeShape>
+                    <RoundRectangle CornerRadius="20" />
+                </Border.StrokeShape>
+                <Label Style="{StaticResource TaskTypeIconLabel}" />
+            </Border>
+            <StackLayout Grid.Column="1"
+                         VerticalOptions="Center"
+                         Spacing="2">
+                <Label Text="{Binding Topic}"
+                       FontAttributes="Bold"
+                       FontSize="16" />
+                <Label Text="{Binding Description}"
+                       FontSize="13"
+                       TextColor="#6B6B6B" />
+            </StackLayout>
+        </Grid>
+    </DataTemplate>
+
+    <DataTemplate x:Key="PostponeTaskItemTemplate">
+        <Grid ColumnDefinitions="48, *"
+              ColumnSpacing="8">
+            <Border BackgroundColor="#FFFFFF"
+                    WidthRequest="40"
+                    HeightRequest="40"
+                    VerticalOptions="Center"
+                    HorizontalOptions="Center"
+                    Padding="0">
+                <Border.StrokeShape>
+                    <RoundRectangle CornerRadius="20" />
+                </Border.StrokeShape>
+                <Label Style="{StaticResource TaskTypeIconLabel}" />
+            </Border>
+            <StackLayout Grid.Column="1"
+                         VerticalOptions="Center">
+                <Label Text="{Binding Topic}"
+                       FontAttributes="Bold"
+                       FontSize="16" />
+                <Label Text="{Binding Description}"
+                       FontSize="13"
+                       TextColor="#6B6B6B" />
+            </StackLayout>
+        </Grid>
+    </DataTemplate>
+
+    <DataTemplate x:Key="WatchTaskItemTemplate">
+        <Grid ColumnDefinitions="48, *"
+              ColumnSpacing="8">
+            <Border BackgroundColor="#E9F4EE"
+                    WidthRequest="40"
+                    HeightRequest="40"
+                    VerticalOptions="Center"
+                    HorizontalOptions="Center"
+                    Padding="0">
+                <Border.StrokeShape>
+                    <RoundRectangle CornerRadius="20" />
+                </Border.StrokeShape>
+                <Label Style="{StaticResource TaskTypeIconLabel}" />
+            </Border>
+            <StackLayout Grid.Column="1"
+                         VerticalOptions="Center">
+                <Label Text="{Binding Topic}"
+                       FontAttributes="Bold"
+                       FontSize="16" />
+                <Label Text="{Binding Description}"
+                       FontSize="13"
+                       TextColor="#6B6B6B" />
+            </StackLayout>
+        </Grid>
+    </DataTemplate>
 
 </ResourceDictionary>

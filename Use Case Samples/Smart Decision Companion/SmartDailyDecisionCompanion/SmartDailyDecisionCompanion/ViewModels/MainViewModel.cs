@@ -8,6 +8,7 @@ using System.Windows.Input;
 using System.Threading.Tasks;
 using System.Text.Json;
 using System.Text.RegularExpressions;
+using Microsoft.Maui.Controls;
 using Microsoft.Maui.Devices;
 
 namespace SmartDailyDecisionCompanion
@@ -18,6 +19,13 @@ namespace SmartDailyDecisionCompanion
     public class MainViewModel : INotifyPropertyChanged
     {
         public event PropertyChangedEventHandler? PropertyChanged;
+
+        /// <summary>Index of the Today tab in the mobile and desktop tab views.</summary>
+        public const int TodayTabIndex = 0;
+
+        /// <summary>Index of the Insights tab in the mobile and desktop tab views.</summary>
+        public const int InsightsTabIndex = 1;
+
         private readonly IAzureAIService _aiService;
         private List<TaskItem> _aiOrdered = new List<TaskItem>();
         private int _aiCurrentIndex = 0;
@@ -40,14 +48,15 @@ namespace SmartDailyDecisionCompanion
         private string _newTaskPriority = string.Empty;
         private string _recommendationTitle = "—";
         private int _selectedTaskAnalysisVersion;
+        private int _selectedTabIndex;
 
         /// <summary>
-        /// It initializes the MainViewModel, setting up the AI service, detecting the platform for layout purposes, seeding initial tasks, categorizing them, and kicking off AI analyses for pressure and recommendations.
+        /// It initializes the MainViewModel, resolving the AI service through dependency injection,
+        /// detecting the platform for layout purposes, and seeding and categorizing the initial tasks.
         /// </summary>
-        public MainViewModel()
+        public MainViewModel(IAzureAIService aiService)
         {
-            // initialize shared AI service once
-            _aiService = new AzureAIService();
+            _aiService = aiService ?? throw new ArgumentNullException(nameof(aiService));
 
             // Detect the platform once so XAML can switch layouts reliably.
             IsDesktop = DeviceInfo.Platform == DevicePlatform.WinUI || DeviceInfo.Platform == DevicePlatform.MacCatalyst;
@@ -55,7 +64,6 @@ namespace SmartDailyDecisionCompanion
 
             SeedTasks();
             CategorizeTasks();
-            _ = AnalyzePressureAsync();
             AcceptRecommendationCommand = new RelayCommand(ExecuteAcceptRecommendation);
             PostponeRecommendationCommand = new RelayCommand(ExecutePostponeRecommendation);
 
@@ -63,6 +71,43 @@ namespace SmartDailyDecisionCompanion
             ShowAddTaskCommand = new RelayCommand(_ => { IsAddTaskPopupVisible = true; });
             HideAddTaskCommand = new RelayCommand(_ => { IsAddTaskPopupVisible = false; });
             ConfirmAddTaskCommand = new RelayCommand(ExecuteConfirmAddTask);
+        }
+
+        /// <summary>
+        /// Validates the Azure OpenAI credentials and surfaces a user-facing alert when they are
+        /// missing or rejected, then kicks off the initial AI analyses. The credential check is
+        /// awaited here rather than started from the AI service constructor so the outcome is
+        /// deterministic and this failure path stays visible to the caller.
+        /// </summary>
+        public async Task InitializeAsync()
+        {
+            await _aiService.ValidateCredentialAsync();
+
+            if (!_aiService.IsCredentialValid)
+            {
+                await NotifyCredentialsInvalidAsync();
+                return;
+            }
+
+            _ = AnalyzePressureAsync();
+            _ = AnalyzeRecommendationAsync();
+            _ = AnalyzeFocusAsync();
+        }
+
+        /// <summary>
+        /// Shows the invalid-credentials alert. This runs after the awaited validation call, so
+        /// the continuation is already back on the UI thread that started InitializeAsync.
+        /// </summary>
+        private static async Task NotifyCredentialsInvalidAsync()
+        {
+            var page = Application.Current?.Windows.FirstOrDefault()?.Page;
+            if (page is null)
+                return;
+
+            await page.DisplayAlert(
+                "Alert",
+                "The Azure API key or endpoint is missing or incorrect. Please verify your credentials in Services/AzureBaseService.cs.",
+                "OK");
         }
 
         /// <summary>
@@ -76,6 +121,22 @@ namespace SmartDailyDecisionCompanion
                 if (hour < 12) return "Good morning, Mentor";
                 if (hour < 18) return "Good afternoon, Mentor";
                 return "Good evening, Mentor";
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets the selected tab index for both the mobile and desktop tab views.
+        /// Selecting a task opens the Insights tab (index 1); accepting or postponing a
+        /// recommendation returns to the Today tab (index 0).
+        /// </summary>
+        public int SelectedTabIndex
+        {
+            get => _selectedTabIndex;
+            set
+            {
+                if (_selectedTabIndex == value) return;
+                _selectedTabIndex = value;
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(SelectedTabIndex)));
             }
         }
 
@@ -205,10 +266,13 @@ namespace SmartDailyDecisionCompanion
                     var analysisVersion = ++_selectedTaskAnalysisVersion;
                     RecommendationTitle = _selectedTask.Topic;
                     MentorshipDetail = "Analyzing...";
+                    UrgencyText = "Analyzing urgency...";
+                    ImportanceText = "Analyzing importance...";
+                    PositiveMomentumText = "Analyzing positive momentum...";
+                    DelayRiskText = "Analyzing delay risk...";
+                    SelectedTabIndex = InsightsTabIndex;
                     _ = AnalyzeMentorshipAsync(_selectedTask, analysisVersion);
-                    // Also request urgency and importance analyses separately
                     _ = AnalyzeUrgencyAsync(_selectedTask, analysisVersion);
-                    // Also request positive momentum and delay risk analyses
                     _ = AnalyzePositiveMomentumAsync(_selectedTask, analysisVersion);
                     _ = AnalyzeDelayRiskAsync(_selectedTask, analysisVersion);
                     _ = AnalyzeImportanceAsync(_selectedTask, analysisVersion);
@@ -474,20 +538,25 @@ namespace SmartDailyDecisionCompanion
                 }
             }
 
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(DoToday)));
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Postpone)));
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Watch)));
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(DoTodayCount)));
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(PostponeCount)));
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(WatchCount)));
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(MeetingsCountLabel)));
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Greeting)));
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(DateLabel)));
+            // Collections notify their own changes; only the derived counters need a manual raise.
+            RaiseCategoryChanged();
 
             // After categorization, request AI analysis for today's tasks and recommendation
             _ = AnalyzePressureAsync();
             _ = AnalyzeRecommendationAsync();
             _ = AnalyzeFocusAsync();
+        }
+
+        /// <summary>
+        /// Raises change notification for the count and label properties that are derived from
+        /// the Do Today, Postpone, and Watch collections.
+        /// </summary>
+        private void RaiseCategoryChanged()
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(DoTodayCount)));
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(PostponeCount)));
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(WatchCount)));
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(MeetingsCountLabel)));
         }
 
         /// <summary>
@@ -536,12 +605,12 @@ namespace SmartDailyDecisionCompanion
                 // Build prompt with today's tasks
                 var sb = new StringBuilder();
                 sb.AppendLine("You are given a list of tasks. Analyze the complexity of each task and the overall pressure.");
-                sb.AppendLine("Return ONLY valid JSON with this exact schema:\n{\n  \"tasks\": [ { \"topic\": string, \"complexity\": \"Low|Medium|High\" } ],\n  \"pressure\": \"Low Pressure|Medium Pressure|High Pressure\",\n  \"tip\": string\n}");
-                sb.AppendLine("Do not include any extra text or explanation — only output JSON with 1 line.");
+                sb.AppendLine("Return ONLY valid JSON with this exact schema:");
+                sb.AppendLine("{\"tasks\": [ { \"topic\": string, \"complexity\": \"Low|Medium|High\" } ], \"pressure\": \"Low Pressure|Medium Pressure|High Pressure\", \"tip\": string }");
                 sb.AppendLine("Tasks:");
                 foreach (var t in DoToday)
                 {
-                    sb.AppendLine($"- {t.Topic}: {t.Description})");
+                    sb.AppendLine($"- {t.Topic}: {t.Description}");
                 }
 
                 var prompt = sb.ToString();
@@ -705,11 +774,9 @@ namespace SmartDailyDecisionCompanion
         {
             try
             {
-                if (analysisVersion == 0 || analysisVersion == _selectedTaskAnalysisVersion)
+                if (analysisVersion == _selectedTaskAnalysisVersion)
                 {
                     MentorshipDetail = "Analyzing...";
-                    UrgencyText = string.Empty;
-                    ImportanceText = string.Empty;
                 }
                 var aiService = _aiService;
                 if (task == null) { MentorshipDetail = string.Empty; return; }
@@ -743,10 +810,7 @@ namespace SmartDailyDecisionCompanion
                 var prompt = sb.ToString();
                 var result = await aiService.GetResultsFromAI(prompt);
 
-                if (analysisVersion != 0 && analysisVersion != _selectedTaskAnalysisVersion)
-                    return;
-
-                if (analysisVersion != 0 && analysisVersion != _selectedTaskAnalysisVersion)
+                if (analysisVersion != _selectedTaskAnalysisVersion)
                     return;
 
                 if (string.IsNullOrWhiteSpace(result))
@@ -755,36 +819,51 @@ namespace SmartDailyDecisionCompanion
                     return;
                 }
 
-                try
-                {
-                    using var doc = JsonDocument.Parse(result);
-                    var root = doc.RootElement;
-                    if (root.TryGetProperty("mentorship", out var mentEl))
-                        MentorshipDetail = mentEl.GetString() ?? string.Empty;
-                    if (root.TryGetProperty("urgency", out var urgEl))
-                    {
-                        var urg = urgEl.GetString() ?? string.Empty;
-                        UrgencyText = string.Join("\n", urg.Split(new[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries).Select(l => l.Trim()).Where(l => !string.IsNullOrWhiteSpace(l)).Take(2));
-                    }
-                    if (root.TryGetProperty("importance", out var impEl))
-                    {
-                        var imp = impEl.GetString() ?? string.Empty;
-                        ImportanceText = string.Join("\n", imp.Split(new[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries).Select(l => l.Trim()).Where(l => !string.IsNullOrWhiteSpace(l)).Take(2));
-                    }
-                }
-                catch
-                {
-                    // fallback: treat whole result as mentorship detail
-                    MentorshipDetail = result.Trim();
-                }
+                // The prompt requests plain text, so the whole response is the mentorship guidance.
+                // Urgency and Importance are produced by their own analyzers and are not touched here.
+                MentorshipDetail = CleanInsightText(result);
             }
             catch
             {
-                if (analysisVersion != 0 && analysisVersion != _selectedTaskAnalysisVersion)
+                if (analysisVersion != _selectedTaskAnalysisVersion)
                     return;
 
                 MentorshipDetail = "Unable to get mentorship analysis.";
             }
+        }
+
+        /// <summary>
+        /// Strips the decoration a chat model may add around a requested plain-text answer
+        /// (markdown emphasis, surrounding quotes, or a fenced code block) and collapses it
+        /// to at most <paramref name="maxLines"/> non-empty lines.
+        /// </summary>
+        private static string CleanInsightText(string result, int maxLines = 4)
+        {
+            var cleaned = result.Trim();
+
+            if (cleaned.StartsWith("```", StringComparison.Ordinal))
+            {
+                var firstNewLine = cleaned.IndexOf('\n');
+                var closingFence = cleaned.LastIndexOf("```", StringComparison.Ordinal);
+                if (firstNewLine >= 0 && closingFence > firstNewLine)
+                {
+                    cleaned = cleaned.Substring(firstNewLine + 1, closingFence - firstNewLine - 1);
+                }
+                else
+                {
+                    cleaned = cleaned.Trim('`');
+                }
+            }
+
+            cleaned = cleaned.Trim().Trim('"', '\'', ' ', '*');
+
+            var lines = cleaned
+                .Split(new[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries)
+                .Select(l => l.Trim())
+                .Where(l => !string.IsNullOrWhiteSpace(l))
+                .Take(maxLines);
+
+            return string.Join("\n", lines).Trim();
         }
 
         /// <summary>
@@ -802,7 +881,7 @@ namespace SmartDailyDecisionCompanion
 
                 var sb = new StringBuilder();
                 sb.AppendLine("You are an assistant that summarizes the URGENCY of a single task in 1-2 short lines.");
-                sb.AppendLine("Working hours per day = 8 hours. Consider today's DoToday tasks when deciding urgency (deadline proximity,priority,estimated effort).");
+                sb.AppendLine("Working hours per day = 8 hours. Consider today's DoToday tasks when deciding urgency (deadline proximity, priority, estimated effort).");
                 sb.AppendLine("Return plain text only (1-2 short lines) describing urgency, do not include extra explanation.");
                 sb.AppendLine("Do not return JSON, brackets, quotes, semicolons, or bullet points.");
                 sb.AppendLine();
@@ -820,7 +899,7 @@ namespace SmartDailyDecisionCompanion
                 var prompt = sb.ToString();
                 var result = await aiService.GetResultsFromAI(prompt);
 
-                if (analysisVersion != 0 && analysisVersion != _selectedTaskAnalysisVersion)
+                if (analysisVersion != _selectedTaskAnalysisVersion)
                     return;
 
                 if (string.IsNullOrWhiteSpace(result))
@@ -829,23 +908,11 @@ namespace SmartDailyDecisionCompanion
                     return;
                 }
 
-                if (result.Trim().StartsWith("{"))
-                {
-                    using var doc = JsonDocument.Parse(result);
-
-                    var property = doc.RootElement.EnumerateObject().FirstOrDefault();
-
-                    if (property.Value.ValueKind == JsonValueKind.String)
-                    {
-                        result = property.Value.GetString() ?? string.Empty;
-                    }
-                }
-
-                UrgencyText = result.Trim();
+                UrgencyText = CleanInsightText(result, maxLines: 2);
             }
             catch
             {
-                if (analysisVersion != 0 && analysisVersion != _selectedTaskAnalysisVersion)
+                if (analysisVersion != _selectedTaskAnalysisVersion)
                     return;
 
                 UrgencyText = "Unable to get urgency details.";
@@ -884,7 +951,7 @@ namespace SmartDailyDecisionCompanion
                 var prompt = sb.ToString();
                 var result = await aiService.GetResultsFromAI(prompt);
 
-                if (analysisVersion != 0 && analysisVersion != _selectedTaskAnalysisVersion)
+                if (analysisVersion != _selectedTaskAnalysisVersion)
                     return;
 
                 if (string.IsNullOrWhiteSpace(result))
@@ -893,23 +960,11 @@ namespace SmartDailyDecisionCompanion
                     return;
                 }
 
-                if (result.Trim().StartsWith("{"))
-                {
-                    using var doc = JsonDocument.Parse(result);
-
-                    var property = doc.RootElement.EnumerateObject().FirstOrDefault();
-
-                    if (property.Value.ValueKind == JsonValueKind.String)
-                    {
-                        result = property.Value.GetString() ?? string.Empty;
-                    }
-                }
-
-                ImportanceText = result.Trim();
+                ImportanceText = CleanInsightText(result, maxLines: 2);
             }
             catch
             {
-                if (analysisVersion != 0 && analysisVersion != _selectedTaskAnalysisVersion)
+                if (analysisVersion != _selectedTaskAnalysisVersion)
                     return;
 
                 ImportanceText = "Unable to get importance details";
@@ -949,7 +1004,7 @@ namespace SmartDailyDecisionCompanion
                 var prompt = sb.ToString();
                 var result = await aiService.GetResultsFromAI(prompt);
 
-                if (analysisVersion != 0 && analysisVersion != _selectedTaskAnalysisVersion)
+                if (analysisVersion != _selectedTaskAnalysisVersion)
                     return;
 
                 if (string.IsNullOrWhiteSpace(result))
@@ -958,23 +1013,11 @@ namespace SmartDailyDecisionCompanion
                     return;
                 }
 
-                if (result.Trim().StartsWith("{"))
-                {
-                    using var doc = JsonDocument.Parse(result);
-
-                    var property = doc.RootElement.EnumerateObject().FirstOrDefault();
-
-                    if (property.Value.ValueKind == JsonValueKind.String)
-                    {
-                        result = property.Value.GetString() ?? string.Empty;
-                    }
-                }
-
-                PositiveMomentumText = result.Trim();
+                PositiveMomentumText = CleanInsightText(result, maxLines: 2);
             }
             catch
             {
-                if (analysisVersion != 0 && analysisVersion != _selectedTaskAnalysisVersion)
+                if (analysisVersion != _selectedTaskAnalysisVersion)
                     return;
 
                 PositiveMomentumText = "Unable to get positive momentum details.";
@@ -1014,7 +1057,7 @@ namespace SmartDailyDecisionCompanion
                 var prompt = sb.ToString();
                 var result = await aiService.GetResultsFromAI(prompt);
 
-                if (analysisVersion != 0 && analysisVersion != _selectedTaskAnalysisVersion)
+                if (analysisVersion != _selectedTaskAnalysisVersion)
                     return;
 
                 if (string.IsNullOrWhiteSpace(result))
@@ -1023,23 +1066,11 @@ namespace SmartDailyDecisionCompanion
                     return;
                 }
 
-                if (result.Trim().StartsWith("{"))
-                {
-                    using var doc = JsonDocument.Parse(result);
-
-                    var property = doc.RootElement.EnumerateObject().FirstOrDefault();
-
-                    if (property.Value.ValueKind == JsonValueKind.String)
-                    {
-                        result = property.Value.GetString() ?? string.Empty;
-                    }
-                }
-
-                DelayRiskText = result.Trim();
+                DelayRiskText = CleanInsightText(result, maxLines: 2);
             }
             catch
             {
-                if (analysisVersion != 0 && analysisVersion != _selectedTaskAnalysisVersion)
+                if (analysisVersion != _selectedTaskAnalysisVersion)
                     return;
 
                 DelayRiskText = "";
@@ -1064,8 +1095,8 @@ namespace SmartDailyDecisionCompanion
                 var aiService = _aiService;
 
                 var sb = new StringBuilder();
-                sb.AppendLine("You are an assistant that estimates total time required to complete the DoToday tasks, it total time should be calculated based on each tasks complexity.");
-                sb.AppendLine("Return a calculated time in hours and minuts (H/M)");
+                sb.AppendLine("You are an assistant that estimates the total time required to complete the DoToday tasks. The total time should be calculated based on each task's complexity.");
+                sb.AppendLine("Return a calculated time in hours and minutes (H/M)");
                 sb.AppendLine();
                 sb.AppendLine("Tasks:");
                 foreach (var t in DoToday)
@@ -1142,180 +1173,108 @@ namespace SmartDailyDecisionCompanion
         }
 
         /// <summary>
-        /// Method to execute when user postpones the AI recommendation.
+        /// Resolves the task the recommendation actions apply to: the user's current
+        /// selection when present, otherwise the next task in the AI-ordered queue,
+        /// otherwise a match on the current recommendation title.
         /// </summary>
-        /// <param name="_"></param>
+        private TaskItem? ResolveRecommendationTarget()
+        {
+            if (SelectedTask != null)
+                return SelectedTask;
+
+            if (_aiOrdered.Count > _aiCurrentIndex)
+                return _aiOrdered[_aiCurrentIndex];
+
+            var topic = RecommendationTitle;
+            if (string.IsNullOrWhiteSpace(topic))
+                return null;
+
+            return DoToday.FirstOrDefault(x => string.Equals(x.Topic, topic, StringComparison.OrdinalIgnoreCase))
+                   ?? AllTasks.FirstOrDefault(x => string.Equals(x.Topic, topic, StringComparison.OrdinalIgnoreCase));
+        }
+
+        /// <summary>
+        /// Advances the AI-ordered queue past a handled task and republishes the next
+        /// recommendation title, or clears it once the queue is exhausted.
+        /// </summary>
+        private void AdvanceToNextRecommendation(TaskItem item)
+        {
+            if (_aiCurrentIndex < _aiOrdered.Count && _aiOrdered[_aiCurrentIndex] == item)
+                _aiCurrentIndex++;
+
+            RecommendationTitle = _aiCurrentIndex < _aiOrdered.Count
+                ? _aiOrdered[_aiCurrentIndex].Topic
+                : "—";
+        }
+
+        /// <summary>
+        /// Method to execute when user postpones the AI recommendation. The task moves out
+        /// of Do Today (or Watch) to the top of Postpone and the app returns to the Today tab.
+        /// </summary>
         private void ExecutePostponeRecommendation(object? _)
         {
             try
             {
-
-                // Prefer the user-selected task when available
-                TaskItem? item = SelectedTask;
-                if (item == null)
-                {
-                    // Prefer the next item in the AI ordered list
-                    if (_aiOrdered != null && _aiCurrentIndex < _aiOrdered.Count)
-                    {
-                        item = _aiOrdered[_aiCurrentIndex];
-                    }
-
-                    // Fallback to RecommendationTitle match
-                    if (item == null)
-                    {
-                        var topic = RecommendationTitle;
-                        if (string.IsNullOrWhiteSpace(topic)) return;
-                        item = DoToday.FirstOrDefault(x => string.Equals(x.Topic, topic, StringComparison.OrdinalIgnoreCase))
-                               ?? AllTasks.FirstOrDefault(x => string.Equals(x.Topic, topic, StringComparison.OrdinalIgnoreCase));
-                    }
-                }
-
+                var item = ResolveRecommendationTarget();
                 if (item == null) return;
 
-                // Remove from any source collection if present
-                if (DoToday.Contains(item))
+                // Remove the task from whichever list currently holds it.
+                if (DoToday.Remove(item))
                 {
-                    DoToday.Remove(item);
-                    PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(DoToday)));
-                    PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(DoTodayCount)));
-                    PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(MeetingsCountLabel)));
+                    RaiseCategoryChanged();
                 }
-                else if (Watch.Contains(item))
+                else if (Watch.Remove(item))
                 {
-                    Watch.Remove(item);
-                    PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Watch)));
-                    PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(WatchCount)));
+                    RaiseCategoryChanged();
                 }
 
-                // Add to Postpone at top (move if already present)
-                if (Postpone.Contains(item))
-                {
-                    Postpone.Remove(item);
-                }
+                // Move (rather than duplicate) into Postpone at the top.
+                Postpone.Remove(item);
                 Postpone.Insert(0, item);
-                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Postpone)));
-                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(PostponeCount)));
+                RaiseCategoryChanged();
 
-                // update focus estimate when DoToday changed by moving item out
+                // Do Today may have shrunk, so the focus estimate is stale.
                 _ = AnalyzeFocusAsync();
 
-                // advance AI index and update RecommendationTitle to next priority (or clear)
-                if (_aiOrdered != null && _aiCurrentIndex < _aiOrdered.Count)
-                {
-                    if (_aiOrdered[_aiCurrentIndex] == item)
-                        _aiCurrentIndex++;
-                }
-
-                if (_aiOrdered != null && _aiCurrentIndex < _aiOrdered.Count)
-                {
-                    RecommendationTitle = _aiOrdered[_aiCurrentIndex].Topic;
-                }
-                else
-                {
-                    RecommendationTitle = "—";
-                }
+                AdvanceToNextRecommendation(item);
             }
-            catch
+            finally
             {
-                return;
+                // The decision has been recorded; show the user the updated Today tab.
+                SelectedTabIndex = TodayTabIndex;
             }
         }
 
         /// <summary>
-        /// Method to execute when user accepts the AI recommendation. 
+        /// Method to execute when user accepts the AI recommendation. The task moves to the top
+        /// of Do Today (or is added to it when it came from Postpone or Watch) and the app
+        /// returns to the Today tab.
         /// </summary>
-        private void ExecuteAcceptRecommendation(object? _) 
+        private void ExecuteAcceptRecommendation(object? _)
         {
             try
             {
-                // Prefer the user-selected task when available
-                TaskItem? item = SelectedTask;
-                if (item == null)
-                {
-                    // Prefer the next item in the AI ordered list
-                    if (_aiOrdered != null && _aiCurrentIndex < _aiOrdered.Count)
-                    {
-                        item = _aiOrdered[_aiCurrentIndex];
-                    }
-
-                    // Fallback to RecommendationTitle match
-                    if (item == null)
-                    {
-                        var topic = RecommendationTitle;
-                        if (string.IsNullOrWhiteSpace(topic)) return;
-                        item = DoToday.FirstOrDefault(x => string.Equals(x.Topic, topic, StringComparison.OrdinalIgnoreCase))
-                               ?? AllTasks.FirstOrDefault(x => string.Equals(x.Topic, topic, StringComparison.OrdinalIgnoreCase));
-                    }
-                }
-
+                var item = ResolveRecommendationTarget();
                 if (item == null) return;
 
-                // If item came from Postpone or Watch, add to the end of DoToday
-                if (Postpone.Contains(item) || Watch.Contains(item))
-                {
-                    // remove from origin
-                    if (Postpone.Contains(item))
-                    {
-                        Postpone.Remove(item);
-                        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Postpone)));
-                        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(PostponeCount)));
-                    }
-                    if (Watch.Contains(item))
-                    {
-                        Watch.Remove(item);
-                        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Watch)));
-                        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(WatchCount)));
-                    }
+                var movedFromOtherList = Postpone.Remove(item) || Watch.Remove(item);
 
-                    // add to end
-                    if (!DoToday.Contains(item))
-                    {
-                        DoToday.Add(item);
-                        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(DoToday)));
-                        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(DoTodayCount)));
-                        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(MeetingsCountLabel)));
-                    }
-                }
-                else
-                {
-                    // Ensure item is in DoToday and move it to index 0
-                    if (DoToday.Contains(item))
-                    {
-                        DoToday.Remove(item);
-                        DoToday.Insert(0, item);
-                    }
-                    else
-                    {
-                        DoToday.Insert(0, item);
-                    }
-                }
+                // Accepting promotes the task to the front of Do Today.
+                DoToday.Remove(item);
+                DoToday.Insert(0, item);
 
-                // advance AI index and update RecommendationTitle to next priority (or clear)
-                if (_aiOrdered != null && _aiCurrentIndex < _aiOrdered.Count)
-                {
-                    // If the moved item equals the current pointed item, advance
-                    if (_aiOrdered[_aiCurrentIndex] == item)
-                        _aiCurrentIndex++;
-                }
+                RaiseCategoryChanged();
 
-                if (_aiOrdered != null && _aiCurrentIndex < _aiOrdered.Count)
-                {
-                    RecommendationTitle = _aiOrdered[_aiCurrentIndex].Topic;
-                }
-                else
-                {
-                    RecommendationTitle = "—";
-                }
+                // The focus estimate covers Do Today, so it is only stale when membership changed.
+                if (movedFromOtherList)
+                    _ = AnalyzeFocusAsync();
 
-                // notify UI about DoToday changes
-                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(DoToday)));
-                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(DoTodayCount)));
-                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(MeetingsCountLabel)));
-                _ = AnalyzeFocusAsync();
+                AdvanceToNextRecommendation(item);
             }
-            catch
+            finally
             {
-                return;
+                // The decision has been recorded; show the user the updated Today tab.
+                SelectedTabIndex = TodayTabIndex;
             }
         }
 

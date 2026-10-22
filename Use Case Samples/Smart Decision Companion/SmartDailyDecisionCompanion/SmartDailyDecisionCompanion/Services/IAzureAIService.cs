@@ -1,6 +1,3 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace SmartDailyDecisionCompanion
@@ -13,8 +10,19 @@ namespace SmartDailyDecisionCompanion
         /// <summary>
         /// Method to send a user prompt to the Azure OpenAI service and receive a response.
         /// </summary>
-        /// <param name="userAIPrompt"></param>
-        /// <returns></returns>
+        /// <param name="userAIPrompt">The prompt to send to the model.</param>
+        /// <returns>The model's response text.</returns>
         Task<string> GetResultsFromAI(string userAIPrompt);
+
+        /// <summary>
+        /// Validates the configured Azure OpenAI credentials. Call this explicitly (and await it)
+        /// during startup instead of relying on constructor side effects.
+        /// </summary>
+        Task ValidateCredentialAsync();
+
+        /// <summary>
+        /// Gets a value indicating whether the credentials were accepted during the last validation attempt.
+        /// </summary>
+        bool IsCredentialValid { get; }
     }
 }
