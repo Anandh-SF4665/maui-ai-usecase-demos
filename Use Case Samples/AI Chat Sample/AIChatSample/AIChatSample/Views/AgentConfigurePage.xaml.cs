@@ -51,7 +51,9 @@ public partial class AgentConfigurePage : ContentPage
     protected override void OnAppearing()
     {
         base.OnAppearing();
-        //AIChatToolbar.IsBackVisible = Navigation?.NavigationStack.Count > 1;
+
+        Vm.AgentPopUpVM.RequestClose -= OnAgentLogoPopupRequestClose;
+        Vm.AgentPopUpVM.RequestClose += OnAgentLogoPopupRequestClose;
     }
 
     private async void OnBackRequested(object? sender, EventArgs e)
@@ -121,14 +123,14 @@ public partial class AgentConfigurePage : ContentPage
         vm.AgentPopUpVM.ResetForOpen();
 
         var popup = new AgentLogoPage(vm.AgentPopUpVM);
-        await Navigation.PushModalAsync(popup, animated: true);
+        await Navigation.PushAsync(popup, false);
     }
 
     private async void OnAgentLogoPopupRequestClose(object? sender, EventArgs e)
     {
-        if (Navigation?.ModalStack.Count > 0)
+        if (Navigation?.ModalStack.Count > 1)
         {
-            await Navigation.PopModalAsync(animated: true);
+            await Navigation.PopAsync(animated: true);
         }
     }
 

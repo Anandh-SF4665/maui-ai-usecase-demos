@@ -60,7 +60,8 @@
     <popup:SfPopup x:Name="LogoPopup"
                    ShowHeader="False"
                    ShowFooter="False"
-                   ShowCloseButton="False"
+                   ShowCloseButton="True"
+                   InputTransparent="False"
                    AutoSizeMode="Both"
                    StaysOpen="True"
                    BackgroundColor="Transparent">
@@ -69,11 +70,11 @@
         </popup:SfPopup.PopupStyle>
         <popup:SfPopup.ContentTemplate>
             <DataTemplate x:DataType="viewModel:AgentLogoPopupViewModel">
-            <Border
-                BackgroundColor="{AppThemeBinding Light={DynamicResource SentMessageColorLight}, Dark={DynamicResource SentMessageColorDark}}"
-                StrokeThickness="0" StrokeShape="RoundRectangle 16" Padding="20"
-                WidthRequest="{OnIdiom Phone=320, Default=540}" HorizontalOptions="Center" VerticalOptions="Center">
-                <Border.Shadow>
+                <Border InputTransparent="False"
+                    BackgroundColor="{AppThemeBinding Light={DynamicResource SentMessageColorLight}, Dark={DynamicResource SentMessageColorDark}}"
+                    StrokeThickness="0" StrokeShape="RoundRectangle 16" Padding="20"
+                    WidthRequest="{OnIdiom Phone=320, Default=540}" HorizontalOptions="Center" VerticalOptions="Center">
+                    <Border.Shadow>
                     <Shadow Brush="#40000000" Offset="0,8" Radius="16" Opacity="0.35" />
                 </Border.Shadow>
 
@@ -150,7 +151,7 @@
                                                 Orientation="Horizontal"
                                                 ItemSpacing="5"
                                                 SelectionBackground="Transparent"
-                                                HeightRequest="40"
+                                                HeightRequest="50"
                                                 ItemSize="40"
                                                 ItemTapped="OnIconTapped">
                                 <listView:SfListView.ItemTemplate>
@@ -203,7 +204,7 @@
                                                 SelectionMode="Single"
                                                 Orientation="Horizontal"
                                                 SelectionBackground="Transparent"
-                                                HeightRequest="40"
+                                                HeightRequest="50"
                                                 ItemSize="40"
                                                 ItemTapped="OnColorTapped"
                                                 SelectedItem="{Binding SelectedColor, Mode=TwoWay}">
