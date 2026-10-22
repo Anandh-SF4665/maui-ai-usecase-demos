@@ -43,9 +43,7 @@ public partial class SplashPage : ContentPage
         if (Application.Current != null)
             Application.Current.RequestedThemeChanged -= OnThemeChanged;
 
-        // Skip onboarding when a previous session was restored (see OnAppearing).
-        await Shell.Current.GoToAsync(
-            SmartVehicleCare.Services.VehicleDataService.Instance.Vehicles.Count > 0 ? "///main" : "///welcome");
+        await Shell.Current.GoToAsync("///welcome");
     }
 
     private void OnThemeChanged(object? sender, AppThemeChangedEventArgs e)

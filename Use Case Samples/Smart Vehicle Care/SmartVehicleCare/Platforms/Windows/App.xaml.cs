@@ -12,10 +12,6 @@ namespace SmartVehicleCare.WinUI
     {
         public App()
         {
-            // Must be registered here (before InitializeComponent) on Windows because
-            // MauiXamlInflator=SourceGen causes WinUI to scan Syncfusion assemblies during
-            // InitializeComponent, which races against the later MauiProgram registration.
-            // Use the same key as in MauiProgram.cs — Syncfusion ignores the second call.
             this.InitializeComponent();
         }
 
