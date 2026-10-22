@@ -90,7 +90,7 @@ Run:
 - Azure OpenAI is called over `HttpClient` directly, so no Azure SDK package is required.
 - Project Type and Priority are freeform inputs in the current sample.
 - Mentorship and the other insight fields ignore stale async responses, so rapid task selection stays stable.
-- Every insight prompt asks for plain text and is parsed as plain text; a fenced code block or surrounding quotes are stripped before display.
+- The five per-task insight prompts (mentorship, urgency, importance, momentum, delay risk) ask for plain text and are parsed as plain text, with a fenced code block or surrounding quotes stripped before display. The whole-list analyses behave differently by design: pressure requests a small JSON schema and parses it, while recommendation asks for bare task topics and parses them line by line.
 
 ## Key Highlights
 - Clean responsive MAUI UI with separate mobile and desktop experiences

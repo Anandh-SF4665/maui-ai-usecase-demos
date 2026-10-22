@@ -49,6 +49,7 @@ namespace SmartDailyDecisionCompanion
         private string _recommendationTitle = "—";
         private int _selectedTaskAnalysisVersion;
         private int _selectedTabIndex;
+        private bool _credentialsValidated;
 
         /// <summary>
         /// It initializes the MainViewModel, resolving the AI service through dependency injection,
@@ -89,6 +90,18 @@ namespace SmartDailyDecisionCompanion
                 return;
             }
 
+            _credentialsValidated = true;
+            RefreshDailyAnalysis();
+        }
+
+        /// <summary>
+        /// Starts the analyses that depend on the current Do Today list. Callers must confirm the
+        /// credentials first, so no AI request is issued while they are known to be invalid.
+        /// This is the single place those analyses are kicked off, so each one runs once per
+        /// categorization instead of once per caller.
+        /// </summary>
+        private void RefreshDailyAnalysis()
+        {
             _ = AnalyzePressureAsync();
             _ = AnalyzeRecommendationAsync();
             _ = AnalyzeFocusAsync();
@@ -540,11 +553,6 @@ namespace SmartDailyDecisionCompanion
 
             // Collections notify their own changes; only the derived counters need a manual raise.
             RaiseCategoryChanged();
-
-            // After categorization, request AI analysis for today's tasks and recommendation
-            _ = AnalyzePressureAsync();
-            _ = AnalyzeRecommendationAsync();
-            _ = AnalyzeFocusAsync();
         }
 
         /// <summary>
@@ -582,6 +590,11 @@ namespace SmartDailyDecisionCompanion
 
             AllTasks.Add(newTask);
             CategorizeTasks();
+
+            // The Do Today list changed, so pressure, recommendation, and focus are stale.
+            // Only refresh when the credentials were confirmed valid during startup.
+            if (_credentialsValidated)
+                RefreshDailyAnalysis();
 
             // clear inputs and close
             NewTaskTopic = string.Empty;
@@ -770,7 +783,7 @@ namespace SmartDailyDecisionCompanion
         /// </summary>
         /// <param name="task"></param>
         /// <returns>The task.</returns>
-        public async Task AnalyzeMentorshipAsync(TaskItem task, int analysisVersion = 0)
+        public async Task AnalyzeMentorshipAsync(TaskItem task, int analysisVersion)
         {
             try
             {
@@ -781,7 +794,7 @@ namespace SmartDailyDecisionCompanion
                 var aiService = _aiService;
                 if (task == null) { MentorshipDetail = string.Empty; return; }
 
-                // Prepare DoToday snapshot and request structured JSON for mentorship, urgency, and importance.
+                // Prepare the Do Today snapshot and ask for plain-text mentorship guidance.
 
                 var sb = new StringBuilder();
 
@@ -871,7 +884,7 @@ namespace SmartDailyDecisionCompanion
         /// </summary>
         /// <param name="task"></param>
         /// <returns>The task.</returns>
-        public async Task AnalyzeUrgencyAsync(TaskItem task, int analysisVersion = 0)
+        public async Task AnalyzeUrgencyAsync(TaskItem task, int analysisVersion)
         {
             try
             {
@@ -924,7 +937,7 @@ namespace SmartDailyDecisionCompanion
         /// </summary>
         /// <param name="task"></param>
         /// <returns>The task.</returns>
-        public async Task AnalyzeImportanceAsync(TaskItem task, int analysisVersion = 0)
+        public async Task AnalyzeImportanceAsync(TaskItem task, int analysisVersion)
         {
             try
             {
@@ -976,7 +989,7 @@ namespace SmartDailyDecisionCompanion
         /// </summary>
         /// <param name="task"></param>
         /// <returns>The task.</returns>
-        public async Task AnalyzePositiveMomentumAsync(TaskItem task, int analysisVersion = 0)
+        public async Task AnalyzePositiveMomentumAsync(TaskItem task, int analysisVersion)
         {
             try
             {
@@ -1029,7 +1042,7 @@ namespace SmartDailyDecisionCompanion
         /// </summary>
         /// <param name="task"></param>
         /// <returns>The task.</returns>
-        public async Task AnalyzeDelayRiskAsync(TaskItem task, int analysisVersion = 0)
+        public async Task AnalyzeDelayRiskAsync(TaskItem task, int analysisVersion)
         {
             try
             {
