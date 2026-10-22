@@ -25,34 +25,9 @@ public class SettingsViewModel : INotifyPropertyChanged
 
         ExitToWelcomeCommand = new Command(async () =>
         {
-            // For Sign Out, we only want to navigate to Welcome page without clearing vehicle data
+            // Sign out: clear only the AI credentials and return to the welcome wizard.
             await AzureOpenAIService.SaveApiKeyToStorageAsync(string.Empty);
-            // Only clear the API key, don't reset all vehicle data
-            
-            // Try to use MVVM event for navigation first
-            var handler = OnNavigateToWelcomeRequested;
-            if (handler != null)
-            {
-                handler.Invoke();
-            }
-            else
-            {
-                // Fallback to direct navigation if no handler is attached
-                // This maintains functionality even if MVVM event isn't handled
-                try
-                {
-                    var mainPage = Application.Current?.MainPage;
-                    if (mainPage is Shell shell)
-                        await shell.GoToAsync("///welcome");
-                    else if (mainPage?.Navigation != null && mainPage.Navigation.NavigationStack.Count > 0)
-                        await mainPage.Navigation.PopToRootAsync();
-                }
-                catch (Exception ex)
-                {
-                    // Log the exception but don't crash the app
-                    System.Diagnostics.Debug.WriteLine($"Navigation failed: {ex.Message}");
-                }
-            }
+            OnNavigateToWelcomeRequested?.Invoke();
         });
 
         SaveApiKeyCommand = new Command(async () =>
@@ -60,18 +35,43 @@ public class SettingsViewModel : INotifyPropertyChanged
             if (!string.IsNullOrWhiteSpace(_apiKeyEntry))
                 await AzureOpenAIService.SaveApiKeyToStorageAsync(_apiKeyEntry);
             ApiKeyEntry = string.Empty;
-            RefreshApiKeyStatus();
+            RefreshAiStatus();
         });
 
         ClearApiKeyCommand = new Command(async () =>
         {
             await AzureOpenAIService.SaveApiKeyToStorageAsync(string.Empty);
-            RefreshApiKeyStatus();
+            RefreshAiStatus();
+        });
+
+        // Restore endpoint + deployment name persisted from a previous session.
+        AzureOpenAIService.LoadEndpoint();
+        AzureOpenAIService.LoadDeploymentName();
+        DeploymentNameEntry = AzureOpenAIService.DeploymentName;
+
+        SaveEndpointCommand = new Command(() =>
+        {
+            AzureOpenAIService.SaveEndpoint(_endpointEntry);
+            EndpointEntry = string.Empty;
+            RefreshAiStatus();
+        });
+
+        ClearEndpointCommand = new Command(() =>
+        {
+            AzureOpenAIService.SaveEndpoint(string.Empty);
+            RefreshAiStatus();
+        });
+
+        SaveDeploymentNameCommand = new Command(() =>
+        {
+            AzureOpenAIService.SaveDeploymentName(string.IsNullOrWhiteSpace(_deploymentNameEntry)
+                ? null : _deploymentNameEntry);
+            DeploymentNameEntry = AzureOpenAIService.DeploymentName;
         });
 
         // Sync status when the key is saved or cleared from any other screen (e.g. dashboard popup)
         AzureOpenAIService.ApiKeyChanged += () =>
-            MainThread.BeginInvokeOnMainThread(RefreshApiKeyStatus);
+            MainThread.BeginInvokeOnMainThread(RefreshAiStatus);
 
         EditVehicleCommand = new Command<Vehicle>(v =>
         {
@@ -121,26 +121,11 @@ public class SettingsViewModel : INotifyPropertyChanged
         {
             if (vehicle == null) return;
 
-            // Confirm before irreversible deletion of the vehicle and all its data
+            // Confirm via the view-provided dialog before irreversible deletion.
             bool confirmed = false;
             var handler = OnDeleteVehicleConfirmationRequested;
             if (handler != null)
-            {
                 confirmed = await handler(vehicle);
-            }
-            else
-            {
-                // Fallback: direct confirmation dialog so deletion is never unconfirmed
-                var mainPage = Application.Current?.MainPage;
-                if (mainPage != null)
-                {
-                    confirmed = await mainPage.DisplayAlert(
-                        "Delete vehicle",
-                        $"Delete {vehicle.MakeModel} and all of its service, fuel, and schedule data?",
-                        "Delete",
-                        "Cancel");
-                }
-            }
             if (!confirmed) return;
 
             VehicleDataService.Instance.DeleteVehicle(vehicle);
@@ -166,7 +151,7 @@ public class SettingsViewModel : INotifyPropertyChanged
     public Func<Vehicle, Task<bool>>? OnDeleteVehicleConfirmationRequested { get; set; }
     public event Action OnNavigateToWelcomeRequested;
 
-    // ── AI API Key & Deployment ───────────────────────────────────────────────
+    // ── AI API Key, Endpoint & Deployment ────────────────────────────────────
 
     private string _apiKeyEntry = string.Empty;
     public string ApiKeyEntry
@@ -176,27 +161,51 @@ public class SettingsViewModel : INotifyPropertyChanged
     }
 
     public bool HasApiKey => AzureOpenAIService.HasApiKey;
-    public string ApiKeyStatusText => AzureOpenAIService.HasApiKey
-        ? "API key configured \u2014 AI features active."
-        : "No API key \u2014 AI features disabled.";
     public string ApiKeyHint => AzureOpenAIService.HasApiKey
-        ? "Key saved \u2014 remove to change"
+        ? "Key saved — remove to change"
         : "Paste your Azure OpenAI API key";
+
+    private string _endpointEntry = string.Empty;
+    public string EndpointEntry
+    {
+        get => _endpointEntry;
+        set => SetProperty(ref _endpointEntry, value);
+    }
+
+    public bool HasEndpoint => AzureOpenAIService.HasEndpoint;
+    public string EndpointHint => AzureOpenAIService.HasEndpoint
+        ? AzureOpenAIService.BaseEndpoint
+        : "https://<your-project>.openai.azure.com/openai/v1";
+
+    private string _deploymentNameEntry = string.Empty;
+    public string DeploymentNameEntry
+    {
+        get => _deploymentNameEntry;
+        set => SetProperty(ref _deploymentNameEntry, value);
+    }
+
+    public string AiStatusText =>
+        (AzureOpenAIService.HasApiKey, AzureOpenAIService.HasEndpoint) switch
+        {
+            (true, true)  => "AI configured — key and endpoint are set.",
+            (true, false) => "API key set, but the endpoint is missing.",
+            (false, true) => "Endpoint set, but the API key is missing.",
+            _             => "No AI credentials — AI features are disabled.",
+        };
 
     public ICommand SaveApiKeyCommand  { get; }
     public ICommand ClearApiKeyCommand { get; }
+    public ICommand SaveEndpointCommand { get; }
+    public ICommand ClearEndpointCommand { get; }
+    public ICommand SaveDeploymentNameCommand { get; }
 
-    private async Task LoadApiKeyStatusAsync()
-    {
-        await AzureOpenAIService.LoadApiKeyFromStorageAsync();
-        RefreshApiKeyStatus();
-    }
-
-    private void RefreshApiKeyStatus()
+    private void RefreshAiStatus()
     {
         OnPropertyChanged(nameof(HasApiKey));
-        OnPropertyChanged(nameof(ApiKeyStatusText));
         OnPropertyChanged(nameof(ApiKeyHint));
+        OnPropertyChanged(nameof(HasEndpoint));
+        OnPropertyChanged(nameof(EndpointHint));
+        OnPropertyChanged(nameof(AiStatusText));
     }
 
     // ── Theme ─────────────────────────────────────────────────────────────────

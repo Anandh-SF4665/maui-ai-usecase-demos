@@ -11,8 +11,12 @@ namespace SmartVehicleCare
     {
         public static MauiApp CreateMauiApp()
         {
-            // TODO: Add your Syncfusion license key before running
-            SyncfusionLicenseProvider.RegisterLicense("YOUR_LICENSE_KEY");
+            // The Syncfusion license is read from the SYNCFUSION_LICENSE_KEY environment
+            // variable. Without a valid license, Syncfusion controls render a watermark or
+            // trial dialog. Set the variable before launching the app.
+            string? licenseKey = Environment.GetEnvironmentVariable("SYNCFUSION_LICENSE_KEY");
+            if (!string.IsNullOrWhiteSpace(licenseKey))
+                SyncfusionLicenseProvider.RegisterLicense(licenseKey);
 
             var builder = MauiApp.CreateBuilder();
             builder

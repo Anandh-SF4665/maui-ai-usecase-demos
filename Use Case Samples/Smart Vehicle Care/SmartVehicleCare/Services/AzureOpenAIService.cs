@@ -7,12 +7,20 @@ namespace SmartVehicleCare.Services;
 
 internal class AzureOpenAIService
 {
-    // Base endpoint — uses the Azure AI Foundry /openai/v1 project endpoint
-    const string BaseEndpoint          = "";
+    // The Azure AI Foundry /openai/v1 project endpoint — configured at runtime via the
+    // in-app Settings screen (never hardcoded in source). Preferably without a trailing slash.
+    private static string _baseEndpoint = string.Empty;
+    internal static string BaseEndpoint
+    {
+        get => _baseEndpoint;
+        set => _baseEndpoint = value?.Trim().TrimEnd('/') ?? string.Empty;
+    }
+
     const string DefaultDeploymentName = "gpt-5-mini";
 
-    internal const string SecureStorageKey       = "AzureOpenAI_ApiKey";
+    internal const string SecureStorageKey        = "AzureOpenAI_ApiKey";
     internal const string DeploymentPreferenceKey = "AzureOpenAI_DeploymentName";
+    internal const string EndpointPreferenceKey    = "AzureOpenAI_BaseEndpoint";
 
     private static string _deploymentName = DefaultDeploymentName;
     internal static string DeploymentName
@@ -29,6 +37,22 @@ internal class AzureOpenAIService
         _deploymentName = string.IsNullOrWhiteSpace(name) ? DefaultDeploymentName : name.Trim();
         Preferences.Set(DeploymentPreferenceKey, _deploymentName);
     }
+
+    /// <summary>Loads the endpoint from device preferences (no UI guard needed).</summary>
+    internal static void LoadEndpoint()
+        => BaseEndpoint = Preferences.Get(EndpointPreferenceKey, string.Empty);
+
+    /// <summary>
+    /// Persists the endpoint to device preferences. The endpoint is not a secret,
+    /// so Preferences (not SecureStorage) is acceptable.
+    /// </summary>
+    internal static void SaveEndpoint(string? endpoint)
+    {
+        BaseEndpoint = endpoint;
+        Preferences.Set(EndpointPreferenceKey, BaseEndpoint);
+    }
+
+    internal static bool HasEndpoint => !string.IsNullOrWhiteSpace(BaseEndpoint);
 
     // In-memory key — populated via SecureStorage; never stored in source code
     private static string _apiKey = string.Empty;
@@ -75,7 +99,7 @@ internal class AzureOpenAIService
 
     private static readonly HttpClient Http = new() { Timeout = TimeSpan.FromSeconds(30) };
 
-    internal async Task<string> GetResultsFromAI(string userPrompt, string systemMessage = "You are a helpful assistant.", bool captureDiagnostics = false)
+    internal async Task<string> GetResultsFromAI(string userPrompt, string systemMessage = "You are a helpful assistant.", bool captureDiagnostics = false, CancellationToken cancellationToken = default)
     {
         LastError = null;
         if (captureDiagnostics) LastRawResponse = string.Empty;
@@ -98,7 +122,7 @@ internal class AzureOpenAIService
                 max_completion_tokens = 8000,
             };
 
-            if (string.IsNullOrWhiteSpace(BaseEndpoint))
+            if (!HasEndpoint)
             {
                 LastError = "Azure OpenAI endpoint not configured. Please set the endpoint URL in settings.";
                 System.Diagnostics.Debug.WriteLine($"[AzureAI] {LastError}");
@@ -111,8 +135,8 @@ internal class AzureOpenAIService
             request.Content = new StringContent(
                 JsonSerializer.Serialize(body), Encoding.UTF8, "application/json");
 
-            var response = await Http.SendAsync(request);
-            var raw      = await response.Content.ReadAsStringAsync();
+            var response = await Http.SendAsync(request, cancellationToken);
+            var raw      = await response.Content.ReadAsStringAsync(cancellationToken);
             if (captureDiagnostics) LastRawResponse = raw; // capture for diagnostics only when requested
 
             if (!response.IsSuccessStatusCode)

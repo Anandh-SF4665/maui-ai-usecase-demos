@@ -30,8 +30,8 @@ This repository demonstrates how to build a complete vehicle management app in .
 
 * .NET SDK compatible with .NET MAUI (net10.0 or later)
 * Visual Studio 2022 with .NET MAUI workload installed
-* Syncfusion license key (register in `MauiProgram.cs`)
-* Azure OpenAI account (optional — key is entered in the in-app Settings tab and stored via `SecureStorage`; endpoint goes in `Services/AzureOpenAIService.cs`)
+* Syncfusion license key (via the `SYNCFUSION_LICENSE_KEY` environment variable — see below)
+* Azure OpenAI account (optional — the key, endpoint, and deployment name are all entered in the in-app Settings tab; the key is stored via `SecureStorage`)
 
 ## Quick Install
 
@@ -41,22 +41,22 @@ git clone https://github.com/syncfusion/maui-ai-usecase-demos
 cd "Use Case Samples/Smart Vehicle Care"
 ```
 
-**Register the Syncfusion license** in `SmartVehicleCare/MauiProgram.cs`:
-```csharp
-// TODO: Add your Syncfusion license key before running
-SyncfusionLicenseProvider.RegisterLicense("YOUR_LICENSE_KEY");
+**Register the Syncfusion license** — the app reads the license from the `SYNCFUSION_LICENSE_KEY` environment variable (no source edits required). Without a valid license, Syncfusion controls render a watermark or trial dialog:
+
+```bash
+# Windows (PowerShell)
+$env:SYNCFUSION_LICENSE_KEY = "<your license key>"
+
+# macOS / Linux
+export SYNCFUSION_LICENSE_KEY="<your license key>"
 ```
 
-**Configure Azure OpenAI (optional)** — the app stores credentials securely on the device; nothing is committed to source:
+**Configure Azure OpenAI (optional)** — the app stores credentials on the device; nothing is committed to source:
 
 1. Run the app and open the **Settings** tab.
 2. Paste your **Azure OpenAI API key** — it is saved via `SecureStorage` and never written to source code.
-3. Set the **deployment name** (default: `gpt-5-mini`) if your deployment differs.
-4. In `Services/AzureOpenAIService.cs`, replace `BaseEndpoint` with your Azure AI Foundry `/openai/v1` project endpoint:
-   ```csharp
-   // TODO: Add your API endpoint before running
-   const string BaseEndpoint = "API_ENDPOINT";
-   ```
+3. Enter your **Azure OpenAI endpoint** — the Azure AI Foundry `/openai/v1` project endpoint, e.g. `https://<your-project>.openai.azure.com/openai/v1` (stored via `Preferences`).
+4. Set the **deployment name** (default: `gpt-5-mini`) if your deployment differs.
 
 The app runs fully offline — AI features are optional enhancements.
 
@@ -68,13 +68,11 @@ The app runs fully offline — AI features are optional enhancements.
 * Welcome wizard runs on first launch; sample data can be loaded via "Skip & Explore".
 * On Windows/macOS the wizard shows a hero image panel alongside the form; on mobile only the form is shown (no card elevation).
 
-### AI Assistant
-
 ### Data Persistence
 
 * Vehicle, service, fuel, and schedule data is kept in memory and persisted to device storage (JSON via `Preferences`) on every change.
 * On app restart the stored data is restored automatically, and the welcome wizard is skipped when a previous session exists.
-* Azure OpenAI credentials live in `SecureStorage`; no secrets are ever written to source or to the data store.
+* The Azure OpenAI API key lives in `SecureStorage`; the endpoint and deployment name live in `Preferences` (they are not secrets). No credentials are ever written to source or committed.
 
 ### AI Assistant
 
@@ -88,6 +86,7 @@ The app runs fully offline — AI features are optional enhancements.
 * On tab load, GPS coordinates are obtained and an Overpass OSM query runs for fuel stations or service centers within 10 km.
 * If Overpass is unavailable, Azure OpenAI generates plausible nearby places as a fallback.
 * If both are unavailable, a curated static sample dataset is shown.
+* **Note:** when live OSM data is unavailable, the results are AI-generated or curated sample data and may be illustrative rather than real businesses — the map summary is labeled "sample data" in that case.
 * Results are pinned on an `SfMaps` tile layer and listed in a card below the map.
 
 ## Troubleshooting

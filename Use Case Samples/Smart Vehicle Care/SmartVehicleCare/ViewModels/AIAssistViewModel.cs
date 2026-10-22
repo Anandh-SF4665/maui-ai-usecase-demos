@@ -23,6 +23,7 @@ public class AIAssistViewModel : INotifyPropertyChanged
     private double _vehicleHealthScore;
     private string _vehicleHealthLabel = "—";
     private bool _isGeneratingResponse;
+    private CancellationTokenSource? _requestCts;
 
     /// <summary>True while an AI request is in flight; drives the chat loading indicator.</summary>
     public bool IsGeneratingResponse
@@ -30,6 +31,9 @@ public class AIAssistViewModel : INotifyPropertyChanged
         get => _isGeneratingResponse;
         private set => SetProperty(ref _isGeneratingResponse, value);
     }
+
+    /// <summary>Disables new requests while one is in flight (double-submit guard).</summary>
+    public bool CanRequest => !IsGeneratingResponse;
 
     public ObservableCollection<Vehicle> Vehicles { get; } = new();
 
@@ -87,13 +91,19 @@ public class AIAssistViewModel : INotifyPropertyChanged
     public bool HasChatItems => AssistItems.Count > 0;
     public bool HasRecentInsights => RecentInsights.Count > 0;
 
-    public ICommand RequestCommand     { get; }
-    public ICommand SuggestionTappedCommand { get; }
+    public ICommand RequestCommand { get; }
 
     public AIAssistViewModel()
     {
-        RequestCommand = new Command<object>(async (obj) => await ExecuteRequest(obj));
-        SuggestionTappedCommand = new Command<object>(async (obj) => await ExecuteSuggestionRequest(obj));
+        RequestCommand = new Command<object>(async (obj) => await ExecuteRequest(obj),
+            (_) => CanRequest);
+        ((Command)RequestCommand).ChangeCanExecute();
+
+        PropertyChanged += (_, e) =>
+        {
+            if (e.PropertyName == nameof(IsGeneratingResponse))
+                ((Command)RequestCommand).ChangeCanExecute();
+        };
         InitializeVehicles();
 
         VehicleDataService.Instance.Vehicles.CollectionChanged += (_, e) =>
@@ -377,7 +387,9 @@ User Query: {requestText}
         IsGeneratingResponse = true;
         try
         {
-            var aiText = await _ai.GetResultsFromAI(vehicleInfo, systemMsg);
+            _requestCts?.Cancel();
+            _requestCts = new CancellationTokenSource();
+            var aiText = await _ai.GetResultsFromAI(vehicleInfo, systemMsg, cancellationToken: _requestCts.Token);
 
             if (string.IsNullOrEmpty(aiText))
                 aiText = $"I'm having trouble reaching the AI right now ({_ai.LastError ?? "no response"}). Please try again shortly.";
@@ -404,24 +416,9 @@ User Query: {requestText}
         finally
         {
             IsGeneratingResponse = false;
+            _requestCts?.Dispose();
+            _requestCts = null;
         }
-    }
-
-    private async Task ExecuteSuggestionRequest(object obj)
-    {
-        if (obj is not ISuggestion suggestion) return;
-
-        // Create a request item with the suggestion text
-        var requestItem = new AssistItem 
-        { 
-            Text = suggestion.Text,
-            IsRequested = true,
-            DateTime = DateTime.Now
-        };
-        var requestArgs = new RequestEventArgs(requestItem);
-        
-        // Execute as a regular request
-        ExecuteRequest(requestArgs);
     }
 
     private void RefreshConversationHistory()
