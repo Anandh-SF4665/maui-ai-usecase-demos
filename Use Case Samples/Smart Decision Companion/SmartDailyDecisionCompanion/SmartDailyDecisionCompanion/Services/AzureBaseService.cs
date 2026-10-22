@@ -1,10 +1,8 @@
-﻿using System;
+using System;
 using System.Net.Http;
 using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
-using System.Linq;
-using Microsoft.Maui.Controls;
 
 namespace SmartDailyDecisionCompanion
 {
@@ -13,80 +11,64 @@ namespace SmartDailyDecisionCompanion
     /// </summary>
     public abstract class AzureBaseService
     {
+        // TODO: Add your Azure OpenAI endpoint, deployment name, and API key before running the sample.
+        // The endpoint must include the trailing slash, e.g. "https://<your-resource>.openai.azure.com/".
         private const string endpoint = "Enter your Azure OpenAI endpoint here";
         private const string deploymentName = "Enter your Azure OpenAI deployment name here";
         private const string key = "Enter your Azure OpenAI API key here";
         private const string apiVersion = "2024-02-15-preview";
 
-        private static readonly HttpClient _httpClient = CreateHttpClient();
-        private static readonly SemaphoreSlim _validationLock = new(1, 1);
-        private static bool _isCredentialValid = false;
-        private static bool isAlreadyValidated = false;
-        private static bool isValidationInProgress = false;
-        internal static event CredentialValidated? OnCredentialChanged;
+        private static readonly Lazy<HttpClient> _httpClient = CreateHttpClient();
 
-        private static HttpClient CreateHttpClient()
-        {
-            var client = new HttpClient();
-            try
-            {
-                client.BaseAddress = new Uri(endpoint, UriKind.Absolute);
-                client.DefaultRequestHeaders.Add("api-key", key);
-            }
-            catch
-            {
-                // keep the sample resilient; validation will mark credentials invalid
-            }
+        private readonly SemaphoreSlim _validationLock = new(1, 1);
 
-            return client;
-        }
+        private bool _isCredentialValid;
+        private bool _isValidated;
 
         /// <summary>
-        /// It initializes the HttpClient with the Azure OpenAI endpoint and API key if it hasn't been initialized already. 
+        /// Gets a value indicating whether the Azure OpenAI credentials (endpoint, deployment, and API key)
+        /// were accepted by the service during the last validation attempt.
         /// </summary>
-        public AzureBaseService()
-        {
-            _ = ValidateCredentialAsync();
-        }
+        public bool IsCredentialValid => _isCredentialValid;
 
-        /// <summary>
-        /// Gets or sets a value indicating whether the Azure OpenAI credentials (endpoint and API key) are valid. When set, it triggers the OnCredentialChanged event to notify subscribers of the change in credential validity status.
-        /// </summary>
-        internal static bool IsCredentialValid
+        private static Lazy<HttpClient> CreateHttpClient()
         {
-            get => _isCredentialValid;
-            set
+            return new Lazy<HttpClient>(() =>
             {
-                if (_isCredentialValid != value)
+                var client = new HttpClient();
+                try
                 {
-                    _isCredentialValid = value;
-                    OnCredentialChanged?.Invoke(value);
+                    client.BaseAddress = new Uri(endpoint, UriKind.Absolute);
+                    client.DefaultRequestHeaders.Add("api-key", key);
                 }
-            }
+                catch
+                {
+                    // Placeholder credentials are not a valid absolute URI; validation reports the failure.
+                }
+
+                return client;
+            });
         }
 
         /// <summary>
-        /// Method to validate the Azure OpenAI credentials by sending a lightweight test request.
-        /// Validity is determined by the HTTP status code (2xx = valid) rather than the response body,
-        /// because the model can legitimately return an empty body even when credentials are correct.
+        /// Validates the Azure OpenAI credentials by sending a lightweight test request and caches the outcome.
+        /// This performs I/O and must be awaited explicitly (see <see cref="IAzureAIService.ValidateCredentialAsync"/>);
+        /// it is intentionally not invoked from a constructor.
         /// </summary>
-        /// <returns></returns>
-        private async Task ValidateCredentialAsync()
+        public async Task ValidateCredentialAsync()
         {
-            if (isAlreadyValidated || isValidationInProgress)
+            if (_isValidated)
                 return;
 
-            if (!await _validationLock.WaitAsync(0).ConfigureAwait(false))
-                return;
-
-            isValidationInProgress = true;
-
+            await _validationLock.WaitAsync().ConfigureAwait(false);
             try
             {
-                if (_httpClient == null)
+                if (_isValidated)
+                    return;
+
+                if (!IsConfigured())
                 {
-                    IsCredentialValid = false;
-                    await ShowAlertAsync();
+                    _isCredentialValid = false;
                     return;
                 }
 
@@ -100,72 +82,46 @@ namespace SmartDailyDecisionCompanion
                 var url = $"openai/deployments/{deploymentName}/chat/completions?api-version={apiVersion}";
 
                 using var content = new StringContent(json, Encoding.UTF8, "application/json");
-                using var resp = await _httpClient.PostAsync(url, content).ConfigureAwait(false);
+                using var resp = await _httpClient.Value.PostAsync(url, content).ConfigureAwait(false);
 
-                // 2xx means the endpoint, deployment and key are all accepted by Azure.
-                // A non-2xx (401/403/404/429/5xx, etc.) means credentials are wrong,
-                // the deployment name is wrong, or the endpoint is unreachable.
-                IsCredentialValid = resp.IsSuccessStatusCode;
-
-                if (!IsCredentialValid)
-                {
-                    await ShowAlertAsync();
-                }
+                // 2xx means the endpoint, deployment, and key are all accepted by Azure.
+                // A non-2xx (401/403/404/429/5xx, etc.) means credentials are wrong, the deployment
+                // name is wrong, or the endpoint is unreachable.
+                _isCredentialValid = resp.IsSuccessStatusCode;
             }
             catch (Exception)
             {
-                IsCredentialValid = false;
-                await ShowAlertAsync();
+                _isCredentialValid = false;
             }
             finally
             {
-                isAlreadyValidated = true;
-                isValidationInProgress = false;
+                _isValidated = true;
                 _validationLock.Release();
             }
         }
 
         /// <summary>
-        /// Method to display an alert to the user if the Azure OpenAI credentials are invalid.
-        /// The alert is only shown when IsCredentialValid is false (i.e. the status code was not 2xx
-        /// or the request threw an exception). It is never shown for successful validations.
+        /// Reports whether the placeholder credential constants have been replaced with real values.
         /// </summary>
-        /// <returns></returns>
-        private async Task ShowAlertAsync()
+        private static bool IsConfigured()
         {
-            try
-            {
-                if (IsCredentialValid)
-                    return;
-
-                if (Application.Current == null)
-                    return;
-
-                var page = Application.Current.Windows.FirstOrDefault()?.Page;
-                if (page != null)
-                {
-                    await MainThread.InvokeOnMainThreadAsync(() =>
-                        page.DisplayAlertAsync("Alert", "The Azure API key or endpoint is missing or incorrect. Please verify your credentials.", "OK"));
-                }
-            }
-            catch (Exception ex)
-            {
-                System.Diagnostics.Debug.WriteLine(ex);
-            }
+            return !string.IsNullOrWhiteSpace(endpoint)
+                && !endpoint.StartsWith("Enter your", StringComparison.OrdinalIgnoreCase)
+                && !string.IsNullOrWhiteSpace(deploymentName)
+                && !deploymentName.StartsWith("Enter your", StringComparison.OrdinalIgnoreCase)
+                && !string.IsNullOrWhiteSpace(key)
+                && !key.StartsWith("Enter your", StringComparison.OrdinalIgnoreCase)
+                && Uri.TryCreate(endpoint, UriKind.Absolute, out _);
         }
 
         /// <summary>
         /// Method to send a chat request to the Azure OpenAI service.
         /// </summary>
-        /// <param name="messages"></param>
-        /// <param name="maxTokens"></param>
-        /// <param name="temperature"></param>
-        /// <returns></returns>
-        internal async Task<string> SendChatAsync((string role, string content)[] messages, int maxTokens = 2500, float temperature = 1f)
+        /// <param name="messages">The conversation messages, as (role, content) tuples.</param>
+        /// <param name="maxTokens">Maximum tokens to generate in the completion.</param>
+        /// <returns>The assistant message content, or an empty string when the call fails.</returns>
+        protected async Task<string> SendChatAsync((string role, string content)[] messages, int maxTokens = 2500)
         {
-            if (_httpClient == null)
-                return string.Empty;
-
             var payload = new
             {
                 messages = Array.ConvertAll(messages, m => new { role = m.role, content = m.content }),
@@ -176,61 +132,54 @@ namespace SmartDailyDecisionCompanion
             var url = $"openai/deployments/{deploymentName}/chat/completions?api-version={apiVersion}";
 
             using var content = new StringContent(json, Encoding.UTF8, "application/json");
-            using var resp = await _httpClient.PostAsync(url, content);
-            var respBody = await resp.Content.ReadAsStringAsync();
+            using var resp = await _httpClient.Value.PostAsync(url, content).ConfigureAwait(false);
+
+            var respBody = await resp.Content.ReadAsStringAsync().ConfigureAwait(false);
 
             if (!resp.IsSuccessStatusCode)
                 return string.Empty;
 
             try
             {
-                using var doc = JsonDocument.Parse(respBody ?? string.Empty);
-                if (doc.RootElement.TryGetProperty("choices", out var choices) && choices.ValueKind == JsonValueKind.Array && choices.GetArrayLength() > 0)
+                using var doc = JsonDocument.Parse(respBody);
+                if (doc.RootElement.TryGetProperty("choices", out var choices)
+                    && choices.ValueKind == JsonValueKind.Array
+                    && choices.GetArrayLength() > 0)
                 {
                     var first = choices[0];
-                    if (first.TryGetProperty("message", out var message) && message.TryGetProperty("content", out var contentEl))
+                    if (first.TryGetProperty("message", out var message)
+                        && message.TryGetProperty("content", out var contentEl))
+                    {
                         return contentEl.GetString() ?? string.Empty;
-
-                    if (first.TryGetProperty("text", out var textEl))
-                        return textEl.GetString() ?? string.Empty;
+                    }
                 }
             }
-            catch
+            catch (JsonException)
             {
+                // Fall through to the raw body below.
             }
 
             return respBody ?? string.Empty;
         }
-
-        /// <summary>
-        /// Method signature for the event that is triggered when the validity of the Azure OpenAI credentials changes.
-        /// </summary>
-        /// <param name="isCredentialValid"></param>
-        internal delegate void CredentialValidated(bool isCredentialValid);
     }
 
     /// <summary>
-    /// Class that implements the IAzureAIService interface and extends the AzureBaseService to provide functionality for sending user prompts to the Azure OpenAI service and receiving responses. 
+    /// Class that implements the IAzureAIService interface and extends the AzureBaseService to provide functionality for sending user prompts to the Azure OpenAI service and receiving responses.
     /// </summary>
     public class AzureAIService : AzureBaseService, IAzureAIService
     {
         /// <summary>
-        /// AzureAIService constructor that initializes the base AzureBaseService. 
+        /// Method to send a user prompt to the Azure OpenAI service and receive a response.
         /// </summary>
-        public AzureAIService() { }
-
-        /// <summary>
-        /// Method to send a user prompt to the Azure OpenAI service and receive a response. 
-        /// </summary>
-        /// <param name="userAIPrompt"></param>
-        /// <returns></returns>
+        /// <param name="userAIPrompt">The prompt to send to the model.</param>
+        /// <returns>The model's response text, or an empty string when the call fails.</returns>
         public async Task<string> GetResultsFromAI(string userAIPrompt)
         {
             try
             {
                 var messages = new[]
                 {
-                    ("system", "You are an assistant that responds with concise, valid JSON when asked."),
+                    ("system", "You are a concise task-management assistant. Follow the output format requested by the user exactly and return no preamble."),
                     ("user", userAIPrompt)
                 };
 

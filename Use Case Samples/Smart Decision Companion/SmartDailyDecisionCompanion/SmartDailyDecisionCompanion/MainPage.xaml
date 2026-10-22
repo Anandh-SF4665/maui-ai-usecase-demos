@@ -9,7 +9,8 @@
         <ContentView IsVisible="{Binding IsMobile}"
                      BackgroundColor="#f7f7f7">
             <sfTabView:SfTabView x:Name="MobileTabView"
-                                 TabWidthMode="SizeToContent">
+                                 TabWidthMode="SizeToContent"
+                                 SelectedIndex="{Binding SelectedTabIndex, Mode=TwoWay}">
                 <!-- Today Tab -->
                 <sfTabView:SfTabItem Header="Today">
                     <ScrollView>
@@ -61,7 +62,7 @@
                                                        FontAttributes="Bold"
                                                        TextColor="#4781ed"
                                                        FontSize="14" />
-                                                <Label Text="{Binding Tips, FallbackValue='This report is a Keystone Task. Completing it today reduces your end-of-week cognitive load by 40.'}"
+                                                <Label Text="{Binding Tips, FallbackValue='This report is a Keystone Task. Completing it today reduces your end-of-week cognitive load by 40%.'}"
                                                        FontSize="13"
                                                        MaximumWidthRequest="275"
                                                        TextColor="#2D3748" />
@@ -106,32 +107,7 @@
                                                        SelectedItem="{Binding SelectedTask, Mode=TwoWay}"
                                                        ItemSize="70">
                                     <sfListView:SfListView.ItemTemplate>
-                                        <DataTemplate>
-                                            <Grid ColumnDefinitions="48, *"
-                                                  ColumnSpacing="8">
-                                                <Border BackgroundColor="#DDEAF2"
-                                                        WidthRequest="40"
-                                                        HeightRequest="40"
-                                                        VerticalOptions="Center"
-                                                        HorizontalOptions="Center"
-                                                        Padding="0">
-                                                    <Border.StrokeShape>
-                                                        <RoundRectangle CornerRadius="20" />
-                                                    </Border.StrokeShape>
-                                                        <Label Style="{StaticResource TaskTypeIconLabel}" />
-                                                </Border>
-                                                <StackLayout Grid.Column="1"
-                                                             VerticalOptions="Center"
-                                                             Spacing="2">
-                                                    <Label Text="{Binding Topic}"
-                                                           FontAttributes="Bold"
-                                                           FontSize="16" />
-                                                    <Label Text="{Binding Description}"
-                                                           FontSize="13"
-                                                           TextColor="#6B6B6B" />
-                                                </StackLayout>
-                                            </Grid>
-                                        </DataTemplate>
+                                        <StaticResourceExtension Key="DoTodayTaskItemTemplate" />
                                     </sfListView:SfListView.ItemTemplate>
                                 </sfListView:SfListView>
 
@@ -149,31 +125,7 @@
                                                        SelectedItem="{Binding SelectedTask, Mode=TwoWay}"
                                                        ItemSize="60">
                                     <sfListView:SfListView.ItemTemplate>
-                                        <DataTemplate>
-                                            <Grid ColumnDefinitions="48, *"
-                                                  ColumnSpacing="8">
-                                                <Border BackgroundColor="#FFFFFF"
-                                                        WidthRequest="40"
-                                                        HeightRequest="40"
-                                                        VerticalOptions="Center"
-                                                        HorizontalOptions="Center"
-                                                        Padding="0">
-                                                    <Border.StrokeShape>
-                                                        <RoundRectangle CornerRadius="20" />
-                                                    </Border.StrokeShape>
-                                                        <Label Style="{StaticResource TaskTypeIconLabel}" />
-                                                </Border>
-                                                <StackLayout Grid.Column="1"
-                                                             VerticalOptions="Center">
-                                                    <Label Text="{Binding Topic}"
-                                                           FontAttributes="Bold"
-                                                           FontSize="16" />
-                                                    <Label Text="{Binding Description}"
-                                                           FontSize="13"
-                                                           TextColor="#6B6B6B" />
-                                                </StackLayout>
-                                            </Grid>
-                                        </DataTemplate>
+                                        <StaticResourceExtension Key="PostponeTaskItemTemplate" />
                                     </sfListView:SfListView.ItemTemplate>
                                 </sfListView:SfListView>
 
@@ -192,31 +144,7 @@
                                                        SelectedItem="{Binding SelectedTask, Mode=TwoWay}"
                                                        ItemSize="60">
                                     <sfListView:SfListView.ItemTemplate>
-                                        <DataTemplate>
-                                            <Grid ColumnDefinitions="48, *"
-                                                  ColumnSpacing="8">
-                                                <Border BackgroundColor="#E9F4EE"
-                                                        WidthRequest="40"
-                                                        HeightRequest="40"
-                                                        VerticalOptions="Center"
-                                                        HorizontalOptions="Center"
-                                                        Padding="0">
-                                                    <Border.StrokeShape>
-                                                        <RoundRectangle CornerRadius="20" />
-                                                    </Border.StrokeShape>
-                                                        <Label Style="{StaticResource TaskTypeIconLabel}" />
-                                                </Border>
-                                                <StackLayout Grid.Column="1"
-                                                             VerticalOptions="Center">
-                                                    <Label Text="{Binding Topic}"
-                                                           FontAttributes="Bold"
-                                                           FontSize="16" />
-                                                    <Label Text="{Binding Description}"
-                                                           FontSize="13"
-                                                           TextColor="#6B6B6B" />
-                                                </StackLayout>
-                                            </Grid>
-                                        </DataTemplate>
+                                        <StaticResourceExtension Key="WatchTaskItemTemplate" />
                                     </sfListView:SfListView.ItemTemplate>
                                 </sfListView:SfListView>
                             </VerticalStackLayout>
@@ -367,7 +295,7 @@
                                 </Border.StrokeShape>
                                 <HorizontalStackLayout Spacing="10">
 
-                                    <Label Text="{Binding MentorshipDetail, FallbackValue='This report is a Keystone Task. Completing it today reduces your end-of-week cognitive load by 40.'}"
+                                    <Label Text="{Binding MentorshipDetail, FallbackValue='This report is a Keystone Task. Completing it today reduces your end-of-week cognitive load by 40%.'}"
                                            FontSize="14"
                                            MaximumWidthRequest="310"
                                            TextColor="White" />
@@ -488,19 +416,17 @@
                             <Grid ColumnDefinitions="5*, 5*"
                                   ColumnSpacing="10"
                                   Margin="0,10,0,0">
-                                <Button Text="Accept"
+                                <Button Text="Accept Recommendation"
                                         BackgroundColor="#1E6FAD"
                                         TextColor="White"
                                         CornerRadius="10"
-                                        Command="{Binding AcceptRecommendationCommand}"
-                                        Clicked="OnAcceptRecommendationClicked" />
+                                        Command="{Binding AcceptRecommendationCommand}" />
                                 <Button Text="Postpone"
                                         Grid.Column="1"
                                         BackgroundColor="#F3F4F6"
                                         TextColor="#2D3748"
                                         CornerRadius="10"
-                                        Command="{Binding PostponeRecommendationCommand}"
-                                        Clicked="OnPostponeRecommendationClicked" />
+                                        Command="{Binding PostponeRecommendationCommand}" />
                             </Grid>
                         </VerticalStackLayout>
                     </ScrollView>
@@ -512,7 +438,8 @@
         <ContentView IsVisible="{Binding IsDesktop}"
                      BackgroundColor="#f7f7f7">
             <sfTabView:SfTabView x:Name="DesktopTabView"
-                                 TabWidthMode="SizeToContent">
+                                 TabWidthMode="SizeToContent"
+                                 SelectedIndex="{Binding SelectedTabIndex, Mode=TwoWay}">
                 <sfTabView:SfTabItem Header="Today">
                     <ScrollView Grid.Column="1"
                                 Padding="24">
@@ -550,7 +477,7 @@
                                                            FontAttributes="Bold"
                                                            TextColor="#4781ed"
                                                            FontSize="14" />
-                                                    <Label Text="{Binding Tips, FallbackValue='This report is a Keystone Task. Completing it today reduces your end-of-week cognitive load by 40.'}"
+                                                    <Label Text="{Binding Tips, FallbackValue='This report is a Keystone Task. Completing it today reduces your end-of-week cognitive load by 40%.'}"
                                                            FontSize="14"
                                                            TextColor="#2D3748" />
                                                 </VerticalStackLayout>
@@ -595,34 +522,7 @@
                                                                SelectedItem="{Binding SelectedTask, Mode=TwoWay}"
                                                                ItemSize="75">
                                             <sfListView:SfListView.ItemTemplate>
-                                                <DataTemplate>
-                                                    <Grid ColumnDefinitions="48, *"
-                                                          ColumnSpacing="8">
-                                                        <Border BackgroundColor="#DDEAF2"
-                                                                WidthRequest="40"
-                                                                HeightRequest="40"
-                                                                VerticalOptions="Center"
-                                                                HorizontalOptions="Center"
-                                                                Padding="0">
-                                                            <Border.StrokeShape>
-                                                                <RoundRectangle CornerRadius="20" />
-                                                            </Border.StrokeShape>
-                                                                 <Label Style="{StaticResource TaskTypeIconLabel}" />
-                                                        </Border>
-                                                        <StackLayout Grid.Column="1"
-                                                                     VerticalOptions="Center"
-                                                                     Spacing="2">
-                                                            <Label Text="{Binding Topic}"
-                                                                   FontAttributes="Bold"
-                                                                    FontSize="16"
-                                                                    SemanticProperties.Description="Task title" />
-                                                            <Label Text="{Binding Description}"
-                                                                   FontSize="13"
-                                                                    TextColor="#6B6B6B"
-                                                                    SemanticProperties.Description="Task description" />
-                                                        </StackLayout>
-                                                    </Grid>
-                                                </DataTemplate>
+                                                <StaticResourceExtension Key="DoTodayTaskItemTemplate" />
                                             </sfListView:SfListView.ItemTemplate>
                                         </sfListView:SfListView>
 
@@ -691,33 +591,7 @@
                                                                    SelectedItem="{Binding SelectedTask, Mode=TwoWay}"
                                                                    ItemSize="70">
                                                 <sfListView:SfListView.ItemTemplate>
-                                                    <DataTemplate>
-                                                        <Grid ColumnDefinitions="48, *"
-                                                              ColumnSpacing="8">
-                                                            <Border BackgroundColor="#FFFFFF"
-                                                                    WidthRequest="40"
-                                                                    HeightRequest="40"
-                                                                    VerticalOptions="Center"
-                                                                    HorizontalOptions="Center"
-                                                                    Padding="0">
-                                                                <Border.StrokeShape>
-                                                                    <RoundRectangle CornerRadius="20" />
-                                                                </Border.StrokeShape>
-                                                                <Label Style="{StaticResource TaskTypeIconLabel}" />
-                                                            </Border>
-                                                            <StackLayout Grid.Column="1"
-                                                                         VerticalOptions="Center">
-                                                                <Label Text="{Binding Topic}"
-                                                                       FontAttributes="Bold"
-                                                                       FontSize="16"
-                                                                       SemanticProperties.Description="Task title" />
-                                                                <Label Text="{Binding Description}"
-                                                                       FontSize="13"
-                                                                       TextColor="#6B6B6B"
-                                                                       SemanticProperties.Description="Task description" />
-                                                            </StackLayout>
-                                                        </Grid>
-                                                    </DataTemplate>
+                                                    <StaticResourceExtension Key="PostponeTaskItemTemplate" />
                                                 </sfListView:SfListView.ItemTemplate>
                                             </sfListView:SfListView>
                                         </VerticalStackLayout>
@@ -738,33 +612,7 @@
                                                                    SelectedItem="{Binding SelectedTask, Mode=TwoWay}"
                                                                    ItemSize="57">
                                                 <sfListView:SfListView.ItemTemplate>
-                                                    <DataTemplate>
-                                                        <Grid ColumnDefinitions="48, *"
-                                                              ColumnSpacing="8">
-                                                            <Border BackgroundColor="#E9F4EE"
-                                                                    WidthRequest="40"
-                                                                    HeightRequest="40"
-                                                                    VerticalOptions="Center"
-                                                                    HorizontalOptions="Center"
-                                                                    Padding="0">
-                                                                <Border.StrokeShape>
-                                                                    <RoundRectangle CornerRadius="20" />
-                                                                </Border.StrokeShape>
-                                                                <Label Style="{StaticResource TaskTypeIconLabel}" />
-                                                            </Border>
-                                                            <StackLayout Grid.Column="1"
-                                                                         VerticalOptions="Center">
-                                                                <Label Text="{Binding Topic}"
-                                                                       FontAttributes="Bold"
-                                                                       FontSize="16"
-                                                                       SemanticProperties.Description="Task title" />
-                                                                <Label Text="{Binding Description}"
-                                                                       FontSize="13"
-                                                                       TextColor="#6B6B6B"
-                                                                       SemanticProperties.Description="Task description" />
-                                                            </StackLayout>
-                                                        </Grid>
-                                                    </DataTemplate>
+                                                    <StaticResourceExtension Key="WatchTaskItemTemplate" />
                                                 </sfListView:SfListView.ItemTemplate>
                                             </sfListView:SfListView>
                                         </VerticalStackLayout>
@@ -853,7 +701,7 @@
                                            FontSize="34"
                                            VerticalOptions="Center" />
                                     <ScrollView Grid.Column="1">
-                                        <Label Text="{Binding MentorshipDetail, FallbackValue='This report is a Keystone Task. Completing it today reduces your end-of-week cognitive load by 40.'}"
+                                        <Label Text="{Binding MentorshipDetail, FallbackValue='This report is a Keystone Task. Completing it today reduces your end-of-week cognitive load by 40%.'}"
                                                FontSize="14"
                                                HorizontalOptions="Start"
                                                VerticalOptions="Start"
@@ -989,16 +837,13 @@
                                         BackgroundColor="#3e397d"
                                         TextColor="White"
                                         CornerRadius="10"
-                                        Command="{Binding AcceptRecommendationCommand}"
-                                        Clicked="OnAcceptRecommendationClicked" />
+                                        Command="{Binding AcceptRecommendationCommand}" />
                                 <Button Text="Postpone"
-                                        Grid.Column="1"
                                         BackgroundColor="#efebeb"
                                         TextColor="#2D3748"
                                         WidthRequest="200"
                                         CornerRadius="10"
-                                        Command="{Binding PostponeRecommendationCommand}"
-                                        Clicked="OnPostponeRecommendationClicked" />
+                                        Command="{Binding PostponeRecommendationCommand}" />
 
                             </HorizontalStackLayout>
 
