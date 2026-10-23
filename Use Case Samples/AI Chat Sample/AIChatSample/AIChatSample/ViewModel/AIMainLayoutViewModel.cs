@@ -15,7 +15,6 @@ public partial class AIMainLayoutViewModel : ObservableObject
     public CreateAgentViewModel CreateAgentVM { get; }
     public AIChatNavigationViewModel chatVM { get; }
     public AgentConfigurationViewModel AgentVM { get; }
-    public ProfileSettingsViewModel ProfileVM { get; }
     public UserProfile UserProfile { get; }
     public LibraryViewModel LibraryVM { get; }
     public ImageLibraryViewModel ImageLibraryVM { get; }
@@ -72,7 +71,6 @@ public partial class AIMainLayoutViewModel : ObservableObject
         CreateAgentVM = new CreateAgentViewModel(store);
         AgentVM = new AgentConfigurationViewModel(agentService, store);
         chatVM = new AIChatNavigationViewModel();
-        ProfileVM = new ProfileSettingsViewModel();
         UserProfile = _chatDataService?.Profile ?? new UserProfile();
         profileName = UserProfile.Name;
         profileEmail = UserProfile.Email;

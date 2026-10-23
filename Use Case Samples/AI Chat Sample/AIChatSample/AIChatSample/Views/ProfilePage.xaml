@@ -46,7 +46,7 @@
                 <Grid Padding="24,24,24,32" BackgroundColor="{AppThemeBinding Light=#FAF8FA,Dark=#313032}">
                     <VerticalStackLayout Spacing="20" HorizontalOptions="Center" MaximumWidthRequest="760" WidthRequest="{OnIdiom Default=760, Phone=-1}">
                         <Label Text="Profile" FontFamily="Roboto-Regular" FontSize="28" TextColor="{AppThemeBinding Light=#313032, Dark=#FFFFFF}" />
-                        <Label Text="Edit your account name and email. Changes update the app immediately." FontFamily="Roboto-Regular" FontSize="16" TextColor="{AppThemeBinding Light=#474648, Dark=#C9C6C8}" />
+                        <Label Text="Edit your name and email. Changes update the app immediately." FontFamily="Roboto-Regular" FontSize="16" TextColor="{AppThemeBinding Light=#474648, Dark=#C9C6C8}" />
 
                         <Border Style="{StaticResource AC_SectionCard}">
                             <VerticalStackLayout Spacing="16">
