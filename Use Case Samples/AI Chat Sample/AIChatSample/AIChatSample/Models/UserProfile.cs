@@ -5,7 +5,7 @@ namespace AIChatSample;
 
 /// <summary>
 /// App-wide shared user identity. Mutating this object notifies every
-/// observer so profile edits propagate live (FR-3.3 / NFR-3).
+/// observer so profile edits propagate live.
 /// </summary>
 public sealed class UserProfile : INotifyPropertyChanged
 {

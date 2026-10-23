@@ -57,7 +57,7 @@ internal static class ChatNavigationService
                     await currentPage.Navigation.PopToRootAsync(animated: true);
                 }
 
-                // FR-0.4: route through the shared shell view-model so a
+                // Route through the shared shell view-model so a
                 // fresh ChatSession is created and ChatSessionReplaced
                 // fires. The host page then re-binds the AIAssistView
                 // via AIChatSuggestionViewModel.LoadSession.
@@ -73,7 +73,7 @@ internal static class ChatNavigationService
                 break;
 
             case "OpenChat":
-                // FR-0.4: Tapping a recent chat in the drawer pops back
+                // Tap a recent chat in the drawer pops back
                 // to the root NewChat page and binds the chosen session
                 // into the AIAssistView via AIMainLayoutViewModel.
                 if (currentPage.Navigation.NavigationStack.Count > 1)
@@ -89,7 +89,7 @@ internal static class ChatNavigationService
                 break;
 
             case "OpenAgentChat":
-                // FR-1.5: open a new chat session bound to the tapped agent
+                // Open a new chat session bound to the tapped agent
                 // and carry the agent's Behaviour into the first response.
                 if (currentPage.Navigation.NavigationStack.Count > 1)
                 {

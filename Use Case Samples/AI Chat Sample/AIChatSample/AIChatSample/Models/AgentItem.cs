@@ -24,7 +24,7 @@ public class AgentItem : INotifyPropertyChanged
     /// <summary>Icon-glyph used when the row renders as an icon (legacy field).</summary>
     public string? Glyph { get; set; }
 
-    /// <summary>Stable id copied from <see cref="AgentConfiguration.Id"/>; lets chat sessions / nav rows bind back to the same record (FR-1.3).</summary>
+    /// <summary>Stable id copied from <see cref="AgentConfiguration.Id"/>; lets chat sessions / nav rows bind back to the same record.</summary>
     public string? Id
     {
         get => this.id;
@@ -36,7 +36,7 @@ public class AgentItem : INotifyPropertyChanged
         }
     }
 
-    /// <summary>Single-character avatar initial derived from the agent name (FR-1.3).</summary>
+    /// <summary>Single-character avatar initial derived from the agent name.</summary>
     public string? Initial
     {
         get => this.initial;
@@ -48,7 +48,7 @@ public class AgentItem : INotifyPropertyChanged
         }
     }
 
-    /// <summary>Avatar background color (hex) lifted from <see cref="AgentConfiguration.Color"/> (FR-1.3).</summary>
+    /// <summary>Avatar background color (hex) lifted from <see cref="AgentConfiguration.Color"/>.</summary>
     public Color? Color
     {
         get => this.color;
@@ -164,7 +164,7 @@ public class RecentChatItem
     /// Carries the underlying <see cref="ChatSession"/> (or its id as a
     /// string) so the host view-model can resolve the row back to a
     /// stored session. Set by <c>AIMainLayoutViewModel</c> when
-    /// materialising the Recent chats list (FR-0.4).
+    /// materialising the Recent chats list.
     /// </summary>
     public object? Tag { get; set; }
 }

@@ -188,11 +188,11 @@ public partial class AgentConfigurePageViewModel : ObservableObject
         InputText = string.Empty;
     }
 
-    // ---- Inline name-required validation (FR-1.2 / AC-1.2) ----
+    // ---- Inline name-required validation ----
     public bool HasNameValidationError => AgentVM.HasNameValidationError;
     public string NameValidationMessage => AgentVM.NameValidationMessage;
 
-    /// <summary>Called by the page when the name <c>Entry</c> gains focus; promotes the inline error (FR-1.2).</summary>
+    /// <summary>Called by the page when the name <c>Entry</c> gains focus; promotes the inline error.</summary>
     public void NotifyNameInteracted() => AgentVM.NotifyNameInteracted();
 
     /// <summary>Pre-fills the form fields from an AI-generated proposal.</summary>
