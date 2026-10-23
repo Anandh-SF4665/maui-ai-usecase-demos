@@ -25,10 +25,23 @@ public partial class SettingsPage : ContentView
                     "Cancel");
             };
 
-            // The view owns navigation — route the sign-out request through Shell.
+            // The view owns the platform actions — theme application and navigation.
+            vm.OnThemeChangeRequested -= OnThemeChangeRequested;
+            vm.OnThemeChangeRequested += OnThemeChangeRequested;
             vm.OnNavigateToWelcomeRequested -= OnNavigateToWelcome;
             vm.OnNavigateToWelcomeRequested += OnNavigateToWelcome;
         }
+    }
+
+    private void OnThemeChangeRequested()
+    {
+        if (Application.Current is not { } app) return;
+        app.UserAppTheme = (BindingContext as SettingsViewModel)?.SelectedTheme switch
+        {
+            "Light" => AppTheme.Light,
+            "Dark"  => AppTheme.Dark,
+            _       => AppTheme.Unspecified
+        };
     }
 
     private async void OnNavigateToWelcome()

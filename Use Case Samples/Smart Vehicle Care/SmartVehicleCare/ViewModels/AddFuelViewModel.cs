@@ -152,8 +152,8 @@ public class AddFuelViewModel : INotifyPropertyChanged
     public ICommand CancelCommand { get; }
     public ICommand CloseCommand  { get; }
 
-    public Action<FuelEntry>? OnFuelEntrySaved;
-    public Action? OnCloseRequested;
+    public event Action<FuelEntry>? OnFuelEntrySaved;
+    public event Action? OnCloseRequested;
 
     private void ExecuteSave()
     {

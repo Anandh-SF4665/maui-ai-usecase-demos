@@ -152,8 +152,8 @@ public class AddServiceViewModel : INotifyPropertyChanged
     public ICommand CancelCommand { get; }
     public ICommand CloseCommand  { get; }
 
-    public Action<ServiceRecord>? OnServiceSaved;
-    public Action? OnCloseRequested;
+    public event Action<ServiceRecord>? OnServiceSaved;
+    public event Action? OnCloseRequested;
 
     private void ExecuteSave()
     {

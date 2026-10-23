@@ -19,10 +19,6 @@ public class SettingsViewModel : INotifyPropertyChanged
             _              => "System default"
         };
 
-        SetLightThemeCommand  = new Command(() => ApplyTheme(AppTheme.Light));
-        SetDarkThemeCommand   = new Command(() => ApplyTheme(AppTheme.Dark));
-        SetSystemThemeCommand = new Command(() => ApplyTheme(AppTheme.Unspecified));
-
         ExitToWelcomeCommand = new Command(async () =>
         {
             // Sign out: clear only the AI credentials and return to the welcome wizard.
@@ -210,11 +206,7 @@ public class SettingsViewModel : INotifyPropertyChanged
 
     // ── Theme ─────────────────────────────────────────────────────────────────
 
-    public ICommand SetLightThemeCommand  { get; }
-    public ICommand SetDarkThemeCommand   { get; }
-    public ICommand SetSystemThemeCommand { get; }
-
-    public List<string> ThemeOptions { get; } = new() { "Light", "System Default", "Dark" };
+    public List<string> ThemeOptions { get; } = new() { "Light", "System default", "Dark" };
 
     private string _selectedTheme;
     public string SelectedTheme
@@ -223,27 +215,12 @@ public class SettingsViewModel : INotifyPropertyChanged
         set
         {
             if (SetProperty(ref _selectedTheme, value))
-                ApplyTheme(value switch
-                {
-                    "Light" => AppTheme.Light,
-                    "Dark"  => AppTheme.Dark,
-                    _       => AppTheme.Unspecified
-                });
+                OnThemeChangeRequested?.Invoke();
         }
     }
 
-    public bool IsLightActive  => Application.Current?.UserAppTheme == AppTheme.Light;
-    public bool IsDarkActive   => Application.Current?.UserAppTheme == AppTheme.Dark;
-    public bool IsSystemActive => Application.Current?.UserAppTheme == AppTheme.Unspecified;
-
-    private void ApplyTheme(AppTheme theme)
-    {
-        if (Application.Current == null) return;
-        Application.Current.UserAppTheme = theme;
-        OnPropertyChanged(nameof(IsLightActive));
-        OnPropertyChanged(nameof(IsDarkActive));
-        OnPropertyChanged(nameof(IsSystemActive));
-    }
+    /// <summary>Raised when the theme choice changes; the view applies the platform theme.</summary>
+    public event Action? OnThemeChangeRequested;
 
     // ── Vehicles ──────────────────────────────────────────────────────────────
 
