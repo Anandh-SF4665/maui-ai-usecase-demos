@@ -7,7 +7,7 @@ namespace AIChatSample;
 /// <summary>
 /// In-memory store for chat sessions and the shared <see cref="UserProfile"/>.
 /// This is the single source of truth so view-models never mutate each
-/// other's private copies (NFR-3, ARCHITECTURE §5).
+/// other's private copies.
 /// </summary>
 public interface IChatDataService
 {
@@ -25,14 +25,14 @@ public interface IChatDataService
     /// is mutated (added, removed, or re-sorted by <c>TouchSession</c>).
     /// Surfaces the underlying <see cref="ReadOnlyObservableCollection{T}.CollectionChanged"/>
     /// event so consumers can react without needing the protected
-    /// accessor. FR-0.4.
+    /// accessor.
     /// </summary>
     event NotifyCollectionChangedEventHandler? ChatSessionsChanged;
 
     /// <summary>Creates a new session optionally bound to an agent, prepends to the list, and returns it.</summary>
     ChatSession CreateChatSession(string? title = null, AgentConfiguration? agent = null);
 
-    /// <summary>Touches the session's <c>LastActiveDate</c> so the Recent list re-sorts (FR-0.4).</summary>
+    /// <summary>Touches the session's <c>LastActiveDate</c> so the Recent list re-sorts.</summary>
     void TouchSession(ChatSession session);
 
     /// <summary>Removes the session from the in-memory store. No-op if the session is null or already gone.</summary>
@@ -50,7 +50,7 @@ public sealed class ChatDataService : IChatDataService
         // Expose the underlying collection's CollectionChanged so view-
         // models can react to sort and add/remove operations. The
         // ReadOnlyObservableCollection wrapper does not surface this
-        // event publicly, so we forward it here (FR-0.4).
+        // event publicly, so we forward it here.
         _sessions.CollectionChanged += OnSessionsCollectionChanged;
     }
 
@@ -81,7 +81,7 @@ public sealed class ChatDataService : IChatDataService
         if (session is null) return;
         session.LastActiveDate = DateTime.UtcNow;
 
-        // Re-sort so "Recent" is always most-recent-first (FR-0.4).
+        // Re-sort so "Recent" is always most-recent-first.
         var ordered = _sessions.OrderByDescending(s => s.LastActiveDate).ToList();
         for (var i = 0; i < ordered.Count; i++)
         {

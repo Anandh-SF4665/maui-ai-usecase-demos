@@ -11,7 +11,7 @@ namespace AIChatSample;
 ///
 /// Endpoints, keys, and deployment names are read from environment
 /// variables (which may be supplied through user-secrets in dev) — never
-/// from source. Implements NFR-5 and NFR-8.
+/// from source.
 /// </summary>
 public sealed class AzureOpenAIService : IAIService
 {
@@ -30,7 +30,7 @@ public sealed class AzureOpenAIService : IAIService
     /// Test-friendly constructor that accepts credentials explicitly. The
     /// production host (<c>MauiProgram</c>) reads the values from the
     /// <c>AZURE_OPENAI_ENDPOINT</c> / <c>_KEY</c> / <c>_DEPLOYMENT</c>
-    /// environment variables so secrets never live in source (NFR-5).
+    /// environment variables so secrets never live in source.
     /// </summary>
     /// <param name="endpoint">Azure OpenAI endpoint URL.</param>
     /// <param name="apiKey">Azure OpenAI API key.</param>
@@ -85,7 +85,7 @@ public sealed class AzureOpenAIService : IAIService
         try
         {
             // Combine the caller's cancellation with our hard timeout so the
-            // UI never blocks indefinitely (NFR-8).
+            // UI never blocks indefinitely.
             using var cts = CancellationTokenSource.CreateLinkedTokenSource(ct);
             cts.CancelAfter(_requestTimeout);
 

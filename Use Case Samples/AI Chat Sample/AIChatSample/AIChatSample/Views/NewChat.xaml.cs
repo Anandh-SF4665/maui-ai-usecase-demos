@@ -60,7 +60,7 @@ public partial class NewChat : ContentPage
             AIChatNavigationPanel.NavigationRequested -= OnNavigationRequested;
             AIChatNavigationPanel.NavigationRequested += OnNavigationRequested;
 
-            // FR-0.4: subscribe to ChatSessionReplaced so opening a
+            // Subscribe to ChatSessionReplaced so opening a
             // recent chat from the drawer re-binds the AIAssistView to
             // the chosen session.
             _layoutVm = ServiceHelper.GetService<AIMainLayoutViewModel>();
@@ -76,7 +76,7 @@ public partial class NewChat : ContentPage
     {
         base.OnAppearing();
 
-        // FR-0.4: respect the active session chosen from the drawer.
+        // Respect the active session chosen from the drawer.
         // If the user navigated to this page by tapping a recent chat,
         // AIMainLayoutViewModel has already raised ChatSessionReplaced
         // and the bound view-model has been hydrated. We must NOT clear

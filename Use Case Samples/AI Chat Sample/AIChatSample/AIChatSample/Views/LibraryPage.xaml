@@ -77,7 +77,8 @@
                         <listView:SfListView x:Name="ImageGrid" 
                                             ItemsSource="{Binding ImageLibraryVM.ImageLibraryItems}"
                                             SelectionMode="Single" ItemSpacing="16" ItemSize="{OnIdiom Default=200,Phone=150}"
-                                            BackgroundColor="Transparent" AutoFitMode="DynamicHeight"
+                                            BackgroundColor="Transparent" AutoFitMode="DynamicHeight" HeightRequest="570"
+                                            ScrollBarVisibility="Never"
                                             SelectionChangedCommand="{Binding ImageLibraryVM.ImageSelectedCommand}"
                                             SelectionChangedCommandParameter="{Binding Source={x:Reference ImageGrid}, Path=SelectedItem}">
 

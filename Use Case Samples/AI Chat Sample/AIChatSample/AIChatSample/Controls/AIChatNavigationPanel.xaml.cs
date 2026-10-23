@@ -33,7 +33,7 @@ public partial class AIChatNavigationPanel : ContentView, INotifyPropertyChanged
     {
         // Use the shared app shell view-model registered in DI so
         // Recent chats, the user profile and the active session stay
-        // in sync with the host page (FR-0.1, FR-0.4). Fall back to a
+        // in sync with the host page. Fall back to a
         // local instance in design / preview contexts.
         BindingContext = ServiceHelper.GetService<AIMainLayoutViewModel>() ?? new AIMainLayoutViewModel();
         InitializeComponent();

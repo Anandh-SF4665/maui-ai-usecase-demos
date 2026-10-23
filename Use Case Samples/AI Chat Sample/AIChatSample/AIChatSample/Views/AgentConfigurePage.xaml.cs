@@ -136,7 +136,7 @@ public partial class AgentConfigurePage : ContentPage
 
     /// <summary>
     /// Promotes the inline name-required error as soon as the user
-    /// gives the Name field focus (FR-1.2 / AC-1.2). Without this,
+    /// gives the Name field focus. Without this,
     /// the error would only surface after a failed Create — which
     /// is fine but later than the form-validation feedback the
     /// Figma flow expects.
@@ -153,7 +153,7 @@ public partial class AgentConfigurePage : ContentPage
     /// Re-evaluates the inline name-required error when the user
     /// leaves the field. If they tabbed through and left it empty,
     /// the error now appears; if they typed something the error
-    /// stays hidden (FR-1.2 / AC-1.2).
+    /// stays hidden.
     /// </summary>
     private void OnAgentNameUnfocused(object? sender, FocusEventArgs e)
     {

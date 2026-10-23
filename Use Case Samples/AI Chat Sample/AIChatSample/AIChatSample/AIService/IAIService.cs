@@ -1,14 +1,14 @@
 namespace AIChatSample;
 
 /// <summary>
-/// Single seam between the UI and any AI provider (NFR-2).
+/// Single seam between the UI and any AI provider.
 /// </summary>
 public interface IAIService
 {
     /// <summary>
     /// Sends a user prompt to the AI provider. The optional
     /// <paramref name="systemContext"/> is used as the system prompt
-    /// (e.g. an agent's <c>Behaviour</c> — FR-0.3).
+    /// (e.g. an agent's <c>Behaviour</c>).
     /// </summary>
     /// <returns>
     /// A <see cref="ContextSuggestionResponse"/> with the assistant's
