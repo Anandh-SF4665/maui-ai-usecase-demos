@@ -51,6 +51,16 @@ To use a real Azure OpenAI deployment, set the following environment variables b
 
 **Do not commit API keys to source control.** Use environment variables, user-secrets, or your platform's secure storage.
 
+## Attachments
+
+The editor's paperclip button opens the system file picker, but for this
+showcase the **file name is inlined into the prompt as `[Attached: name]`
+text only** — no image bytes are sent to the model. The chip above the
+editor shows the picked file name and the attachment is cleared after the
+next prompt is sent. If you want to forward real attachments, replace
+`AIChatSuggestionViewModel.OnAttachFileAsync` and the inlining at the
+call site with a provider that streams the bytes to your AI service.
+
 ## Supported Platforms
 
 The harness is written for the sample's MAUI target matrix and is intended for Android and Windows validation. On Android the editor exposes a microphone affordance; the cross-platform fallback is a typed prompt, but `RECORD_AUDIO` is declared in `Platforms/Android/AndroidManifest.xml` so a real speech-to-text provider can be wired in without further manifest changes.
