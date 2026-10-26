@@ -86,7 +86,7 @@ namespace SmartDailyDecisionCompanion
 
             if (!_aiService.IsCredentialValid)
             {
-                await NotifyCredentialsInvalidAsync();
+                OnCredentialsInvalidRequested?.Invoke();
                 return;
             }
 
@@ -107,21 +107,8 @@ namespace SmartDailyDecisionCompanion
             _ = AnalyzeFocusAsync();
         }
 
-        /// <summary>
-        /// Shows the invalid-credentials alert. This runs after the awaited validation call, so
-        /// the continuation is already back on the UI thread that started InitializeAsync.
-        /// </summary>
-        private static async Task NotifyCredentialsInvalidAsync()
-        {
-            var page = Application.Current?.Windows.FirstOrDefault()?.Page;
-            if (page is null)
-                return;
-
-            await page.DisplayAlert(
-                "Alert",
-                "The Azure API key or endpoint is missing or incorrect. Please verify your credentials in Services/AzureBaseService.cs.",
-                "OK");
-        }
+        /// <summary>Raised when the credential validation fails; the view shows the alert (the ViewModel owns the intent, the view owns the platform action).</summary>
+        public event Action? OnCredentialsInvalidRequested;
 
         /// <summary>
         /// Gets a dynamic greeting based on the current time of day.
